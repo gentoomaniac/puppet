@@ -1,0 +1,6 @@
+---
+dns:
+  - 10.1.2.3
+dockerce::old_packages:
+  - paket_a
+  - paket_b
