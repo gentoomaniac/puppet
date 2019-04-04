@@ -11,5 +11,8 @@ hierarchy:
   - name: "Per-role data"
     path: "roles/%{facts.role}.yaml"
 
+  - name: "Generic host setup"
+    path: "hostbase.yaml"
+
   - name: "Common data"
     path: "common.yaml"
