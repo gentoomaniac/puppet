@@ -1,0 +1,1 @@
+puppet apply --config puppet.conf -vt --noop --modulepath=modules/ manifests/site.pp
