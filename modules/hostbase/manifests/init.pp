@@ -1,7 +1,5 @@
 class hostbase {
   $packages = ['git', 'vim-nox']
-
-  info("pod: ${facts['pod']}, role: ${facts['role']}")
   package{ $packages :
     ensure  => latest,
   }
