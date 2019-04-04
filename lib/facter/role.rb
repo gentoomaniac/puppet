@@ -1,8 +1,7 @@
-# ([a-z]+)[0-9]+, i.e. www01 or logger22 have a puppet_role of www or logger
 if Facter.value(:hostname) =~ /^(\w+)-(\w+)-([a-z]+)-?(\d+)$/
   Facter.add('pod') do
     setcode do
-      $2
+      $1
     end
   end
   Facter.add('role') do
@@ -12,7 +11,7 @@ if Facter.value(:hostname) =~ /^(\w+)-(\w+)-([a-z]+)-?(\d+)$/
   end
   Facter.add('pool') do
     setcode do
-      $2
+      $3
     end
   end
 end

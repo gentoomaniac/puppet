@@ -1,5 +1,7 @@
 class dockerce {
 
+  fail("dockerce: pod: ${facts['pod']}, role: ${facts['role']}")
+
   $old_packages = ['docker', 'docker-engine', 'docker.io', 'containerd', 'runc']
   package { $old_packages :
     ensure => absent,

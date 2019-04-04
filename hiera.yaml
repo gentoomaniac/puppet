@@ -1,0 +1,15 @@
+---
+version: 5
+defaults:  # Used for any hierarchy level that omits these keys.
+  datadir: hiera         # This path is relative to hiera.yaml's directory.
+  data_hash: yaml_data  # Use the built-in YAML backend.
+
+hierarchy:
+  - name: "Per-node data"
+    path: "fqdn/%{facts.fqdn}.yaml"
+
+  - name: "Per-role data"
+    path: "roles/%{facts.role}.yaml"
+
+  - name: "Common data"
+    path: "common.yaml"
