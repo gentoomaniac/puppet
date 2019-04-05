@@ -13,3 +13,14 @@ ressources:
         - 'MAILTO=root'
         - 'PATH="/usr/bin:/bin"'
       description: 'Run Puppet every 30 min'
+
+  file:
+    '50unattended-upgrades':
+      ensure: file
+      path: /etc/apt/apt.conf.d/50unattended-upgrades
+      source: 'puppet:///modules/hostbase/50unattended-upgrades'
+      require: Package[unattended-upgrades]
+
+  package:
+    'unattended-upgrades':
+      ensure: latest
