@@ -1,9 +1,4 @@
 class hostbase {
-  $packages = ['git', 'vim-nox']
-  package{ $packages :
-    ensure  => latest,
-  }
-
   apt::key {'gcloud-gpg-key':
     source  => 'https://packages.cloud.google.com/apt/doc/apt-key.gpg',
     id      => '54A647F9048D5688D7DA2ABE6A030B21BA07F4FB',
