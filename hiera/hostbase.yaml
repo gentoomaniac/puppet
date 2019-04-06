@@ -2,7 +2,7 @@
 ressources:
   cron::job:
     'puppet-cron':
-      command: 'puppet apply --config /home/marco/git/puppet/puppet.conf -vt /home/marco/git/puppet/manifests/site.pp'
+      command: 'puppet apply --config /home/marco/git/puppet/puppet.conf -vt -l syslog /home/marco/git/puppet/manifests/site.pp'
       minute: '*/30'
       hour: '*'
       date: '*'
