@@ -11,6 +11,10 @@
       require      => Apt::Key['puppet6-gpg-key'],
     }
 
+    package { 'puppet-agent':
+      ensure => latest,
+    }
+
     cron::job { 'puppet-cron':
       command      => 'puppet apply --config /home/marco/git/puppet/puppet.conf -vt -l syslog /home/marco/git/puppet/manifests/site.pp',
       minute       => '*/30',
@@ -21,6 +25,6 @@
       user         => 'root',
       environment  => ['MAILTO=root', 'PATH="/usr/bin:/bin"'],
       description  => 'Run Puppet every 30 min',
-      require      => Apt::Source['puppet6'],
+      require      => Package['puppet-agent'],
     }
   }

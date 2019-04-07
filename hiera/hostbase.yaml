@@ -1,17 +1,12 @@
 ---
-ressources:
-  package:
-    'mailutils':
-      ensure: latest
-    'vim-nox':
-      ensure: latest
-    'git':
-      ensure: latest
-    'python3-virtualenv':
-      ensure: latest
-    'python3-pip':
-      ensure: latest
+hostbase::packages::base_packages:
+  - mailutils
+  - vim-nox
+  - git
+  - python3-virtualenv
+  - python3-pip
 
+ressources:
   user:
     'marco':
       ensure: present
