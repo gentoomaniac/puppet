@@ -1,34 +1,15 @@
 ---
 ressources:
-  cron::job:
-    'puppet-cron':
-      command: 'puppet apply --config /home/marco/git/puppet/puppet.conf -vt -l syslog /home/marco/git/puppet/manifests/site.pp'
-      minute: '*/30'
-      hour: '*'
-      date: '*'
-      month: '*'
-      weekday: '*'
-      user: root
-      environment:
-        - 'MAILTO=root'
-        - 'PATH="/usr/bin:/bin"'
-      description: 'Run Puppet every 30 min'
-
-  file:
-    '50unattended-upgrades':
-      ensure: file
-      path: /etc/apt/apt.conf.d/50unattended-upgrades
-      source: 'puppet:///modules/hostbase/50unattended-upgrades'
-      require: Package[unattended-upgrades]
-
   package:
-    'unattended-upgrades':
-      ensure: latest
     'mailutils':
       ensure: latest
     'vim-nox':
       ensure: latest
     'git':
+      ensure: latest
+    'python3-virtualenv':
+      ensure: latest
+    'python3-pip':
       ensure: latest
 
   user:

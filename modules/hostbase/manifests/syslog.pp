@@ -21,4 +21,12 @@ class hostbase::syslog {
     enable    => true,
     hasstatus => true,
   }
+
+  file{'/usr/local/bin/syslog2elastic.py':
+    ensure    => file,
+    owner     => 'root',
+    group     => 'root',
+    mode      => '0755',
+    source    => 'puppet:///modules/hostbase/syslog2elastic.py',
+  }
 }

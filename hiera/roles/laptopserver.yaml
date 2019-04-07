@@ -1,5 +1,3 @@
 ---
 classes:
-  - dockerce
-
-test::string: 'Hello, World!'
+  - packages::dockerce

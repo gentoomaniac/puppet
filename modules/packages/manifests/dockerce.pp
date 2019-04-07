@@ -1,4 +1,4 @@
-class dockerce {
+class packages::dockerce {
   $old_packages = ['docker', 'docker-engine', 'docker.io', 'containerd', 'runc']
   package { $old_packages :
     ensure => absent,
