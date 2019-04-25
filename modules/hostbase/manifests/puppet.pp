@@ -23,7 +23,7 @@
       month        => '*',
       weekday      => '*',
       user         => 'root',
-      environment  => ['MAILTO=root', 'PATH="/usr/bin:/bin"'],
+      environment  => ['MAILTO=root', 'PATH="/usr/bin:/bin:/opt/puppetlabs/bin"'],
       description  => 'Run Puppet every 30 min',
       require      => Package['puppet-agent'],
     }
