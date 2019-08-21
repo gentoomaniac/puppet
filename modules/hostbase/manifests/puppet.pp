@@ -29,3 +29,4 @@ class hostbase::puppet {
       require  => Package['ruby-full'],
     }
   }
+}
