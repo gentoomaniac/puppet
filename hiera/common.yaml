@@ -2,4 +2,6 @@
 classes:
   - hostbase::autoupdate
   - hostbase::puppet
+  - hostbase::puppet_cron
+  - hostbase::sshd
   - hostbase::syslog

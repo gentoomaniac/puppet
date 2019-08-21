@@ -1,5 +1,5 @@
 class hostbase::puppet_cron {
-  require hostbase:puppet
+  require hostbase::puppet
 
   vcsrepo { '/var/lib/puppet-repo':
     ensure   => latest,
