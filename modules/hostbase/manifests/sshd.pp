@@ -5,7 +5,6 @@ class hostbase::sshd {
     group  => root,
     mode   => 0644,
     source => 'puppet:///modules/hostbase/sshd_config';
-    notify => Service['sshd'],
   }
 
   service { "sshd":
@@ -13,5 +12,6 @@ class hostbase::sshd {
     enable     => true,
     hasrestart => true,
     hasstatus  => true,
+    subscribe  => File['/etc/ssh/sshd_config'],
   }
 }
