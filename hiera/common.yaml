@@ -4,5 +4,4 @@ classes:
   - hostbase::puppet
   - hostbase::puppet_cron
   - hostbase::sshd
-  - hostbase::github_userkeys
   - hostbase::syslog

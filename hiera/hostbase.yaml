@@ -19,6 +19,12 @@ ressources:
         - sudo
       purge_ssh_keys: true
 
+  hostbase::github_userkeys:
+    'marco':
+      githubaccount: 'gentoomaniac'
+    'root':
+       githubaccount: 'gentoomaniac'
+
   ssh_authorized_key:
     'marco@gentoobox:marco':
       ensure: present
