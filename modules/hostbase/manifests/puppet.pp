@@ -19,8 +19,8 @@ class hostbase::puppet {
     }
 
     service { 'puppet':
-      ensure  => 'stopped'
-      enable  => false,
+      ensure  => 'stopped',
+      enable => false,
       require => Package['puppet-agent'],
     }
   }
