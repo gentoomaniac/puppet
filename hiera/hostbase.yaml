@@ -37,4 +37,5 @@ ressources:
       managehome: true
       groups:
         - sudo
+        - adm
       purge_ssh_keys: true
