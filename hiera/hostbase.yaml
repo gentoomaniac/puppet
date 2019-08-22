@@ -1,4 +1,12 @@
 ---
+classes:
+  - hostbase::autoupdate
+  - hostbase::puppet
+  - hostbase::puppet_cron
+  - hostbase::sshd
+  - hostbase::syslog
+  - hostbase::github_userkeys
+
 hostbase::packages::base_packages:
   - mailutils
   - vim-nox
