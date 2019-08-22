@@ -5,7 +5,7 @@ class hostbase::github_userkeys {
     group     => 'root',
     mode      => '0755',
   }
-  hiera_hash('github_userkeys').each |String $localuser, String $githubaccount| {
+  lookup('github_userkeys').each |String $localuser, String $githubaccount| {
     file { "/etc/userkeys/${localuser}":
       ensure  => directory,
       owner   => root,
