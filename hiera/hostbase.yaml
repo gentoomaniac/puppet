@@ -7,15 +7,15 @@ hostbase::packages::base_packages:
   - python3-pip
 
 github_userkeys:
-  'marco': gentoomaniac
-  'root': gentoomaniac
+  "marco": gentoomaniac
+  "root": gentoomaniac
 
 ressources:
   user:
-    'ubuntu':
+    "ubuntu":
       ensure: absent
-      notify: User[marco]
-    'marco':
+      before: User[marco]
+    "marco":
       ensure: present
       uid: 1000
       gid: 1000
