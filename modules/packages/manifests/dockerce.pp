@@ -1,9 +1,4 @@
 class packages::dockerce {
-  $old_packages = ['docker', 'docker-engine', 'docker.io', 'containerd', 'runc']
-  package { $old_packages :
-    ensure => absent,
-  }
-
   $dependencies = ['apt-transport-https', 'ca-certificates', 'curl', 'gnupg-agent', 'software-properties-common']
   package { $dependencies :
     ensure => latest,
@@ -27,6 +22,7 @@ class packages::dockerce {
   $new_packages = ['docker-ce', 'docker-ce-cli', 'containerd.io']
   package { $new_packages :
     ensure  => latest,
-    require => [ Apt::Source['docker-ce'], Package[$old_packages] ],
+    require => Apt::Source['docker-ce'],
+
   }
 }
