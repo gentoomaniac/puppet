@@ -6,6 +6,9 @@ classes:
   - hostbase::sshd
   - hostbase::syslog
   - hostbase::github_userkeys
+  - hostbase::dotfiles
+  - timezone
+
 
 hostbase::packages::base_packages:
   - mailutils
@@ -18,6 +21,8 @@ hostbase::packages::base_packages:
 github_userkeys:
   "marco": gentoomaniac
   "root": gentoomaniac
+
+timezone::timezone: Etc/UTC
 
 ressources:
   group:
