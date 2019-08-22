@@ -20,6 +20,9 @@ github_userkeys:
   "root": gentoomaniac
 
 ressources:
+  timezone:
+    timezone: UTC
+
   group:
     "marco":
       ensure: present
