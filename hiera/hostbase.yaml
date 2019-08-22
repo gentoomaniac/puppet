@@ -6,6 +6,10 @@ hostbase::packages::base_packages:
   - python3-virtualenv
   - python3-pip
 
+github_userkeys:
+  'marco': gentoomaniac
+  'root': gentoomaniac
+
 ressources:
   user:
     'marco':
@@ -18,12 +22,6 @@ ressources:
       groups:
         - sudo
       purge_ssh_keys: true
-
-  hostbase::github_userkeys:
-    'marco':
-      githubaccount: 'gentoomaniac'
-    'root':
-       githubaccount: 'gentoomaniac'
 
   ssh_authorized_key:
     'marco@gentoobox:marco':
