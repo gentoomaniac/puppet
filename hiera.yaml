@@ -1,8 +1,8 @@
 ---
 version: 5
-defaults:  # Used for any hierarchy level that omits these keys.
-  datadir: hiera         # This path is relative to hiera.yaml's directory.
-  data_hash: yaml_data  # Use the built-in YAML backend.
+defaults: # Used for any hierarchy level that omits these keys.
+  datadir: hiera # This path is relative to hiera.yaml's directory.
+  data_hash: yaml_data # Use the built-in YAML backend.
 
 hierarchy:
   - name: "Per-node data"
@@ -13,6 +13,3 @@ hierarchy:
 
   - name: "Generic host setup"
     path: "hostbase.yaml"
-
-  - name: "Common data"
-    path: "common.yaml"

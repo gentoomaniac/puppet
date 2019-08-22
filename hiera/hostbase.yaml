@@ -1,4 +1,12 @@
 ---
+classes:
+  - hostbase::autoupdate
+  - hostbase::puppet
+  - hostbase::puppet_cron
+  - hostbase::sshd
+  - hostbase::syslog
+  - hostbase::github_userkeys
+
 hostbase::packages::base_packages:
   - mailutils
   - vim-nox
@@ -11,6 +19,11 @@ github_userkeys:
   "root": gentoomaniac
 
 ressources:
+  group:
+    "marco":
+      ensure: present
+      gid: 1000
+      before: User[marco]
   user:
     "ubuntu":
       ensure: absent
@@ -18,7 +31,7 @@ ressources:
     "marco":
       ensure: present
       uid: 1000
-      gid: 1000
+      gid: marco
       home: /home/marco
       shell: /bin/bash
       managehome: true
