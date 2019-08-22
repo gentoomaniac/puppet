@@ -60,4 +60,17 @@ class hostbase::dotfiles
     group   => 'marco',
     require => Vcsrepo['/home/marco/.dotfiles'],
   }
+  file { '/home/marco/.ssh':
+    ensure => directory,
+    owner  => marco,
+    group  => marco,
+    mode   => '0700',
+  }
+  file { '/home/marco/.ssh/environment':
+    ensure  => directory,
+    owner   => marco,
+    group   => marco,
+    mode    => '0700',
+    require => File['/home/marco/.ssh'],
+  }
 }
