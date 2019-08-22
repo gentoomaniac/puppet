@@ -1,9 +1,9 @@
 class hostbase::github_userkeys {
   file{ '/etc/userkeys':
-    ensure    => directory,
-    owner     => 'root',
-    group     => 'root',
-    mode      => '0755',
+    ensure => directory,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
   }
   lookup('github_userkeys').each |String $localuser, String $githubaccount| {
     file { "/etc/userkeys/${localuser}":

@@ -7,7 +7,7 @@ class hostbase::sshd {
     source => 'puppet:///modules/hostbase/sshd_config';
   }
 
-  service { "sshd":
+  service { 'sshd':
     ensure     => running,
     enable     => true,
     hasrestart => true,

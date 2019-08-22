@@ -1,7 +1,7 @@
 class hostbase::syslog {
   package { 'rsyslog-pkg':
-    name   => 'rsyslog',
     ensure => latest,
+    name   => 'rsyslog',
   }
 
   if $facts['os']['name'] == 'Ubuntu' {
@@ -16,17 +16,17 @@ class hostbase::syslog {
   }
 
   service{'rsyslog-svc':
-    name      => 'rsyslog',
     ensure    => running,
+    name      => 'rsyslog',
     enable    => true,
     hasstatus => true,
   }
 
   file{'/usr/local/bin/syslog2elastic.py':
-    ensure    => file,
-    owner     => 'root',
-    group     => 'root',
-    mode      => '0755',
-    source    => 'puppet:///modules/hostbase/syslog2elastic.py',
+    ensure => file,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
+    source => 'puppet:///modules/hostbase/syslog2elastic.py',
   }
 }
