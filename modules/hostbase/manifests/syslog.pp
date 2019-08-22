@@ -9,7 +9,7 @@ class hostbase::syslog {
       ensure  => present,
       path    => '/etc/rsyslog.conf',
       line    => 'ActionFileDefaultTemplate RSYSLOG_FileFormat',
-      match   => '^#?ActionFileDefaultTemplate .*$',
+      match   => '^.*ActionFileDefaultTemplate .*$',
       require => Package['rsyslog-pkg'],
       notify  => Service['rsyslog-svc'],
     }
