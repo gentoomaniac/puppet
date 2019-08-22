@@ -6,6 +6,7 @@ classes:
   - hostbase::sshd
   - hostbase::syslog
   - hostbase::github_userkeys
+  - hostbase::dotfiles
   - timezone
 
 
@@ -21,7 +22,7 @@ github_userkeys:
   "marco": gentoomaniac
   "root": gentoomaniac
 
-timezone::timezone: UTC
+timezone::timezone: Etc/UTC
 
 ressources:
   group:
