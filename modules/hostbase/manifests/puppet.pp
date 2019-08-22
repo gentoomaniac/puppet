@@ -17,6 +17,12 @@ class hostbase::puppet {
       ensure  => latest,
       require => Apt::Source['puppet6'],
     }
+
+    service { 'puppet':
+      ensure  => 'stopped'
+      enable  => false,
+      require => Package['puppet-agent'],
+    }
   }
   elsif $facts['os']['architecture'] == 'aarm64' {
     package{ 'ruby-full':
@@ -24,9 +30,10 @@ class hostbase::puppet {
     }
 
     package{ 'puppet':
-      provider => 'puppet_gem',
       ensure   => 'latest',
+      provider => 'puppet_gem',
       require  => Package['ruby-full'],
     }
   }
+
 }
