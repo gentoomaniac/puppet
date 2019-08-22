@@ -1,15 +1,14 @@
 class hostbase::puppet_cron {
   require hostbase::puppet
 
-  vcsrepo { '/var/lib/puppet-repo':
-    ensure   => latest,
-    provider => git,
-    source   => 'https://github.com/gentoomaniac/puppet.git',
-    revision => $facts['puppet_branch'],
+  file { '/usr/local/bin/run-puppet':
+    ensure => 'present',
+    mode   => '0744',
+    source => 'puppet:///modules/hostbase/run-puppet.sh',
   }
 
   cron::job { 'puppet-cron':
-    command     => 'puppet apply --config /var/lib/puppet-repo/puppet.conf -vt -l syslog /var/lib/puppet-repo/manifests/site.pp',
+    command     => '/usr/local/bin/run-puppet',
     minute      => '*/30',
     hour        => '*',
     date        => '*',
@@ -18,6 +17,6 @@ class hostbase::puppet_cron {
     user        => 'root',
     environment => ['MAILTO=root', 'PATH="/usr/bin:/bin:/opt/puppetlabs/bin"'],
     description => 'Run Puppet every 30 min',
-    require     => Vcsrepo['/var/lib/puppet-repo'],
+    require     => File['/usr/local/bin/run-puppet'],
   }
 }
