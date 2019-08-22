@@ -13,6 +13,7 @@ hostbase::packages::base_packages:
   - git
   - python3-virtualenv
   - python3-pip
+  - hwinfo
 
 github_userkeys:
   "marco": gentoomaniac
