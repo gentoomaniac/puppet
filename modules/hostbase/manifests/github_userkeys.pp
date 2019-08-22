@@ -1,10 +1,11 @@
 class hostbase::github_userkeys {
   hiera_hash('github_userkeys').each |String $localuser, String $githubaccount| {
     file { "/etc/userkeys/${localuser}":
-      ensure => directory,
-      owner  => root,
-      group  => root,
-      mode   => '0755',
+      ensure  => directory,
+      owner   => root,
+      group   => root,
+      mode    => '0755',
+      recurse => true,
     }
     file { "/etc/userkeys/${localuser}/authorized_keys":
       ensure => file,
