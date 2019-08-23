@@ -1,0 +1,28 @@
+# THIS FILE IS CONTROLLED BY PUPPET
+# Changes to this file will be overwritten!
+
+acl "trusted" {
+  <% dnsmaster::trusted.each do |trust| -%>
+    <%= $trust %>;
+  <% end -%>
+};
+
+options {
+  directory "/var/cache/bind";
+
+  recursion yes;
+  allow-recursion { trusted; };
+  listen-on { 0.0.0.0; };
+  allow-transfer { none; };
+
+  forwarders {
+    <% dnsmaster::forwarders.each do |forwarder| -%>
+      <%= $forwarder %>;
+    <% end -%>
+  };
+
+  dnssec-validation auto;
+
+  auth-nxdomain no;    # conform to RFC1035
+  listen-on-v6 { any; };
+};

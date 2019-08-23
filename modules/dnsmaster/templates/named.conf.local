@@ -1,0 +1,11 @@
+// THIS FILE IS CONTROLLED BY PUPPET
+// Changes to this file will be overwritten!
+
+zone "infra.siebeke.se" {
+    type master;
+    file "/var/lib/dnsdata/zones/infra.siebecke.se.db";
+};
+zone "1.1.10.in-addr.arpa" {
+    type master;
+    file "/var/lib/dnsdata/zones/10.1.1.db";
+};
