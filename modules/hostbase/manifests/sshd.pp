@@ -4,7 +4,7 @@ class hostbase::sshd {
     owner  => root,
     group  => root,
     mode   => '0644',
-    source => 'puppet:///modules/hostbase/sshd_config';
+    source => 'puppet:///modules/hostbase/sshd_config',
   }
 
   service { 'sshd':
