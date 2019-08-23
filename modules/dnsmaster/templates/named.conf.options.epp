@@ -1,10 +1,13 @@
+<%- | Array $cidrs,
+      Array $forwarders
+| -%>
 # THIS FILE IS CONTROLLED BY PUPPET
 # Changes to this file will be overwritten!
 
 acl "trusted" {
-  <% dnsmaster::trusted.each do |trust| -%>
-    <%= $trust %>;
-  <% end -%>
+  <%- $cidrs.each |$cidr| { -%>
+    <%= $cidr %>;
+  <%- } -%>
 };
 
 options {
@@ -12,13 +15,13 @@ options {
 
   recursion yes;
   allow-recursion { trusted; };
-  listen-on { 0.0.0.0; };
+  listen-on { any; };
   allow-transfer { none; };
 
   forwarders {
-    <% dnsmaster::forwarders.each do |forwarder| -%>
+    <%- $forwarders.each |$forwarder| { -%>
       <%= $forwarder %>;
-    <% end -%>
+    <%- } -%>
   };
 
   dnssec-validation auto;

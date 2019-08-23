@@ -1,7 +1,10 @@
 # Class: dnsmaster
 #
 #
-class dnsmaster {
+class dnsmaster (
+  $trusted_cidr,
+  $forwarders,
+) {
   $bind_packages = ['bind9', 'bind9utils', 'bind9-doc']
 
   package { $bind_packages :
@@ -21,11 +24,14 @@ class dnsmaster {
     source => 'puppet:///modules/dnsmaster/named.conf.local',
     notify => Service['bind9'],
   }
-  file { '/etc/default/bind9':
+  file { '/etc/bind/named.conf.options':
     ensure => file,
     owner  => 'root',
     group  => 'bind',
-    source => template('dnsmaster/named.conf.options.epp'),
+    source => template('dnsmaster/named.conf.options.epp', {
+      cidrs      => $trusted_cidr,
+      forwarders => $forwarders,
+    }),
     notify => Service['bind9'],
   }
   service { 'bind9':

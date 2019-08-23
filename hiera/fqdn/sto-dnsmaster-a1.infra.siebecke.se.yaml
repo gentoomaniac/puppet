@@ -3,6 +3,7 @@ classes:
   - dnsmaster
   - hostbase::raspberrypi
   - netplan
+
 netplan::version: 2
 netplan::renderer: networkd
 netplan::ethernets:
@@ -17,3 +18,11 @@ netplan::ethernets:
       - to: 0.0.0.0/0
         via: 10.1.1.1
         metric: 10
+
+dnsmaster::forwarders:
+  - 8.8.8.8
+  - 8.8.4.4
+  - 1.1.1.1
+
+dnsmaster::trusted_cidr:
+  - 10.1.1.0/24
