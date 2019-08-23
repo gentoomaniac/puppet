@@ -55,7 +55,7 @@ class hostbase::dotfiles
   }
   file { '/home/marco/.bash_completion.d':
     ensure  => link,
-    target  => '/home/marco/.dotfiles/.bashcompletion.d',
+    target  => '/home/marco/.dotfiles/.bash_completion.d',
     owner   => 'marco',
     group   => 'marco',
     require => Vcsrepo['/home/marco/.dotfiles'],
