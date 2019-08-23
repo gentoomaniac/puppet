@@ -9,15 +9,29 @@ class dnsmaster {
   }
 
   file { '/etc/default/bind9':
+    ensure  => file,
+    source  => 'puppet:///modules/dnsmaster/defaults',
+    notify  => Service['bind9'],
+    require => Package[$bind_packages],
+  }
+  file { '/etc/bind/named.conf.local':
     ensure => file,
-    source => 'puppet:///modules/dnsmaster/defaults',
+    owner  => 'root',
+    group  => 'bind',
+    source => 'puppet:///modules/dnsmaster/named.conf.local',
     notify => Service['bind9'],
   }
-
+  file { '/etc/default/bind9':
+    ensure => file,
+    owner  => 'root',
+    group  => 'bind',
+    source => template('dnsmaster/named.conf.options.epp'),
+    notify => Service['bind9'],
+  }
   service { 'bind9':
     ensure  => running,
     enable  => true,
-    require => Package[$bind_packages],
+    require => [Package[$bind_packages], Vcsrepo['/var/lib/dnsdata']],
   }
 
   vcsrepo { '/var/lib/dnsdata':
@@ -25,6 +39,12 @@ class dnsmaster {
     provider => git,
     source   => 'https://github.com/gentoomaniac/dnsdata.git',
     revision => 'master',
-    notify   => Service['bind9'],
+    notify   => [Service['bind9'], File['/var/lib/dnsdata']],
+  }
+  file { '/home/marco/.dotfiles':
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'bind',
+    recurse => true,
   }
 }
