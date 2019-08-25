@@ -9,6 +9,7 @@ classes:
   - hostbase::dotfiles
   - timezone
 
+hostbase::puppet::version: 6.8.0
 
 hostbase::packages::base_packages:
   - mailutils
