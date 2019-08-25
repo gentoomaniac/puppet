@@ -33,7 +33,7 @@ class hostbase::puppet (
 
     package{ 'puppet':
       ensure   => $version,
-      provider => 'puppet_gem',
+      provider => 'gem',
       require  => Package['ruby-full'],
     }
   }
