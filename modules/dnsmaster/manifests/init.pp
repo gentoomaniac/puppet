@@ -45,12 +45,10 @@ class dnsmaster (
     provider => git,
     source   => 'https://github.com/gentoomaniac/dnsdata.git',
     revision => 'master',
-    notify   => [Service['bind9'], File['/var/lib/dnsdata']],
+    notify   => [Service['bind9'], Exec['dnsdata-permissions']],
   }
-  file { '/home/marco/.dotfiles':
-    ensure  => directory,
-    owner   => 'root',
-    group   => 'bind',
-    recurse => true,
+  exec { 'dnsdata-permissions':
+    command     => 'chown -r root.bind /var/lib/dnsdata',
+    refreshonly => true,
   }
 }
