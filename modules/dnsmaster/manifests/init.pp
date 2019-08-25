@@ -48,7 +48,7 @@ class dnsmaster (
     notify   => [Service['bind9'], Exec['dnsdata-permissions']],
   }
   exec { 'dnsdata-permissions':
-    command     => 'chown -r root.bind /var/lib/dnsdata',
+    command     => '/bin/chown -r root.bind /var/lib/dnsdata',
     refreshonly => true,
   }
 }

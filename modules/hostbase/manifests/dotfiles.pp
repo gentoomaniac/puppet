@@ -12,7 +12,7 @@ class hostbase::dotfiles
     notify   => Exec['.vim-permissions'],
   }
   exec { '.vim-permissions':
-    command     => 'chown -r marco.marco /home/marco/.vim',
+    command     => '/bin/chown -r marco.marco /home/marco/.vim',
     refreshonly => true,
   }
   file { '/home/marco/.vimrc':
@@ -32,7 +32,7 @@ class hostbase::dotfiles
     notify   => Exec['.dotfiles-permissions'],
   }
   exec { '.dotfiles-permissions':
-    command     => 'chown -r marco.marco /home/marco/.dotfiles',
+    command     => '/bin/chown -r marco.marco /home/marco/.dotfiles',
     refreshonly => true,
   }
   file { '/home/marco/.bashrc':
