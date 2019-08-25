@@ -25,14 +25,14 @@ class dnsmaster (
     notify => Service['bind9'],
   }
   file { '/etc/bind/named.conf.options':
-    ensure => file,
-    owner  => 'root',
-    group  => 'bind',
-    source => epp('dnsmaster/named.conf.options.epp', {
+    ensure  => file,
+    owner   => 'root',
+    group   => 'bind',
+    content => epp('dnsmaster/named.conf.options.epp', {
       cidrs      => $trusted_cidr,
       forwarders => $forwarders,
     }),
-    notify => Service['bind9'],
+    notify  => Service['bind9'],
   }
   service { 'bind9':
     ensure  => running,
