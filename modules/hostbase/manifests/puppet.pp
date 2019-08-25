@@ -26,7 +26,7 @@ class hostbase::puppet (
       require => Package['puppet-agent'],
     }
   }
-  elsif $facts['os']['architecture'] == 'aarm64' {
+  elsif $facts['os']['architecture'] == 'aarch64' {
     package{ 'ruby-full':
       ensure => latest,
     }
