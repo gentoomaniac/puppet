@@ -28,7 +28,7 @@ class dnsmaster (
     ensure => file,
     owner  => 'root',
     group  => 'bind',
-    source => template('dnsmaster/named.conf.options.epp', {
+    source => epp('dnsmaster/named.conf.options.epp', {
       cidrs      => $trusted_cidr,
       forwarders => $forwarders,
     }),
