@@ -25,14 +25,14 @@ class dnsmaster (
     notify => Service['bind9'],
   }
   file { '/etc/bind/named.conf.options':
-    ensure => file,
-    owner  => 'root',
-    group  => 'bind',
-    source => template('dnsmaster/named.conf.options.epp', {
+    ensure  => file,
+    owner   => 'root',
+    group   => 'bind',
+    content => epp('dnsmaster/named.conf.options.epp', {
       cidrs      => $trusted_cidr,
       forwarders => $forwarders,
     }),
-    notify => Service['bind9'],
+    notify  => Service['bind9'],
   }
   service { 'bind9':
     ensure  => running,
@@ -45,12 +45,10 @@ class dnsmaster (
     provider => git,
     source   => 'https://github.com/gentoomaniac/dnsdata.git',
     revision => 'master',
-    notify   => [Service['bind9'], File['/var/lib/dnsdata']],
+    notify   => [Service['bind9'], Exec['dnsdata-permissions']],
   }
-  file { '/home/marco/.dotfiles':
-    ensure  => directory,
-    owner   => 'root',
-    group   => 'bind',
-    recurse => true,
+  exec { 'dnsdata-permissions':
+    command     => '/bin/chown -R root.bind /var/lib/dnsdata',
+    refreshonly => true,
   }
 }

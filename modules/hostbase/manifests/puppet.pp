@@ -1,4 +1,6 @@
-class hostbase::puppet {
+class hostbase::puppet (
+  $version = latest,
+) {
 
   if $facts['os']['architecture'] == 'amd64' {
     apt::key {'puppet6-gpg-key':
@@ -14,7 +16,7 @@ class hostbase::puppet {
     }
 
     package { 'puppet-agent':
-      ensure  => latest,
+      ensure  => $version,
       require => Apt::Source['puppet6'],
     }
 
@@ -24,16 +26,15 @@ class hostbase::puppet {
       require => Package['puppet-agent'],
     }
   }
-  elsif $facts['os']['architecture'] == 'aarm64' {
+  elsif $facts['os']['architecture'] == 'aarch64' {
     package{ 'ruby-full':
       ensure => latest,
     }
 
     package{ 'puppet':
-      ensure   => 'latest',
-      provider => 'puppet_gem',
+      ensure   => $version,
+      provider => 'gem',
       require  => Package['ruby-full'],
     }
   }
-
 }
