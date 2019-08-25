@@ -2,20 +2,18 @@
 #
 #
 class hostbase::dotfiles
- {
+{
   vcsrepo { '/home/marco/.vim':
     ensure   => latest,
     provider => git,
     source   => 'https://github.com/gentoomaniac/vim-config.git',
     revision => 'master',
     require  => User['marco'],
+    notify   => Exec['.vim-permissions'],
   }
-  file { '/home/marco/.vim':
-    ensure  => directory,
-    owner   => 'marco',
-    group   => 'marco',
-    recurse => true,
-    require => Vcsrepo['/home/marco/.vim'],
+  exec { '.vim-permissions':
+    command     => 'chown -r marco.marco /home/marco/.vim',
+    refreshonly => true,
   }
   file { '/home/marco/.vimrc':
     ensure  => link,
@@ -31,13 +29,11 @@ class hostbase::dotfiles
     source   => 'https://github.com/gentoomaniac/dotfiles.git',
     revision => 'master',
     require  => User['marco'],
+    notify   => Exec['.dotfiles-permissions'],
   }
-  file { '/home/marco/.dotfiles':
-    ensure  => directory,
-    owner   => 'marco',
-    group   => 'marco',
-    recurse => true,
-    require => Vcsrepo['/home/marco/.dotfiles'],
+  exec { '.dotfiles-permissions':
+    command     => 'chown -r marco.marco /home/marco/.dotfiles',
+    refreshonly => true,
   }
   file { '/home/marco/.bashrc':
     ensure  => link,
