@@ -16,7 +16,7 @@ class hostbase::puppet (
     }
 
     package { 'puppet-agent':
-      ensure  => $version,
+      ensure  => "${version}-1bionic",
       require => Apt::Source['puppet6'],
     }
 
