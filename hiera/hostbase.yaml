@@ -46,3 +46,9 @@ ressources:
         - sudo
         - adm
       purge_ssh_keys: true
+  file:
+    "/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg":
+      ensure: file
+      content: "network: {config: disabled}"
+    "/etc/cloud/cloud-init.disabled":
+      ensure: file
