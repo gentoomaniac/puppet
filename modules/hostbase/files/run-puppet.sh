@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-sleep $((1 + RANDOM % 360))
+if [ "$1" != "now" ]; then
+    sleep $((1 + RANDOM % 360))
+fi
 
 PATH=${PATH}:/usr/local/bin/puppet:/opt/puppetlabs/bin
 
