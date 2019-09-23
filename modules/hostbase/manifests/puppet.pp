@@ -4,7 +4,7 @@ class hostbase::puppet (
 
   if $facts['os']['architecture'] == 'amd64' {
     apt::key {'puppet6-gpg-key':
-      id     => '7F438280EF8D349F',
+      id     => '6F6B15509CF8E59E6E469F327F438280EF8D349F',
       server => 'keyserver.ubuntu.com',
     }
 
