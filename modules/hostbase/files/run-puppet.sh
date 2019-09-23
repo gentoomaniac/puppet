@@ -2,6 +2,7 @@
 
 sleep $((1 + RANDOM % 360))
 
+PATH=${PATH}:/usr/local/bin/puppet:/opt/puppetlabs/bin
 
 PUPPET_GIT_PATH=/var/lib/puppet-repo
 PUPPET_GIT_BRANCH=$(head -1 /etc/puppet_branch)
@@ -15,4 +16,4 @@ else
     logger -s "failed to clone puppet git repo"
 fi
 
-puppet apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vt -l syslog "${PUPPET_GIT_PATH}/manifests/site.pp"
+puppet apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt -l syslog "${PUPPET_GIT_PATH}/manifests/site.pp"
