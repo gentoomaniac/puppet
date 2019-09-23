@@ -23,7 +23,6 @@ options {
       <%= $forwarder %>;
     <%- } -%>
   };
-  forward first;
 
   dnssec-enable yes;
   dnssec-validation yes;
