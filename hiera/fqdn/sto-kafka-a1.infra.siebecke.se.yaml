@@ -1,0 +1,37 @@
+---
+classes:
+  - lvm
+  - netplan
+
+ressources:
+  file:
+    "/kafka":
+      ensure: directory
+      before: Lvm::Logical_volume[kafka]
+
+netplan::version: 2
+netplan::renderer: networkd
+netplan::ethernets:
+  eth0:
+    dhcp4: no
+    addresses:
+      - 10.1.1.50/24
+    nameservers:
+      search: [infra.siebecke.se]
+      addresses: [10.1.1.4, 8.8.8.8, 4.4.4.4]
+    routes:
+      - to: 0.0.0.0/0
+        via: 10.1.1.1
+        metric: 10
+
+lvm::volume_groups:
+  ubuntu-vg:
+    createonly: true
+    physical_volumes:
+      - /dev/sda3
+    logical_volumes:
+      kafka:
+        size: 400G
+        fs_type: ext4
+        mountpath: /kafka
+        mountpath_require: true
