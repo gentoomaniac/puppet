@@ -1,12 +1,13 @@
 ---
 classes:
   - hostbase::autoupdate
+  - hostbase::dotfiles
+  - hostbase::github_userkeys
+  - hostbase::hosts
   - hostbase::puppet
   - hostbase::puppet_cron
   - hostbase::sshd
   - hostbase::syslog
-  - hostbase::github_userkeys
-  - hostbase::dotfiles
   - timezone
 
 hostbase::puppet::version: 6.9.0
