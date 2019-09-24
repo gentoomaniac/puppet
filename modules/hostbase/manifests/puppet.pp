@@ -27,14 +27,20 @@ class hostbase::puppet (
     }
   }
   elsif $facts['os']['architecture'] == 'aarch64' {
-    package{ 'ruby-full':
+    $aarch64_packages = ['ruby-full', 'facter']
+    package{ $aarch64_packages :
       ensure => latest,
+    }
+
+    file { '/usr/local/bin/facter':
+      ensure => 'link',
+      target => '/usr/bin/facter',
     }
 
     package{ 'puppet':
       ensure   => $version,
       provider => 'gem',
-      require  => Package['ruby-full'],
+      require  => [Package[$aarch64_packages], File['/usr/local/bin/facter']],
     }
   }
 }

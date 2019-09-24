@@ -1,6 +1,6 @@
 class hostbase::hosts{
-  host { $::server_facts['servername']:
+  host { $::facts['networking']['fqdn']:
     ensure => present,
-    ip     => $::server_factsp['serverip'],
+    ip     => $::facts['networking']['ip'],
   }
 }
