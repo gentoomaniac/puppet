@@ -1,5 +1,6 @@
 class hostbase::puppet (
   $version = latest,
+  $aarch64_facter_version = '3.12.2.cfacter.20181217',
 ) {
 
   if $facts['os']['architecture'] == 'amd64' {
@@ -15,9 +16,13 @@ class hostbase::puppet (
       require  => Apt::Key['puppet6-gpg-key'],
     }
 
+    package { 'puppet':
+      ensure => absent,
+    }
+
     package { 'puppet-agent':
       ensure  => "${version}-1bionic",
-      require => Apt::Source['puppet6'],
+      require => [Apt::Source['puppet6'],Package['puppet']],
     }
 
     service { 'puppet':
@@ -27,20 +32,20 @@ class hostbase::puppet (
     }
   }
   elsif $facts['os']['architecture'] == 'aarch64' {
-    $aarch64_packages = ['ruby-full', 'facter']
-    package{ $aarch64_packages :
+    $dependencies = ['ruby-full', 'build-essentials', 'libboost-all-dev', 'libyaml-cpp-dev']
+    package{ $dependencies :
       ensure => latest,
     }
 
-    file { '/usr/local/bin/facter':
-      ensure => 'link',
-      target => '/usr/bin/facter',
+    package{ 'facter':
+      ensure   => $aarch64_facter_version,
+      provider => 'gem',
+      require  => Package[$dependencies],
     }
-
     package{ 'puppet':
       ensure   => $version,
       provider => 'gem',
-      require  => [Package[$aarch64_packages], File['/usr/local/bin/facter']],
+      require  => [Package[$dependencies], Package['facter']],
     }
   }
 }
