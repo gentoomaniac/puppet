@@ -1,9 +1,13 @@
 // THIS FILE IS CONTROLLED BY PUPPET
 // Changes to this file will be overwritten!
 
-zone "infra.siebeke.se" {
+zone "sto.gentoomaniac.net" {
     type master;
-    file "/var/lib/dnsdata/zones/infra.siebecke.se.db";
+    file "/var/lib/dnsdata/zones/sto.gentoomaniac.net.db";
+};
+zone "srv.gentoomaniac.net" {
+    type master;
+    file "/var/lib/dnsdata/zones/srv.gentoomaniac.net";
 };
 zone "1.1.10.in-addr.arpa" {
     type master;
