@@ -1,6 +1,5 @@
 ---
 classes:
-  - hostbase::raspberrypi
   - netplan
 
 netplan::version: 2
@@ -9,7 +8,7 @@ netplan::ethernets:
   eth0:
     dhcp4: no
     addresses:
-      - 10.1.1.4/24
+      - 10.1.1.51/24
     nameservers:
       search: [infra.siebecke.se]
       addresses: [8.8.8.8, 4.4.4.4]

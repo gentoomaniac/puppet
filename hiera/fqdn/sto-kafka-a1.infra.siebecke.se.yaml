@@ -8,6 +8,9 @@ ressources:
     "/kafka":
       ensure: directory
       before: Lvm::Logical_volume[kafka]
+  package:
+    "zookeeper":
+      ensure: 3.4.10-3
 
 netplan::version: 2
 netplan::renderer: networkd
