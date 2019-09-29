@@ -11,6 +11,19 @@ class dnsmaster (
     ensure => latest,
   }
 
+  file_line { 'named_apparmor_dnsdata':
+    ensure  => present,
+    line    => '  /var/log/named/** rw,',
+    before  => '^}$',
+    require => Package[$bind_packages],
+    notify  => Service['apparmor']
+  }
+
+  service { 'apparmor':
+    ensure => running,
+    enable => true,
+  }
+
   file { '/etc/default/bind9':
     ensure  => file,
     source  => 'puppet:///modules/dnsmaster/defaults',
