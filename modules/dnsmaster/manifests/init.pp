@@ -17,7 +17,7 @@ class dnsmaster (
     line    => '  /var/lib/dnsdata/** r,',
     after   => '.*#include <local/usr.sbin.named>',
     require => Package[$bind_packages],
-    notify  => Service['apparmor']
+    notify  => [Service['apparmor'], Service['bind9']]
   }
 
   service { 'apparmor':
@@ -31,12 +31,21 @@ class dnsmaster (
     notify  => Service['bind9'],
     require => Package[$bind_packages],
   }
+  file { '/etc/bind/named.conf.logging':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'bind',
+    source  => 'puppet:///modules/dnsmaster/named.conf.logging',
+    require => Package[$bind_packages],
+    notify  => Service['bind9'],
+  }
   file { '/etc/bind/named.conf.local':
-    ensure => file,
-    owner  => 'root',
-    group  => 'bind',
-    source => 'puppet:///modules/dnsmaster/named.conf.local',
-    notify => Service['bind9'],
+    ensure  => file,
+    owner   => 'root',
+    group   => 'bind',
+    source  => 'puppet:///modules/dnsmaster/named.conf.local',
+    require => Package[$bind_packages],
+    notify  => Service['bind9'],
   }
   file { '/etc/bind/named.conf.options':
     ensure  => file,
