@@ -7,7 +7,7 @@ zone "sto.gentoomaniac.net" {
 };
 zone "srv.gentoomaniac.net" {
     type master;
-    file "/var/lib/dnsdata/zones/srv.gentoomaniac.net";
+    file "/var/lib/dnsdata/zones/srv.gentoomaniac.net.db";
 };
 zone "1.1.10.in-addr.arpa" {
     type master;
