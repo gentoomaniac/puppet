@@ -14,7 +14,7 @@ class dnsmaster (
   file_line { 'named_apparmor_dnsdata':
     ensure  => present,
     line    => '  /var/log/named/** rw,',
-    before  => '^}$',
+    before  => '}',
     require => Package[$bind_packages],
     notify  => Service['apparmor']
   }
