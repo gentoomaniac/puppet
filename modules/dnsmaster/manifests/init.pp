@@ -11,10 +11,11 @@ class dnsmaster (
     ensure => latest,
   }
 
-  file_line { 'named_apparmor_dnsdata':
+  file_line { 'usr.sbin.named.dnsdata':
     ensure  => present,
-    line    => '  /var/log/named/** rw,',
-    before  => '\}',
+    path    => '/etc/apparmor.d/usr.sbin.named',
+    line    => '  /var/lib/dnsdata/** r,',
+    after   => '.*#include <local/usr.sbin.named>',
     require => Package[$bind_packages],
     notify  => Service['apparmor']
   }
