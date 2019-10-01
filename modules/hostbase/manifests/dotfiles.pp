@@ -63,10 +63,10 @@ class hostbase::dotfiles
     mode   => '0700',
   }
   file { '/home/marco/.ssh/environment':
-    ensure  => directory,
+    ensure  => file,
     owner   => marco,
     group   => marco,
-    mode    => '0700',
+    mode    => '0600',
     require => File['/home/marco/.ssh'],
   }
 }
