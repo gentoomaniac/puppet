@@ -25,6 +25,12 @@ class dnsmaster (
     enable => true,
   }
 
+  file { '/var/log/named':
+    ensure => directory,
+    owner  => 'bind',
+    group  => 'bind',
+  }
+
   file { '/etc/default/bind9':
     ensure  => file,
     source  => 'puppet:///modules/dnsmaster/defaults',
@@ -36,7 +42,7 @@ class dnsmaster (
     owner   => 'root',
     group   => 'bind',
     source  => 'puppet:///modules/dnsmaster/named.conf.logging',
-    require => Package[$bind_packages],
+    require => [Package[$bind_packages], File['/var/log/named']],
     notify  => Service['bind9'],
   }
   file { '/etc/bind/named.conf.local':
