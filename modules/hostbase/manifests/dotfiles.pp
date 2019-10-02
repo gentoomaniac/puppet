@@ -67,6 +67,7 @@ class hostbase::dotfiles
     owner   => marco,
     group   => marco,
     mode    => '0600',
+    force   => true,
     require => File['/home/marco/.ssh'],
   }
 }
