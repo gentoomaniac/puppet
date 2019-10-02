@@ -1,6 +1,7 @@
 class hostbase::puppet (
   $version = latest,
   $aarch64_facter_version = '3.12.2.cfacter.20181217',
+  $aarch64_puppet_version = '6.9.0',
 ) {
 
   if $facts['os']['architecture'] == 'amd64' {
@@ -43,7 +44,7 @@ class hostbase::puppet (
       require  => Package[$dependencies],
     }
     package{ 'puppet':
-      ensure   => $version,
+      ensure   => $aarch64_puppet_version,
       provider => 'gem',
       require  => [Package[$dependencies], Package['facter']],
     }
