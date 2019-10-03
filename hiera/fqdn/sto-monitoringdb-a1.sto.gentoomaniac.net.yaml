@@ -3,8 +3,6 @@ classes:
   - netplan
   - monitoringdb
 
-ressources: []
-
 netplan::version: 2
 netplan::renderer: networkd
 netplan::ethernets:
