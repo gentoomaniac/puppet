@@ -5,9 +5,7 @@ class monitoringdb {
   include ::java
 
   class { 'elasticsearch': }
-  elasticsearch::instance { 'es-01':
-    restart_on_change => true,
-  }
+  elasticsearch::instance { 'es-01': }
   elasticsearch::template { 'logstash_template':
     content => {
       'template' => 'logstash-*',
