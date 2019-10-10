@@ -1,5 +1,6 @@
 ---
 classes:
+  - apt
   - hostbase::autoupdate
   - hostbase::dotfiles
   - hostbase::github_userkeys
@@ -26,6 +27,22 @@ github_userkeys:
   "root": gentoomaniac
 
 timezone::timezone: Etc/UTC
+
+apt::sources:
+  "puppet6":
+    location: http://apt.puppetlabs.com
+    release: "%{facts.os.distro.codename}"
+    repos: puppet6
+    key:
+      id: "6F6B15509CF8E59E6E469F327F438280EF8D349F"
+      server: keyserver.ubuntu.com
+  "elasticsearch7x":
+    location: https://artifacts.elastic.co/packages/7.x/apt
+    release: stable
+    repos: main
+    key:
+      id: "46095ACC8548582C1A2699A9D27D666CD88E42B4"
+      server: keyserver.ubuntu.com
 
 ressources:
   group:
@@ -54,18 +71,3 @@ ressources:
       content: "network: {config: disabled}"
     "/etc/cloud/cloud-init.disabled":
       ensure: file
-  apt::sources:
-    "puppet6":
-      location: http://apt.puppetlabs.com
-      release: "%{facts.os.distro.codename}"
-      repos: puppet6
-      key:
-        id: "6F6B15509CF8E59E6E469F327F438280EF8D349F"
-        server: keyserver.ubuntu.com
-    "elasticsearch7x":
-      location: https://artifacts.elastic.co/packages/7.x/apt
-      release: stable
-      repos: main
-      key:
-        id: "46095ACC8548582C1A2699A9D27D666CD88E42B4"
-        server: keyserver.ubuntu.com
