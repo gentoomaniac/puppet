@@ -4,7 +4,8 @@ class hostbase::metricbeat (
   $version = latest,
 ){
   package { 'metricbeat':
-    ensure => $version,
+    ensure  => $version,
+    require => Apt::Source['elasticsearch7x'],
   }
 
   file { '/etc/metricbeat/metricbeat.yml':
