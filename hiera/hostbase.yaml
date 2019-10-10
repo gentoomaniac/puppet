@@ -4,6 +4,7 @@ classes:
   - hostbase::dotfiles
   - hostbase::github_userkeys
   - hostbase::hosts
+  - hostbase::metricbeat
   - hostbase::puppet
   - hostbase::puppet_cron
   - hostbase::sshd
