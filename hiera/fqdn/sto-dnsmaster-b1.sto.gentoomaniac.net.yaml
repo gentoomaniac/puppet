@@ -6,7 +6,7 @@ classes:
 netplan::version: 2
 netplan::renderer: networkd
 netplan::ethernets:
-  eth0:
+  enp0s4:
     dhcp4: no
     addresses:
       - 10.1.1.51/24
