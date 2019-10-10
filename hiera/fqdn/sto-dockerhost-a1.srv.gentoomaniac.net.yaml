@@ -1,0 +1,20 @@
+---
+ressources:
+  sysctl:
+    "vm.max_map_count":
+      value: 262144
+
+netplan::version: 2
+netplan::renderer: networkd
+netplan::ethernets:
+  enp0s25:
+    dhcp4: no
+    addresses:
+      - 10.1.1.3/24
+    nameservers:
+      search: [srv.gentoomaniac.net]
+      addresses: [10.1.1.51, 10.1.1.4]
+    routes:
+      - to: 0.0.0.0/0
+        via: 10.1.1.1
+        metric: 10
