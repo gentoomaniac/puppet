@@ -25,6 +25,7 @@ class hostbase::metricbeat (
 
   service { 'metricbeat-svc':
     ensure     => running,
+    name       => 'metricbeat',
     enable     => true,
     hasrestart => true,
     hasstatus  => true,
