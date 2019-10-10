@@ -11,8 +11,8 @@ netplan::ethernets:
     addresses:
       - 10.1.1.51/24
     nameservers:
-      search: [infra.siebecke.se]
-      addresses: [8.8.8.8, 4.4.4.4]
+      search: [srv.gentoomaniac.net]
+      addresses: [127.0.0.1]
     routes:
       - to: 0.0.0.0/0
         via: 10.1.1.1
