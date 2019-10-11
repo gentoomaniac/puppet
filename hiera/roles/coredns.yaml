@@ -3,4 +3,8 @@ ressources:
   service:
     "systemd-resolved":
       ensure: stopped
-      enabled: false
+      enable: false
+  file:
+    "/etc/resolv.conf":
+      ensure: file
+      content: puppet:///modules/hostbase/sshd_config
