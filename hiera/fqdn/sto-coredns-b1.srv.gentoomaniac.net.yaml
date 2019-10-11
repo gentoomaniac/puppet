@@ -8,7 +8,7 @@ netplan::ethernets:
   eth0:
     dhcp4: no
     addresses:
-      - 10.1.1.4/24
+      - 10.1.1.53/24
     nameservers:
       search: [srv.gentoomaniac.net]
       addresses: [127.0.0.1]
