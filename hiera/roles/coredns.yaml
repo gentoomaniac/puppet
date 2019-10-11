@@ -1,0 +1,6 @@
+---
+ressources:
+  service:
+    "systemd-resolved":
+      ensure: stopped
+      enabled: false
