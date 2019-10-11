@@ -2,17 +2,6 @@
 #
 #
 class coredns {
-  service { 'systemd-resolved':
-    ensure => stopped,
-    enable => false,
-  }
-
-  file { '/etc/resolv.conf':
-    ensure  => file,
-    source  => 'puppet:///modules/coredns/resolv.conf',
-    require => Service['systemd-resolved'],
-  }
-
   file { '/opt/coredns':
     ensure => directory,
   }

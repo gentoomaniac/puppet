@@ -8,6 +8,7 @@ classes:
   - hostbase::metricbeat
   - hostbase::puppet
   - hostbase::puppet_cron
+  - hostbase::resolved
   - hostbase::sshd
   - hostbase::syslog
   - timezone
