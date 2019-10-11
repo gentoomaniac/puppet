@@ -38,6 +38,6 @@ class coredns {
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => ['/opt/coredns:/data'],
-    require          => [File['/opt/coredns/Corefile'],Service['systemd-resolved'], Vcsrepo['/opt/coredns/dnsdata']],
+    require          => [File['/opt/coredns/Corefile'],Service['systemd-resolved'], Vcsrepo['/opt/coredns/dnsdata'], Class['docker']],
   }
 }
