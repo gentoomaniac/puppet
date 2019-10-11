@@ -1,10 +1,4 @@
 ---
-ressources:
-  service:
-    "systemd-resolved":
-      ensure: stopped
-      enable: false
-  file:
-    "/etc/resolv.conf":
-      ensure: file
-      content: "nameserver 127.0.0.1"
+classes:
+  - netplan
+  - coredns

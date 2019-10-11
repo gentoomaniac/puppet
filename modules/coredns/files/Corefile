@@ -1,7 +1,18 @@
 .:53 {
     forward . 8.8.8.8:53 8.8.4.4:53
-    except gentoomaniac.net
     cache 60
+    log
+    errors
+}
+
+srv.gentoomaniac.net:53 {
+    file /data/dnsdata/zones/srv.gentoomaniac.net.db
+    log
+    errors
+}
+
+sto.gentoomaniac.net:53 {
+    file /data/dnsdata/zones/sto.gentoomaniac.net.db
     log
     errors
 }
