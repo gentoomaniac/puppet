@@ -7,4 +7,4 @@ ressources:
   file:
     "/etc/resolv.conf":
       ensure: file
-      content: puppet:///modules/hostbase/sshd_config
+      content: "nameserver 127.0.0.1"
