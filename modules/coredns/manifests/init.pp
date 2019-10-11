@@ -21,12 +21,19 @@ class coredns {
 
   docker::run { 'coredns':
     image            => 'coredns/coredns:latest',
-    ports            => ['53:53', '53:53/udp'],
+    ports            => ['53:53', '53:53/udp', '9153:9153/tcp'],
     command          => '-conf /data/Corefile',
     dns              => ['8.8.8.8', '8.8.4.4'],
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => ['/opt/coredns:/data'],
     require          => [File['/opt/coredns/Corefile'],Service['systemd-resolved'], Vcsrepo['/opt/coredns/dnsdata'], Class['docker']],
+  }
+
+  file { '/etc/metricbeat/modules.d/coredns.yml':
+    ensure  => present,
+    source  => 'puppet:///modules/coredns/metricbeat.coredns.yml',
+    require => Package['metricbeat'],
+    notify  => Service['metricbeat-svc'],
   }
 }

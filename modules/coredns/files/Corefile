@@ -6,4 +6,5 @@
     cache 60
     log
     errors
+    prometheus 0.0.0.0:9153
 }
