@@ -1,7 +1,4 @@
 ---
-classes:
-  - hostbase::raspberrypi
-
 netplan::version: 2
 netplan::renderer: networkd
 netplan::ethernets:
