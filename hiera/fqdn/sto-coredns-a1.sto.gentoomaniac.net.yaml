@@ -4,7 +4,7 @@ classes:
 
 docker::run_instance::instance:
   coredns:
-    image: coredns:coredns:latest
+    image: coredns/coredns:latest
     ports: ["53:53"]
     dns: ["8.8.8.8", "8.8.4.4"]
     pull_on_start: true
