@@ -20,7 +20,7 @@ class coredns {
   }
 
   docker::run { 'coredns':
-    image            => 'coredns/coredns:latest',
+    image            => 'registry.srv.gentoomaniac.net:443/coredns-ads:latest',
     ports            => ['53:53', '53:53/udp', '9153:9153/tcp'],
     command          => '-conf /data/Corefile',
     dns              => ['8.8.8.8', '8.8.4.4'],
