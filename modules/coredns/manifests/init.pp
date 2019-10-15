@@ -9,6 +9,7 @@ class coredns {
     ensure  => file,
     source  => 'puppet:///modules/coredns/Corefile',
     require => File['/opt/coredns'],
+    notify  => Docker::Run['coredns'],
   }
 
   vcsrepo { '/opt/coredns/dnsdata':
@@ -16,7 +17,7 @@ class coredns {
     provider => git,
     source   => 'https://github.com/gentoomaniac/dnsdata.git',
     revision => 'master',
-    notify   => [Docker::Run['coredns']],
+    notify   => Docker::Run['coredns'],
   }
 
   docker::run { 'coredns':
