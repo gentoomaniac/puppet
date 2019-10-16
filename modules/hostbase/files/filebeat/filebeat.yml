@@ -20,7 +20,7 @@ filebeat.inputs:
   - type: log
 
     # Change to true to enable this input configuration.
-    enabled: false
+    enabled: true
 
     # Paths that should be crawled and fetched. Glob based paths.
     paths:
@@ -60,6 +60,13 @@ filebeat.inputs:
     # that was (not) matched before or after or as long as a pattern is not matched based on negate.
     # Note: After is the equivalent to previous and before is the equivalent to to next in Logstash
     #multiline.match: after
+  - type: docker
+    combine_partial: true
+    containers:
+      path: "/var/lib/docker/containers"
+      stream: "stdout"
+      ids:
+        - "*"
 
 #============================= Filebeat modules ===============================
 
