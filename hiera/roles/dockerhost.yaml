@@ -1,6 +1,7 @@
 ---
 classes:
   - docker
+
 ressources:
   file:
     "/srv":
