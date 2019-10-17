@@ -21,7 +21,7 @@ class logstash_docker {
     dns              => hiera('dns::servers'),
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
-    volumes          => ['/srv/logstash:/usr/share/logstash/pipeline'],
+    volumes          => ['/srv/logstash/pipeline:/usr/share/logstash/pipeline', '/srv/logstash/config:/usr/share/logstash/config'],
     require          => [Class['docker'], File['/srv/logstash/config/logstash.yml']],
   }
 
