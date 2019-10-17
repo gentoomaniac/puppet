@@ -3,15 +3,15 @@
 #
 class logstash_docker {
   file { '/srv/logstash':
-    ensure  => 'present',
+    ensure  => directory,
     require => File['/srv'],
   }
   file { '/srv/logstash/pipelines':
-    ensure  => 'present',
+    ensure  => directory,
     require => File['/srv/logstash'],
   }
   file { '/srv/logstash/config':
-    ensure  => 'present',
+    ensure  => directory,
     require => File['/srv/logstash'],
   }
 
