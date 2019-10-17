@@ -2,6 +2,10 @@ class hostbase::puppet (
   $version = latest,
 ) {
 
+  file { '/etc/puppet_classes':
+    content => inline_template("<%= Puppet::Node.indirection.find(@fqdn).classes.join('\n') + '\n' %>"),
+  }
+
   package { 'puppet':
     ensure => absent,
   }
