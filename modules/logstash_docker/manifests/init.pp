@@ -17,12 +17,12 @@ class logstash_docker {
 
   docker::run { 'logstash':
     image            => 'docker.elastic.co/logstash/logstash:7.4.0',
-    ports            => [],
+    ports            => ['5044:5044/tcp', '9600:9600/tcp'],
     dns              => hiera('dns::servers'),
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => ['/srv/logstash:/usr/share/logstash/pipeline'],
-    require          => Class['docker'],
+    require          => [Class['docker'], File['/srv/logstash/config/logstash.yml']],
   }
 
   file { '/srv/logstash/config/logstash.yml':
