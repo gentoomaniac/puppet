@@ -20,7 +20,7 @@ filebeat.inputs:
   - type: log
 
     # Change to true to enable this input configuration.
-    enabled: true
+    enabled: flase
 
     # Paths that should be crawled and fetched. Glob based paths.
     paths:
