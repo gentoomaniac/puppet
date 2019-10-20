@@ -18,7 +18,7 @@ class logstash_docker {
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => ['/srv/logstash/pipeline:/usr/share/logstash/pipeline', '/srv/logstash/config:/usr/share/logstash/config'],
-    require          => [Class['docker'], File['/srv/logstash/config/logstash.yml']],
+    require          => [Class['docker'], File['/srv/logstash/config']],
   }
 
 
