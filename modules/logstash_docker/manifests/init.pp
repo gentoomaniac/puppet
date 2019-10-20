@@ -25,9 +25,12 @@ class logstash_docker {
     require          => [Class['docker'], File['/srv/logstash/config/logstash.yml']],
   }
 
-  file { '/srv/logstash/config/logstash.yml':
-    ensure  => present,
-    source  => 'puppet:///modules/logstash_docker/logstash.yml',
+
+
+  file { '/srv/logstash/config':
+    ensure  => directory,
+    source  => 'puppet:///modules/logstash_docker/config',
+    recurse => 'remote',
     require => File['/srv/logstash/config'],
     notify  => Docker::Run['logstash'],
   }
