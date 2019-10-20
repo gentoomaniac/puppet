@@ -10,10 +10,6 @@ class logstash_docker {
     ensure  => directory,
     require => File['/srv/logstash'],
   }
-  file { '/srv/logstash/config':
-    ensure  => directory,
-    require => File['/srv/logstash'],
-  }
 
   docker::run { 'logstash':
     image            => 'docker.elastic.co/logstash/logstash:7.4.0',
