@@ -1,7 +1,7 @@
 # create
-curl -X PUT -H 'Content-Type: application/json' --data-binary "@$(pwd)/es_index_template.json" http://elasticsearch.srv.gentoomaniac.net:9200/_template/filebeat
+curl -X PUT -H 'Content-Type: application/json' --data-binary "@$(pwd)/es_index_template.json" http://elasticsearch.srv.gentoomaniac.net:9200/_template/coredns
 # get
-curl http://elasticsearch.srv.gentoomaniac.net:9200/_template/filebeat
+curl http://elasticsearch.srv.gentoomaniac.net:9200/_template/coredns
 
 # get all indices
 http://elasticsearch.srv.gentoomaniac.net:9200/_cat/indices?v

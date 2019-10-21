@@ -3,7 +3,6 @@ classes:
   - apt
   - hostbase::autoupdate
   - hostbase::dotfiles
-  - hostbase::filebeat
   - hostbase::github_userkeys
   - hostbase::hosts
   - hostbase::metricbeat
