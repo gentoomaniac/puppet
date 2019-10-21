@@ -1,0 +1,14 @@
+# create
+curl -X PUT -H 'Content-Type: application/json' --data-binary "@$(pwd)/es_index_template.json" http://elasticsearch.srv.gentoomaniac.net:9200/_template/filebeat
+# get
+curl http://elasticsearch.srv.gentoomaniac.net:9200/_template/filebeat
+
+# get all indices
+http://elasticsearch.srv.gentoomaniac.net:9200/_cat/indices?v
+
+# search in index
+http://elasticsearch.srv.gentoomaniac.net:9200/coredns-2019.10.21/_search?pretty=true&q=*:*&size=1000
+
+# delete index
+curl -X DELETE http://elasticsearch.srv.gentoomaniac.net:9200/coredns-2019.10.21
+

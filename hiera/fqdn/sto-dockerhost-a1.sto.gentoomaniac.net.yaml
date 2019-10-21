@@ -1,4 +1,7 @@
 ---
+classes:
+  - logstash_docker
+
 ressources:
   sysctl:
     "vm.max_map_count":

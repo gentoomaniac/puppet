@@ -1,0 +1,63 @@
+{
+    "index_patterns": [
+        "coredns-*"
+    ],
+    "settings": {
+        "number_of_shards": 1
+    },
+    "mappings": {
+        "_source": {
+            "enabled": true
+        },
+        "properties": {
+            "loglevel": {
+                "type": "keyword"
+            },
+            "ip": {
+                "type": "ip"
+            },
+            "port": {
+                "type": "integer"
+            },
+            "queryid": {
+                "type": "integer"
+            },
+            "type": {
+                "type": "keyword"
+            },
+            "class": {
+                "type": "keyword"
+            },
+            "name": {
+                "type": "keyword"
+            },
+            "proto": {
+                "type": "keyword"
+            },
+            "size": {
+                "type": "integer"
+            },
+            "do": {
+                "type": "keyword"
+            },
+            "buffsize": {
+                "type": "integer"
+            },
+            "rcode": {
+                "type": "keyword"
+            },
+            "rflags": {
+                "type": "keyword"
+            },
+            "rsize": {
+                "type": "integer"
+            },
+            "duration": {
+                "type": "float"
+            },
+            "stream": {
+                "type": "keyword"
+            }
+        }
+    }
+}

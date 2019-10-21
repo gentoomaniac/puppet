@@ -1,0 +1,17 @@
+input {
+  stdin{}
+}
+filter {
+  json{
+    source => "message"
+    target => "message"
+  }
+  grok {
+    match => { "message" => '\[%{LOGLEVEL:loglevel}\] %{IP:remote}:%{POSINT:port} - %{POSINT:queryid} \\\\\\"%{WORD:type} %{WORD:class} %{NOTSPACE:name} %{WORD:proto} %{POSINT:size} %{WORD:do} %{POSINT:buffsize}\\\\\\" %{WORD:rcode} %{NOTSPACE:rflags} %{POSINT:rsize} %{NOTSPACE:duration}s\\\\' }
+  }
+}
+output {
+  stdout {
+    codec => "json"
+  }
+}
