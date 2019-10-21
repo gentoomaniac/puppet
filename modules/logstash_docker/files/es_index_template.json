@@ -7,15 +7,56 @@
     },
     "mappings": {
         "_source": {
-            "enabled": false
+            "enabled": true
         },
         "properties": {
-            "host_name": {
+            "loglevel": {
                 "type": "keyword"
             },
-            "created_at": {
-                "type": "date",
-                "format": "EEE MMM dd HH:mm:ss Z yyyy"
+            "ip": {
+                "type": "ip"
+            },
+            "port": {
+                "type": "integer"
+            },
+            "queryid": {
+                "type": "integer"
+            },
+            "type": {
+                "type": "keyword"
+            },
+            "class": {
+                "type": "keyword"
+            },
+            "name": {
+                "type": "keyword"
+            },
+            "proto": {
+                "type": "keyword"
+            },
+            "size": {
+                "type": "integer"
+            },
+            "do": {
+                "type": "keyword"
+            },
+            "buffsize": {
+                "type": "integer"
+            },
+            "rcode": {
+                "type": "keyword"
+            },
+            "rflags": {
+                "type": "keyword"
+            },
+            "rsize": {
+                "type": "integer"
+            },
+            "duration": {
+                "type": "float"
+            },
+            "stream": {
+                "type": "keyword"
             }
         }
     }

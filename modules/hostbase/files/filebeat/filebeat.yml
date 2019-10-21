@@ -4,14 +4,13 @@
 
 filebeat.inputs:
   - type: log
-    enabled: false
-    paths:
-      - /var/log/*.log
-
-  - type: container
     enabled: true
     paths:
       - "/var/lib/docker/containers/*/*.log"
+    json.overwrite_keys: true
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: log
 
 #============================= Filebeat modules ===============================
 
@@ -20,7 +19,7 @@ filebeat.config.modules:
   path: ${path.config}/modules.d/*.yml
 
   # Set to true to enable config reloading
-  reload.enabled: false
+  reload.enabled: true
 
   # Period on which files under path should be checked for changes
   #reload.period: 10s
@@ -57,4 +56,10 @@ processors:
 # To enable all selectors use ["*"]. Examples of other selectors are "beat",
 # "publish", "service".
 #logging.selectors: ["*"]
-
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
