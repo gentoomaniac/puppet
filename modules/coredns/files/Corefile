@@ -1,5 +1,18 @@
 .:53 {
-    ads
+    ads {
+        blacklist https://blocklist.site/app/dl/drugs
+        blacklist https://blocklist.site/app/dl/fraud
+        blacklist https://blocklist.site/app/dl/fakenews
+        blacklist https://blocklist.site/app/dl/gambling
+        blacklist https://blocklist.site/app/dl/malware
+        blacklist https://blocklist.site/app/dl/phishing
+        blacklist https://blocklist.site/app/dl/porn
+        blacklist https://blocklist.site/app/dl/ransomware
+        blacklist https://blocklist.site/app/dl/redirect
+        blacklist https://blocklist.site/app/dl/scam
+        blacklist https://blocklist.site/app/dl/spam
+        blacklist https://blocklist.site/app/dl/tracking
+    }
     forward . 8.8.8.8:53 8.8.4.4:53
     file /data/dnsdata/zones/srv.gentoomaniac.net.db srv.gentoomaniac.net
     file /data/dnsdata/zones/sto.gentoomaniac.net.db sto.gentoomaniac.net
