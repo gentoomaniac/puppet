@@ -1,2 +1,2 @@
-- pipeline.id: filebeat
-  path.config: "/usr/share/logstash/config/filebeat"
+- pipeline.id: coredns
+  path.config: "/usr/share/logstash/config/coredns"
