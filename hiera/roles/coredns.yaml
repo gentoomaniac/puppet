@@ -3,3 +3,4 @@ classes:
   - netplan
   - docker
   - coredns
+  - hostbase::filebeat
