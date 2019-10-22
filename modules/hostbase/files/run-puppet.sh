@@ -27,4 +27,4 @@ else
     logger -s "failed to clone puppet git repo"
 fi
 
-${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt "${NOOP}" "${SYSLOG}" "${PUPPET_GIT_PATH}/manifests/site.pp"
+${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt ${NOOP} ${SYSLOG} "${PUPPET_GIT_PATH}/manifests/site.pp"
