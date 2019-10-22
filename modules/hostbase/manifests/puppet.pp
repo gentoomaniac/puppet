@@ -4,7 +4,7 @@ class hostbase::puppet (
 
   $content = join(lookup('classes', Array[String], 'unique', []).sort, "\n")
   file { '/etc/puppet_classes':
-    content => $content,
+    content => "${content}\n",
   }
 
   package { 'puppet':
