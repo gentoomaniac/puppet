@@ -2,7 +2,7 @@
 classes:
   - apt
   - hostbase::autoupdate
-  - hostbase::disable_cloud
+  #  - hostbase::disable_cloud
   - hostbase::dotfiles
   - hostbase::github_userkeys
   - hostbase::hosts
