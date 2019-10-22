@@ -3,7 +3,7 @@ class hostbase::puppet (
 ) {
 
   file { '/etc/puppet_classes':
-    content => inline_template("<%= Puppet::Node.indirection.find(@fqdn).classes.join('\n') + '\n' %>"),
+    content => lookup('classes', Array[String], 'unique', []).sort,
   }
 
   package { 'puppet':
