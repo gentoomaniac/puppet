@@ -4,7 +4,7 @@ if [ "$1" != "now" ]; then
     sleep $((1 + RANDOM % 360))
 fi
 
-if [ -f /etc/puppet_disable]; then
+if [ -f /etc/puppet_disable ]; then
     NOOP=--noop
 fi
 
