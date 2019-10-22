@@ -8,6 +8,10 @@ if [ -f /etc/puppet_disable]; then
     NOOP=--noop
 fi
 
+if [ -z "$PS1" ]; then
+    SYSLOG=-l syslog
+fi
+
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 PUPPET=$(test -f /usr/local/bin/puppet && echo /usr/local/bin/puppet || echo /opt/puppetlabs/bin/puppet)
@@ -23,4 +27,4 @@ else
     logger -s "failed to clone puppet git repo"
 fi
 
-${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt "${NOOP}" -l syslog "${PUPPET_GIT_PATH}/manifests/site.pp"
+${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt "${NOOP}" "${SYSLOG}" "${PUPPET_GIT_PATH}/manifests/site.pp"
