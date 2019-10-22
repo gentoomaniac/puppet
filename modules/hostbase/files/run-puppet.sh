@@ -4,6 +4,10 @@ if [ "$1" != "now" ]; then
     sleep $((1 + RANDOM % 360))
 fi
 
+if [ -f /etc/puppet_disable]; then
+    NOOP=--noop
+fi
+
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 PUPPET=$(test -f /usr/local/bin/puppet && echo /usr/local/bin/puppet || echo /opt/puppetlabs/bin/puppet)
@@ -19,4 +23,4 @@ else
     logger -s "failed to clone puppet git repo"
 fi
 
-${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt -l syslog "${PUPPET_GIT_PATH}/manifests/site.pp"
+${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt "${NOOP}" -l syslog "${PUPPET_GIT_PATH}/manifests/site.pp"
