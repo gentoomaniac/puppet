@@ -57,10 +57,8 @@ setup.template.settings:
 output.elasticsearch:
   # Array of hosts to connect to.
   hosts: ["<%= $es_host %>:<%= $es_port %>"]
-  index: "metricbeat-<%= $facts[fqdn] %>-%{+yyyy.MM.dd}"
-
-  # Enabled ilm (beta) to use index lifecycle management instead daily indices.
-  #ilm.enabled: false
+  index: "metricbeat-%{[agent.version]}-<%= $facts[fqdn] %>-%{+yyyy.MM.dd}"
+  ilm.enabled: false
   # Optional protocol and basic auth credentials.
   #protocol: "https"
   #username: "elastic"
