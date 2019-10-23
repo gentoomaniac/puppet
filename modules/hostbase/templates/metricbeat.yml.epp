@@ -33,7 +33,7 @@ setup.template.settings:
   index.number_of_shards: 1
   index.codec: best_compression
   #_source.enabled: false
-setup.ilm.enabled: true
+setup.ilm.enabled: false
 setup.ilm.rollover_alias: "metricbeat-%{[agent.version]}"
 setup.ilm.pattern: "{now/d}"
 #================================ General =====================================
@@ -59,6 +59,7 @@ setup.ilm.pattern: "{now/d}"
 output.elasticsearch:
   # Array of hosts to connect to.
   hosts: ["<%= $es_host %>:<%= $es_port %>"]
+  index: "metricbeat-%{[agent.version]}-%{+yyyy.MM.dd}"
   #ilm.enabled: false
   # Optional protocol and basic auth credentials.
   #protocol: "https"
