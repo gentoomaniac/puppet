@@ -24,6 +24,9 @@ hostbase::packages::base_packages:
   - python3-pip
   - hwinfo
 
+hostbase::metricbeat::es_host: elasticsearch.srv.gentoomaniac.net
+hostbase::metricbeat::es_port: 9200
+
 github_userkeys:
   "marco": gentoomaniac
   "root": gentoomaniac
