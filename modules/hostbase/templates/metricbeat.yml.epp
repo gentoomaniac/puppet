@@ -27,8 +27,8 @@ metricbeat.config.modules:
 #==================== Elasticsearch template setting ==========================
 
 setup.template.enabled: true
-setup.template.name: "metricbeat"
-setup.template.pattern: "metricbeat-*"
+setup.template.name: "metricbeat-%{[agent.version]}"
+setup.template.pattern: "metricbeat-%{[agent.version]}-*"
 setup.template.settings:
   index.number_of_shards: 1
   index.codec: best_compression
@@ -85,7 +85,6 @@ output.elasticsearch:
 
 processors:
   - add_host_metadata: ~
-  - add_cloud_metadata: ~
 #================================ Logging =====================================
 
 # Sets log level. The default log level is info.
