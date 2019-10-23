@@ -33,8 +33,8 @@ setup.template.settings:
   index.number_of_shards: 1
   index.codec: best_compression
   #_source.enabled: false
-setup.ilm.enabled: true
-setup.ilm.rollover_alias: "metricbeat-%{[agent.version]}-<%= $facts[fqdn] %>"
+setup.ilm.enabled: false
+setup.ilm.rollover_alias: "metricbeat-%{[agent.version]}"
 setup.ilm.pattern: "{now/d}" 
 #================================ General =====================================
 
