@@ -34,8 +34,8 @@ setup.template.settings:
   index.codec: best_compression
   #_source.enabled: false
 setup.ilm.enabled: true
-setup.ilm.rollover_alias: "metricbeat-%{[agent.version]}<%= $facts[fqdn] %>"
-setup.ilm.pattern: "{now/d}" 
+setup.ilm.rollover_alias: "metricbeat-%{[agent.version]}-<%= $facts[fqdn] %>"
+setup.ilm.pattern: "{now/d}"
 #================================ General =====================================
 
 # The name of the shipper that publishes the network data. It can be used to group
