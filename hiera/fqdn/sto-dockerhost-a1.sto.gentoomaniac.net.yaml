@@ -2,6 +2,7 @@
 classes:
   - logstash_docker
   - tftpd
+  - kickstart_nginx
 
 ressources:
   sysctl:
