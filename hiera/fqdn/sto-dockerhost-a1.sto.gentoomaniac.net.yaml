@@ -1,6 +1,7 @@
 ---
 classes:
   - logstash_docker
+  - tftpd
 
 ressources:
   sysctl:
