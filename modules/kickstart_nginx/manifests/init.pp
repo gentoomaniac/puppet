@@ -14,6 +14,7 @@ class kickstart_nginx {
     image            => 'nginx',
     expose           => ['80/tcp'],
     dns              => hiera('dns::servers'),
+    net              => ['web'],
     labels           => [
       'traefik.backend=ksnginx',
       'traefik.port=80',
