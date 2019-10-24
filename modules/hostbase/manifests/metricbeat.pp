@@ -1,6 +1,8 @@
 # Class: hostbase::metricbeat
 #
 class hostbase::metricbeat (
+  $es_host,
+  $es_port,
   $version = latest,
 ){
   package { 'metricbeat':
@@ -11,7 +13,10 @@ class hostbase::metricbeat (
   file { '/etc/metricbeat/metricbeat.yml':
     ensure  => file,
     mode    => '0600',
-    source  => 'puppet:///modules/hostbase/metricbeat/metricbeat.yml',
+    content => epp('hostbase/metricbeat.yml.epp', {
+      'es_host' => $es_host,
+      'es_port' => $es_port,
+    }),
     require => Package['metricbeat'],
     notify  => Service['metricbeat-svc']
   }
