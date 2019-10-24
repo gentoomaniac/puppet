@@ -24,7 +24,7 @@ class kickstart_nginx {
     ],
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
-    volumes          => ['/srv/ksnginx:/var/tftpboot:ro'],
+    volumes          => ['/srv/ksnginx:/usr/share/nginx/html:ro'],
     require          => [Class['docker'], File['/srv/ksnginx']],
   }
 }
