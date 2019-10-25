@@ -20,7 +20,7 @@ timezone Etc/UTC
 rootpw --disabled
 
 #Initial user (user with sudo capabilities) 
-user marco --iscrypted --password $6$1PIg05ryIg$UjpEDKV9OYouO2D89GLRAKj71VLWpvKvJ1hvvWjbPu.bEA.baWZRePmdIj2KD0cTwqgTIAdiwtqZCzDHohHYI1
+user marco --fullname "Marco Siebecke" --iscrypted --password $6$1PIg05ryIg$UjpEDKV9OYouO2D89GLRAKj71VLWpvKvJ1hvvWjbPu.bEA.baWZRePmdIj2KD0cTwqgTIAdiwtqZCzDHohHYI1
 
 #Reboot after installation
 reboot
@@ -42,7 +42,7 @@ clearpart --all --initlabel
 
 #Basic disk partition
 clearpart --all --initlabel
-part vg.01 --size 1 --grow
+part pv.01 --size 1 --grow
 volgroup vg0 pv.01
 logvol swap --fstype swap --name=swap --vgname=vg0 --size 1024
 logvol / --fstype ext4 --vgname=vg0 --size=1 --grow --name=slash
