@@ -20,7 +20,7 @@ timezone Etc/UTC
 rootpw --disabled
 
 #Initial user (user with sudo capabilities) 
-user marco --fullname "Marco Siebecke" --iscrypted --password $1$3/cGigJx$zbaFLVnH6Hlrr1/Eovwyl1
+user marco --iscrypted --password $6$1PIg05ryIg$UjpEDKV9OYouO2D89GLRAKj71VLWpvKvJ1hvvWjbPu.bEA.baWZRePmdIj2KD0cTwqgTIAdiwtqZCzDHohHYI1
 
 #Reboot after installation
 reboot
@@ -41,13 +41,18 @@ zerombr yes
 clearpart --all --initlabel 
 
 #Basic disk partition
-part swap --recommended
-part vg.01 --size=1 --grow
+clearpart --all --initlabel
+part vg.01 --size 1 --grow
 volgroup vg0 pv.01
-logvol / --vgname=vg0 --size=1 --grow --name=rootvolroot
+logvol swap --fstype swap --name=swap --vgname=vg0 --size 1024
+logvol / --fstype ext4 --vgname=vg0 --size=1 --grow --name=slash
 
-#System authorization infomation
-auth  --useshadow  --enablemd5 
+# hack around Ubuntu kickstart bugs
+preseed partman-lvm/confirm_nooverwrite boolean true
+preseed partman-auto-lvm/no_boot        boolean true
+
+#System authorization information 
+authconfig --passalgo=sha512 --kickstart.
 
 #Network information
 network --bootproto=dhcp --device=eth0
