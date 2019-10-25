@@ -73,7 +73,8 @@ puppet
 screen
 
 
-%post --interpreter=/bin/bash
+%post
+set -x
 
 # setup locales
 locale-gen en_GB.UTF-8
