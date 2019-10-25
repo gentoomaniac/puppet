@@ -65,12 +65,14 @@ skipx
 
 #Package install information
 %packages
+ubuntu-minimal
 curl
 dmidecode
 git
 openssh-server
 puppet
 screen
+vim-nox
 
 
 %post
@@ -88,5 +90,7 @@ sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.
 puppet apply --config /tmp/puppet/puppet.conf -vt --noop --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp
 
 # update system
-apt update
-apt upgrade -y
+apt-get update
+apt-get upgrade -y
+
+apt-get install -f -y linux-virtual
