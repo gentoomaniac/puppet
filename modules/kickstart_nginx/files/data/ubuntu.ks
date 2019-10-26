@@ -86,27 +86,18 @@ update-locale LANG="en_GB.UTF-8"
 echo 'LANG=en_GB.UTF-8' >> /etc/environment
 echo 'LC_ALL=en_GB.UTF-8' >> /etc/environment
 
-echo "Press Enter to continue ..."
-read wait_var
-
 # run puppet
-git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet
-sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf
+git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet | tee -a /var/log/kickstart.log
+sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf | tee -a /var/log/kickstart.log
 
-echo "Press Enter to continue ..."
-read wait_var
-
-puppet apply --config /tmp/puppet/puppet.conf -vt --noop --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp
-
-echo "Press Enter to continue ..."
-read wait_var
+puppet apply --config /tmp/puppet/puppet.conf -vt --noop --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp | tee -a /var/log/kickstart.log
 
 # update system
-apt-get update
-apt-get upgrade -y
+apt-get update  | tee -a /var/log/kickstart.log
+apt-get upgrade -y  | tee -a /var/log/kickstart.log
 
-apt-get install -f -y linux-virtual
+apt-get install -f -y linux-virtual | tee -a /var/log/kickstart.log
 
-echo "Press Enter to continue ..."
-read wait_var
+bash
+
 chvt 1
