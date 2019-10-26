@@ -76,6 +76,8 @@ vim-nox
 
 
 %post
+exec <  /dev/tty4 > /dev/tty4
+chvt 4
 set -x
 
 # setup locales
@@ -94,3 +96,7 @@ apt-get update
 apt-get upgrade -y
 
 apt-get install -f -y linux-virtual
+
+echo "Press Enter to continue ..."
+read wait_var
+chvt 1
