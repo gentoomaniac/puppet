@@ -1,1 +1,1 @@
-puppet apply --config puppet.conf -vt --noop --modulepath=modules/ manifests/site.pp
+puppet apply --config puppet.conf -vvvt --modulepath=modules/ manifests/site.pp

@@ -87,17 +87,15 @@ echo 'LANG=en_GB.UTF-8' >> /etc/environment
 echo 'LC_ALL=en_GB.UTF-8' >> /etc/environment
 
 # run puppet
-git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet | tee -a /var/log/kickstart.log
-sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf | tee -a /var/log/kickstart.log
+git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/kickstart.log
+sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf 2>&1 | tee -a /var/log/kickstart.log
 
-puppet apply --config /tmp/puppet/puppet.conf -vt --noop --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp | tee -a /var/log/kickstart.log
+puppet apply --config /tmp/puppet/puppet.conf -vvvt --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp 2>&1 | tee -a /var/log/kickstart.log
 
 # update system
-apt-get update  | tee -a /var/log/kickstart.log
-apt-get upgrade -y  | tee -a /var/log/kickstart.log
+apt-get update 2>&1 | tee -a /var/log/kickstart.log
+apt-get upgrade -y 2>&1 | tee -a /var/log/kickstart.log
 
-apt-get install -f -y linux-virtual | tee -a /var/log/kickstart.log
-
-bash
+apt-get install -f -y linux-virtual 2>&1 | tee -a /var/log/kickstart.log
 
 chvt 1
