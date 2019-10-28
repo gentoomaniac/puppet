@@ -20,7 +20,7 @@ timezone Etc/UTC
 rootpw --disabled
 
 #Initial user (user with sudo capabilities)
-user marco --fullname "Marco Siebecke" --iscrypted --password $6$7thKqWuKSR$UJWGUm.qccp7wZDJz5GGBOxZggIwFYh.6kckrnTiHNZxjQFZ7J8A//ZNQkTpdqIwr7bKQ4x55XN4l8WBp2.NF/
+user marco --fullname "Marco Siebecke" --iscrypted --password $6$OyX.KXb2$G8HSC0zSuuSpywQkq.8mZ0JSnt84MNdwrt.AqLiEmyxh7I4R9Ni/N1P8yq/lDVZF9ysFxAkB4gQP7Qm93A9TL0
 
 #Reboot after installation
 reboot
