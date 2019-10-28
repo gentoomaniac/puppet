@@ -20,7 +20,7 @@ timezone Etc/UTC
 rootpw --disabled
 
 #Initial user (user with sudo capabilities)
-user marco --fullname "Marco Siebecke" --iscrypted --password $6$OyX.KXb2$G8HSC0zSuuSpywQkq.8mZ0JSnt84MNdwrt.AqLiEmyxh7I4R9Ni/N1P8yq/lDVZF9ysFxAkB4gQP7Qm93A9TL0
+user marco --fullname "Marco Siebecke" --iscrypted --password $6$M53dM5Xrb8J8UUl7$fJQc/18ZWk9wh5LoA961ONKeJpsrhLY.tS/fOti1og8jV5HayqHFUtVb9BKLdYOi/9Cel57eQRtlJlyrxhMcZ1
 
 #Reboot after installation
 reboot
@@ -52,7 +52,7 @@ preseed partman-lvm/confirm_nooverwrite boolean true
 preseed partman-auto-lvm/no_boot        boolean true
 
 #System authorization information 
-authconfig --passalgo=sha512 --kickstart.
+authconfig --useshadow --passalgo=sha512
 
 #Network information
 network --bootproto=dhcp --device=eth0
