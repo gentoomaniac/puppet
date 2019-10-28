@@ -70,6 +70,7 @@ ressources:
       home: /home/marco
       shell: /bin/bash
       managehome: true
+      password: $6$OyX.KXb2$G8HSC0zSuuSpywQkq.8mZ0JSnt84MNdwrt.AqLiEmyxh7I4R9Ni/N1P8yq/lDVZF9ysFxAkB4gQP7Qm93A9TL0
       groups:
         - sudo
         - adm
