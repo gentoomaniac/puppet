@@ -11,7 +11,7 @@ netplan::ethernets:
       - 10.1.1.99/24
     nameservers:
       search: [gentoomaniac.net]
-      addresses: [10.1.1.152, 127.0.0.1]
+      addresses: [10.1.1.152, 10.1.1.153]
     routes:
       - to: 0.0.0.0/0
         via: 10.1.1.1
