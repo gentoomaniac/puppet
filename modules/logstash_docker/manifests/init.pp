@@ -1,6 +1,3 @@
-# Class: coredns
-#
-#
 class logstash_docker {
   file { '/srv/logstash':
     ensure  => directory,
