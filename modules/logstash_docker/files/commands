@@ -12,4 +12,5 @@ http://elasticsearch.srv.gentoomaniac.net:9200/coredns-2019.10.21/_search?pretty
 # delete index
 curl -X DELETE http://elasticsearch.srv.gentoomaniac.net:9200/coredns-2019.10.21
 
-curl -X PUT -H 'Content-Type: application/json' --data @/home/marco/git-private/puppet/modules/hostbase/files/metricbeat/lifecycle_policy.json http://elasticsearch.srv.gentoomaniac.net:9200/_ilm/policy/metricbeat
+curl -X PUT -H 'Content-Type: application/json' --data @/home/marco/git-private/puppet/modules/logstash_docker/files/es_index_policy.json http://elasticsearch.srv.gentoomaniac.net:9200/_ilm/policy/coredns
+curl -X PUT -H 'Content-Type: application/json' --data @/home/marco/git-private/puppet/modules/logstash_docker/files/es_index_template.json http://elasticsearch.srv.gentoomaniac.net:9200/_template/coredns

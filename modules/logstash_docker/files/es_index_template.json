@@ -1,7 +1,8 @@
 {
   "index_patterns": ["coredns-*"],
   "settings": {
-    "number_of_shards": 1
+    "number_of_shards": 1,
+    "index.lifecycle.name": "coredns"
   },
   "mappings": {
     "_source": {
