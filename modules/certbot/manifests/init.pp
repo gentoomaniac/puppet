@@ -5,7 +5,7 @@ class certbot (
   String $image_tag = 'latest',
   String $email = 'marco@siebecke.se',
 ) {
-  $normalized = regsubst(regsubst($domain, '\*\.', '', 'G'), '.', '_', 'G')
+  $normalized = regsubst(regsubst($domain, '\*\.', '', 'G'), '\.', '_', 'G')
 
   file { "/srv/certbot-${normalized}":
     ensure  => directory,
