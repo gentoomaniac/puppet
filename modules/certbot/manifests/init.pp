@@ -5,22 +5,22 @@ class certbot (
   String $image_tag = 'latest',
   String $email = 'marco@siebecke.se',
 ) {
-  file { "/srv/certbot-${name}":
+  file { "/srv/certbot-${domain}":
     ensure  => directory,
     require => File['/srv'],
   }
 
-  file { "/srv/certbot-${name}/data":
+  file { "/srv/certbot-${domain}/data":
     ensure  => directory,
-    require => File["/srv/certbot-${name}"],
+    require => File["/srv/certbot-${domain}"],
   }
 
   docker::image { $certbot_image:
     image_tag => $image_tag,
   }
 
-  cron::job { "certbot-cron-${name}":
-    command     => "docker run -v '/srv/certbot-${name}/ovh.ini:/ovh.ini:ro' -v '/srv/certbot-${name}/data:/etc/letsencrypt' ${certbot_image} certonly --dns-ovh --dns-ovh-credentials /ovh.ini --email ${email} --agree-tos --no-eff-email -d '${domain}'",
+  cron::job { "certbot-cron-${domain}":
+    command     => "docker run -v '/srv/certbot-${domain}/ovh.ini:/ovh.ini:ro' -v '/srv/certbot-${domain}/data:/etc/letsencrypt' ${certbot_image} certonly --dns-ovh --dns-ovh-credentials /ovh.ini --email ${email} --agree-tos --no-eff-email -d '${domain}'",
     minute      => '0',
     hour        => '0',
     date        => '1',
@@ -28,8 +28,8 @@ class certbot (
     weekday     => '*',
     user        => 'root',
     environment => ['MAILTO=root', 'PATH="/usr/bin:/bin"'],
-    description => "Update ${name} certificate every ${interval} days",
-    require     => [File["/srv/certbot-${name}/data"],Docker::Image[$certbot_image]],
+    description => "Update ${domain} certificate every ${interval} days",
+    require     => [File["/srv/certbot-${domain}/data"],Docker::Image[$certbot_image]],
   }
 
 }
