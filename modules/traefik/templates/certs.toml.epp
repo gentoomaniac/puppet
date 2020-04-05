@@ -1,0 +1,9 @@
+<%- | String $cert_path,
+      String $cert_name,
+      String $key_name
+| -%>
+[tls.stores]
+  [tls.stores.default]
+   [tls.stores.default.defaultCertificate] 
+     certFile = "<%= $cert_path %>/<%= $cert_name %>" 
+     keyFile = "<%= $cert_path %>/<%= $key_name %>"

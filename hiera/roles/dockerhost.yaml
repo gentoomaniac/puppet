@@ -1,8 +1,30 @@
 ---
 classes:
   - docker
+  - certbot
+  - traefik
 
 ressources:
   file:
     "/srv":
       ensure: directory
+
+certbot::domain: "*.srv.gentoomaniac.net"
+traefik::args:
+  - --api.insecure=true
+  - --entrypoints.web.address=:80
+  - --entrypoints.websecure.address=:443
+  - --providers.file.directory=/conf/
+  - --providers.file.watch=true
+  - --providers.docker
+  - --providers.docker.exposedbydefault=false
+traefik::labels:
+  - "'traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https'"
+  - "'traefik.http.routers.redirs.rule=hostregexp(`{host:.+}`)'"
+  - "'traefik.http.routers.redirs.entrypoints=web'"
+  - "'traefik.http.routers.redirs.middlewares=redirect-to-https'"
+traefik::ports:
+  - 80:80/tcp
+  - 443:443/tcp
+  - 8080:8080/tcp
+traefik::ssl_cert_location: /srv/certbot-srv_gentoomaniac_net/data/srv.gentoomaniac.net
