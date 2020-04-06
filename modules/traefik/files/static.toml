@@ -20,22 +20,31 @@
     rule = "Host(`nas.srv.gentoomaniac.net`)"
     service = "freenas"
     entryPoints = ["websecure"]
+    middlewares = ["local-only-whitelist"]
     [http.routers.freenas.tls]
 
   [http.routers.unifi]
     rule = "Host(`unifi.srv.gentoomaniac.net`)"
     service = "unifi"
     entryPoints = ["websecure"]
+    middlewares = ["local-only-whitelist"]
     [http.routers.unifi.tls]
 
   [http.routers.protect]
     rule = "Host(`protect.srv.gentoomaniac.net`)"
     service = "protect"
     entryPoints = ["websecure"]
+    middlewares = ["local-only-whitelist"]
     [http.routers.protect.tls]
 
   [http.routers.ck]
     rule = "Host(`ck.srv.gentoomaniac.net`)"
     service = "ck"
     entryPoints = ["websecure"]
+    middlewares = ["local-only-whitelist"]
     [http.routers.ck.tls]
+
+[http.middlewares]
+    [http.middlewares.local-only-whitelist]
+        [http.middlewares.local-only-whitelist.ipwhitelist]
+            sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
