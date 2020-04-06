@@ -1,0 +1,12 @@
+[backends]
+  [backends.freenas]
+    [backends.freenas.servers.server1]
+    url = "https://10.1.1.5:443"
+
+[frontends]
+  [frontends.freenas]
+  backend = "freenas"
+  passHostHeader = true
+  SSLRedirect = true
+    [frontends.freenas.routes.main]
+    rule = "Host:nas.srv.gentoomaniac.net"
