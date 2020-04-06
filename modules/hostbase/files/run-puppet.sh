@@ -9,7 +9,7 @@ if [ -f /etc/puppet_disable ]; then
 fi
 
 if [ -z "$PS1" ]; then
-    SYSLOG=-l syslog
+    SYSLOG="-l syslog"
 fi
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
