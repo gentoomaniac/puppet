@@ -31,7 +31,6 @@ kickstart_nginx::labels:
   - "'traefik.http.routers.ksnginx-secure.entrypoints=websecure'"
   - "'traefik.http.routers.ksnginx-secure.rule=Host(`ks.srv.gentoomaniac.net`)'"
   - "'traefik.http.routers.ksnginx-secure.tls=true'"
-  - "'traefik.http.routers.ksnginx-secure.tls.certresolver=http'"
   - "'traefik.http.routers.ksnginx-secure.service=ksnginx'"
   - "'traefik.http.services.ksnginx.loadbalancer.server.port=80'"
   - "'traefik.http.middlewares.ks-nginx.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
