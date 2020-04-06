@@ -2,9 +2,40 @@
   [http.services.freenas.loadBalancer]
     [[http.services.freenas.loadBalancer.servers]]
       url = "https://10.1.1.5:443/"
+
+  [http.services.unifi.loadBalancer]
+    [[http.services.unifi.loadBalancer.servers]]
+      url = "https://10.1.1.2:8443/"
+
+  [http.services.protect.loadBalancer]
+    [[http.services.protect.loadBalancer.servers]]
+      url = "https://10.1.1.2:7443/"
+
+  [http.services.ck.loadBalancer]
+    [[http.services.ck.loadBalancer.servers]]
+      url = "https://10.1.1.2:443/"
+
 [http.routers]
   [http.routers.freenas]
     rule = "Host(`nas.srv.gentoomaniac.net`)"
     service = "freenas"
     entryPoints = ["websecure"]
     [http.routers.freenas.tls]
+
+  [http.routers.unifi]
+    rule = "Host(`unifi.srv.gentoomaniac.net`)"
+    service = "unifi"
+    entryPoints = ["websecure"]
+    [http.routers.unifi.tls]
+
+  [http.routers.protect]
+    rule = "Host(`protect.srv.gentoomaniac.net`)"
+    service = "protect"
+    entryPoints = ["websecure"]
+    [http.routers.protect.tls]
+
+  [http.routers.ck]
+    rule = "Host(`ck.srv.gentoomaniac.net`)"
+    service = "ck"
+    entryPoints = ["websecure"]
+    [http.routers.ck.tls]
