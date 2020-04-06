@@ -1,4 +1,8 @@
 [http.services]
+  [http.services.dummy.loadBalancer]
+    [[http.services.dummy.loadBalancer.servers]]
+        url = ""
+
   [http.services.freenas.loadBalancer]
     [[http.services.freenas.loadBalancer.servers]]
       url = "https://10.1.1.5:443/"
@@ -16,6 +20,12 @@
       url = "https://10.1.1.2:443/"
 
 [http.routers]
+  [http.routers.redirect-to-https]
+    rule = "hostregexp(`{host:.+}`)"
+    service = "dummy"
+    entryPoints = ["web"]
+    middlewares = ["redirect-to-https"]
+
   [http.routers.freenas]
     rule = "Host(`nas.srv.gentoomaniac.net`)"
     service = "freenas"
@@ -45,6 +55,10 @@
     [http.routers.ck.tls]
 
 [http.middlewares]
+    [http.middlewares.redirect-to-https]
+        [http.middlewares.redirect-to-https.redirectscheme]
+            scheme = "https"
+
     [http.middlewares.local-only-whitelist]
         [http.middlewares.local-only-whitelist.ipwhitelist]
             sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
