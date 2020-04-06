@@ -1,0 +1,10 @@
+[http.services]
+  [http.services.freenas.loadBalancer]
+    [[http.services.freenas.loadBalancer.servers]]
+      url = "https://10.1.1.5:443/"
+[http.routers]
+  [http.routers.freenas]
+    rule = "Host(`nas.srv.gentoomaniac.net`)"
+    service = "freenas"
+    entryPoints = ["websecure"]
+    [http.routers.freenas.tls]

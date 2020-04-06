@@ -18,10 +18,8 @@ traefik::args:
   - --providers.file.watch=true
   - --providers.docker
   - --providers.docker.exposedbydefault=false
-traefik::labels:
-  - "'traefik.http.routers.freenas.rule=Host(`nas.srv.gentoomaniac.net`)'"
-  - "'traefik.http.routers.freenas.service=freenas'"
-  - "'traefik.http.service.freenas.loadBalancer.servers.url=https://10.1.1.5:443/'"
+  - --serverstransport.insecureskipverify=true
+traefik::labels: []
 traefik::ports:
   - 80:80/tcp
   - 443:443/tcp
