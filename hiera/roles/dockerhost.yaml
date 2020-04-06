@@ -14,15 +14,14 @@ traefik::args:
   - --api.insecure=true
   - --entrypoints.web.address=:80
   - --entrypoints.websecure.address=:443
-  - --providers.file.directory=/conf/
+  - --providers.file.directory=/conf
   - --providers.file.watch=true
   - --providers.docker
   - --providers.docker.exposedbydefault=false
 traefik::labels:
-  - "'traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https'"
-  - "'traefik.http.routers.redirs.rule=hostregexp(`{host:.+}`)'"
-  - "'traefik.http.routers.redirs.entrypoints=web'"
-  - "'traefik.http.routers.redirs.middlewares=redirect-to-https'"
+  - "'traefik.http.routers.freenas.rule=Host(`nas.srv.gentoomaniac.net`)'"
+  - "'traefik.http.routers.freenas.service=freenas'"
+  - "'traefik.http.service.freenas.loadBalancer.servers.url=https://10.1.1.5:443/'"
 traefik::ports:
   - 80:80/tcp
   - 443:443/tcp

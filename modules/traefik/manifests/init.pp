@@ -28,15 +28,6 @@ class traefik (
     notify  => Docker::Run['traefik'],
   }
 
-  file { "${conf_dir}/static.toml":
-    ensure  => file,
-    owner   => 'root',
-    group   => 'root',
-    source  => 'puppet:///modules/traefik/static.toml',
-    require => File['/srv/traefik'],
-    notify  => Docker::Run['traefik'],
-  }
-
   docker::run { 'traefik':
     image            => "${image}:${tag}",
     command          => join($args, ' '),
