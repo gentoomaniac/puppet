@@ -21,11 +21,11 @@
 
   [http.services.proxmox1.loadBalancer]
     [[http.services.proxmox1.loadBalancer.servers]]
-      url = "https://sto1-proxmox-a1.sto.gentoomaniac.net:8006/"
+      url = "https://sto-proxmox-a1.sto.gentoomaniac.net:8006/"
 
   [http.services.proxmox2.loadBalancer]
     [[http.services.proxmox2.loadBalancer.servers]]
-      url = "https://sto1-proxmox-a2.sto.gentoomaniac.net:8006/"
+      url = "https://sto-proxmox-a2.sto.gentoomaniac.net:8006/"
 
 [http.routers]
   [http.routers.redirect-to-https]
