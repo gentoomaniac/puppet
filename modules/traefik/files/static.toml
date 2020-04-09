@@ -19,6 +19,14 @@
     [[http.services.ck.loadBalancer.servers]]
       url = "https://10.1.1.2:443/"
 
+  [http.services.proxmox1.loadBalancer]
+    [[http.services.proxmox1.loadBalancer.servers]]
+      url = "https://sto1-proxmox-a1.sto.gentoomaniac.net:8006/"
+
+  [http.services.proxmox2.loadBalancer]
+    [[http.services.proxmox2.loadBalancer.servers]]
+      url = "https://sto1-proxmox-a2.sto.gentoomaniac.net:8006/"
+
 [http.routers]
   [http.routers.redirect-to-https]
     rule = "hostregexp(`{host:.+}`)"
@@ -53,6 +61,20 @@
     entryPoints = ["websecure"]
     middlewares = ["local-only-whitelist"]
     [http.routers.ck.tls]
+
+  [http.routers.proxmox1]
+    rule = "Host(`proxmox1.srv.gentoomaniac.net`)"
+    service = "proxmox1"
+    entryPoints = ["websecure"]
+    middlewares = ["local-only-whitelist"]
+    [http.routers.proxmox1.tls]
+
+  [http.routers.proxmox2]
+    rule = "Host(`proxmox2.srv.gentoomaniac.net`)"
+    service = "proxmox2"
+    entryPoints = ["websecure"]
+    middlewares = ["local-only-whitelist"]
+    [http.routers.proxmox2.tls]
 
 [http.middlewares]
     [http.middlewares.redirect-to-https]
