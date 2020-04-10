@@ -86,6 +86,13 @@ update-locale LANG="en_GB.UTF-8"
 echo 'LANG=en_GB.UTF-8' >> /etc/environment
 echo 'LC_ALL=en_GB.UTF-8' >> /etc/environment
 
+# set hostname if specified as boot parameter
+hostname=$(sed -e 's/^.*hostname=\([[:alnum:]\.\-]\+\).*$/\1/' /proc/cmdline)
+echo "Hostname set on kernel command line: ${hostname}" | tee -a /var/log/kickstart.log
+if [ ! -z "${hostname}" ]; then
+    hostnamectl set-hostname "${hostname}" 2>&1 | tee -a /var/log/kickstart.log
+fi
+
 # prepare future puppet runs
 echo master > /etc/puppet_branch
 
