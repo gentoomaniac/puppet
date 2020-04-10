@@ -13,7 +13,8 @@ class hostbase::puppet (
 
   package { 'puppet-agent':
     ensure  => $version,
-    require => [Apt::Source['puppet6'],Package['puppet'], Class['Apt::Update']],
+    mark    => hold,
+    require => [Apt::Source['puppet6'], Package['puppet'], Class['Apt::Update']],
   }
 
   service { 'puppet':

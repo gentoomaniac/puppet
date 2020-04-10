@@ -14,7 +14,7 @@ classes:
   - hostbase::syslog
   - timezone
 
-hostbase::puppet::version: latest
+hostbase::puppet::version: 6.13.0-1bionic
 
 hostbase::packages::base_packages:
   - mailutils
