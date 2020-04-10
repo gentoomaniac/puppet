@@ -86,6 +86,9 @@ update-locale LANG="en_GB.UTF-8"
 echo 'LANG=en_GB.UTF-8' >> /etc/environment
 echo 'LC_ALL=en_GB.UTF-8' >> /etc/environment
 
+# prepare future puppet runs
+echo master > /etc/puppet_branch
+
 # run puppet
 git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/kickstart.log
 sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf 2>&1 | tee -a /var/log/kickstart.log
