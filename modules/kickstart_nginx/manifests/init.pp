@@ -7,7 +7,7 @@ class kickstart_nginx (
   file { '/srv/ksnginx':
     ensure  => directory,
     source  => 'puppet:///modules/kickstart_nginx/data',
-    recurse => 'remote',
+    recurse => 'true',
     require => File['/srv'],
     notify  => Docker::Run['ksnginx'],
   }
