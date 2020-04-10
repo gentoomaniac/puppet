@@ -2,14 +2,12 @@
 
 if [ "$1" != "now" ]; then
     sleep $((1 + RANDOM % 360))
+    SYSLOG="-l syslog"
 fi
+
 
 if [ -f /etc/puppet_disable ]; then
     NOOP=--noop
-fi
-
-if [ -z "$PS1" ]; then
-    SYSLOG="-l syslog"
 fi
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
