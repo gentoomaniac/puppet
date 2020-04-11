@@ -7,6 +7,7 @@ class hostbase::metricbeat (
 ){
   package { 'metricbeat':
     ensure  => $version,
+    mark    => hold,
     require => Apt::Source['elasticsearch7x'],
   }
 
