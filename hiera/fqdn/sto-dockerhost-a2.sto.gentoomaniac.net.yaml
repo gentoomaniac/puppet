@@ -1,5 +1,6 @@
 ---
 classes:
+  - netplan
   - logstash_docker
   - tftpd
   - kickstart_nginx
@@ -12,7 +13,7 @@ ressources:
 netplan::version: 2
 netplan::renderer: networkd
 netplan::ethernets:
-  enp0s25:
+  ens18:
     dhcp4: no
     addresses:
       - 10.1.1.4/24
