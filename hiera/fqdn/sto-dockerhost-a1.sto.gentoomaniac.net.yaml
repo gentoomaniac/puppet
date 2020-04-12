@@ -40,3 +40,11 @@ tautulli::labels:
   - "'traefik.http.routers.tautulli.tls=true'"
   - "'traefik.http.middlewares.tautulli-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
   - "'traefik.http.routers.tautulli.middlewares=tautulli-whitelist'"
+
+portainer::labels:
+  - "'traefik.enable=true'"
+  - "'traefik.http.routers.portainer.rule=Host(`portainer.srv.gentoomaniac.net`)'"
+  - "'traefik.http.routers.portainer.entrypoints=websecure'"
+  - "'traefik.http.routers.portainer.tls=true'"
+  - "'traefik.http.middlewares.portainer-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+  - "'traefik.http.routers.portainer.middlewares=portainer-whitelist'"
