@@ -20,6 +20,6 @@ class tautulli (
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => ['/srv/tautulli:/config'],
-    require          => [Class['docker'], File['/srv/ksnginx']],
+    require          => [Class['docker'], File['/srv/tautulli']],
   }
 }
