@@ -4,6 +4,7 @@ classes:
   - tftpd
   - kickstart_nginx
   - tautulli
+  - portainer
 
 ressources:
   sysctl:
