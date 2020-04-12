@@ -37,6 +37,10 @@ class traefik (
     notify  => Docker::Run['traefik'],
   }
 
+  docker_network { 'web':
+    ensure => 'present',
+  }
+
   docker::run { 'traefik':
     image            => "${image}:${tag}",
     command          => join($args, ' '),
@@ -47,6 +51,6 @@ class traefik (
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => ['/var/run/docker.sock:/var/run/docker.sock', "${ssl_cert_location}:/ssl:ro", "${conf_dir}:/conf:ro"],
-    require          => [Class['docker'], Docker::Networks['web']],
+    require          => [Class['docker'], Docker_network['web']],
   }
 }

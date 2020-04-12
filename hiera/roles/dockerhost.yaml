@@ -26,10 +26,6 @@ traefik::ports:
   - 8080:8080/tcp
 traefik::ssl_cert_location: /srv/certbot-srv_gentoomaniac_net/data/srv.gentoomaniac.net
 
-docker::networks:
-  web:
-    ensure: present
-
 docker::volumes:
   nfs_movies:
     ensure: present
