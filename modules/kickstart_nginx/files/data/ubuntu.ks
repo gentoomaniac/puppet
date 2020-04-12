@@ -94,6 +94,8 @@ fi
 
 # prepare future puppet runs
 echo master > /etc/puppet_branch
+apt-get install -y gnupg2
+curl https://apt.puppetlabs.com/DEB-GPG-KEY-puppet | sudo apt-key add
 curl https://apt.puppetlabs.com/puppet6-release-bionic.deb -o /tmp/puppet6-release-bionic.deb | tee -a /var/log/kickstart.log
 dpkg -i /tmp/puppet6-release-bionic.deb 2>&1 | tee -a /var/log/kickstart.log
 apt-get update
