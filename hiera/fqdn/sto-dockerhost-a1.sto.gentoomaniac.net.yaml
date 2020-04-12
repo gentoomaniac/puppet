@@ -5,6 +5,7 @@ classes:
   - kickstart_nginx
   - tautulli
   - portainer
+  - docker_registry
 
 ressources:
   sysctl:
@@ -49,3 +50,11 @@ portainer::labels:
   - "'traefik.http.routers.portainer.tls=true'"
   - "'traefik.http.middlewares.portainer-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
   - "'traefik.http.routers.portainer.middlewares=portainer-whitelist'"
+
+docker_registry::labels:
+  - "'traefik.enable=true'"
+  - "'traefik.http.routers.registry.rule=Host(`registry.srv.gentoomaniac.net`)'"
+  - "'traefik.http.routers.registry.entrypoints=websecure'"
+  - "'traefik.http.routers.registry.tls=true'"
+  - "'traefik.http.middlewares.registry-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+  - "'traefik.http.routers.registry.middlewares=registry-whitelist'"
