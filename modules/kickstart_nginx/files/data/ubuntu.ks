@@ -79,6 +79,8 @@ exec <  /dev/tty4 > /dev/tty4
 chvt 4
 set -x
 
+CODENAME="$(lsb_release -cs)"
+
 # setup locales
 locale-gen en_GB.UTF-8
 update-locale LANG="en_GB.UTF-8"
@@ -96,10 +98,10 @@ fi
 echo master > /etc/puppet_branch
 apt-get install -y gnupg2
 curl https://apt.puppetlabs.com/DEB-GPG-KEY-puppet | sudo apt-key add
-curl https://apt.puppetlabs.com/puppet6-release-bionic.deb -o /tmp/puppet6-release-bionic.deb | tee -a /var/log/kickstart.log
-dpkg -i /tmp/puppet6-release-bionic.deb 2>&1 | tee -a /var/log/kickstart.log
+curl "https://apt.puppetlabs.com/puppet6-release-${CODENAME}.deb" -o "/tmp/puppet6-release-${CODENAME}.deb" | tee -a /var/log/kickstart.log
+dpkg -i "/tmp/puppet6-release-${CODENAME}.deb" 2>&1 | tee -a /var/log/kickstart.log
 apt-get update
-apt-get install -y puppet-agent=6.13.0 2>&1 | tee -a /var/log/kickstart.log
+apt-get install -y "puppet-agent=6.13.0-1${CODENAME}" 2>&1 | tee -a /var/log/kickstart.log
 
 
 # run puppet
