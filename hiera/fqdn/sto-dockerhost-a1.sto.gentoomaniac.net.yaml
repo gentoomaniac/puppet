@@ -7,6 +7,7 @@ classes:
   - portainer
   - docker_registry
   - ioquake3
+  - docker::volumes
 
 ressources:
   sysctl:
@@ -27,6 +28,57 @@ netplan::ethernets:
       - to: 0.0.0.0/0
         via: 10.1.1.1
         metric: 10
+
+docker::volumes:
+  nfs_movies:
+    ensure: present
+    driver: local
+    options:
+      type: nfs
+      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+      device: :/mnt/movies/movies
+  nfs_kids_movies:
+    ensure: present
+    driver: local
+    options:
+      type: nfs
+      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+      device: :/mnt/tank0/kids_movies
+  nfs_shows:
+    ensure: present
+    driver: local
+    options:
+      type: nfs
+      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+      device: :/mnt/tank3/shows
+  nfs_kids_shows:
+    ensure: present
+    driver: local
+    options:
+      type: nfs
+      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+      device: :/mnt/tank0/kids_shows
+  nfs_kids_shows_se:
+    ensure: present
+    driver: local
+    options:
+      type: nfs
+      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+      device: :/mnt/tank0/kids_shows_se
+  nfs_sd_old:
+    ensure: present
+    driver: local
+    options:
+      type: nfs
+      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+      device: :/mnt/tank3/sd_old
+  share:
+    ensure: present
+    driver: local
+    options:
+      type: nfs
+      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+      device: /mnt/tank5/share
 
 kickstart_nginx::labels:
   - "'traefik.enable=true'"
