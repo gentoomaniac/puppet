@@ -80,6 +80,7 @@ chvt 4
 set -x
 
 CODENAME="$(lsb_release -cs)"
+echo "Codename: ${CODENAME}" | tee -a /var/log/kickstart.log
 
 # setup locales
 locale-gen en_GB.UTF-8
@@ -100,15 +101,14 @@ apt-get install -y gnupg2
 curl https://apt.puppetlabs.com/DEB-GPG-KEY-puppet | sudo apt-key add
 curl "https://apt.puppetlabs.com/puppet6-release-${CODENAME}.deb" -o "/tmp/puppet6-release-${CODENAME}.deb" | tee -a /var/log/kickstart.log
 dpkg -i "/tmp/puppet6-release-${CODENAME}.deb" 2>&1 | tee -a /var/log/kickstart.log
-apt-get update
-apt-get install -y "puppet-agent=6.13.0-1${CODENAME}" 2>&1 | tee -a /var/log/kickstart.log
+apt-get update && apt-get install -y "puppet-agent=6.13.0-1${CODENAME}" 2>&1 | tee -a /var/log/kickstart.log
 
 
 # run puppet
 git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/kickstart.log
 sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf 2>&1 | tee -a /var/log/kickstart.log
 
-puppet apply --config /tmp/puppet/puppet.conf -vvvt --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp 2>&1 | tee -a /var/log/kickstart.log
+/opt/puppetlabs/puppet/bin/puppet apply --config /tmp/puppet/puppet.conf -vvvt --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp 2>&1 | tee -a /var/log/kickstart.log
 
 # update system
 apt-get update 2>&1 | tee -a /var/log/kickstart.log
