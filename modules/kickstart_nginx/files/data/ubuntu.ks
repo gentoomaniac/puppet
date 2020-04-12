@@ -94,9 +94,11 @@ fi
 
 # prepare future puppet runs
 echo master > /etc/puppet_branch
-echo "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" > /etc/apt/sources.list.d/docker.list
+curl https://apt.puppetlabs.com/puppet6-release-bionic.deb -o /tmp/puppet6-release-bionic.deb | tee -a /var/log/kickstart.log
+dpkg -i /tmp/puppet6-release-bionic.deb 2>&1 | tee -a /var/log/kickstart.log
 apt-get update
 apt-get install -y puppet-agent=6.13.0 2>&1 | tee -a /var/log/kickstart.log
+
 
 # run puppet
 git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/kickstart.log
