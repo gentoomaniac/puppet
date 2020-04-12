@@ -9,6 +9,9 @@ ressources:
     "/srv":
       ensure: directory
 
+docker::docker_users:
+  - marco
+
 certbot::domain: "*.srv.gentoomaniac.net"
 traefik::args:
   - --api.insecure=true
