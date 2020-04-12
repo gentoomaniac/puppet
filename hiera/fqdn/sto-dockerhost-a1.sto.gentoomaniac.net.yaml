@@ -6,6 +6,7 @@ classes:
   - tautulli
   - portainer
   - docker_registry
+  - ioquake3
 
 ressources:
   sysctl:
