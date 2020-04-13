@@ -1,5 +1,5 @@
 ---
-classe:
+classes:
   - netplan
 
 netplan::version: 2
