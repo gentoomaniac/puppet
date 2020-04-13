@@ -8,11 +8,25 @@ classes:
   - docker_registry
   - ioquake3
   - docker::volumes
+  - docker::run_instance
 
 ressources:
   sysctl:
-    "vm.max_map_count":
+    vm.max_map_count:
       value: 262144
+  file:
+    /srv/nzbget:
+      ensure: directory
+    /srv/nzbget/config:
+      ensure: directory
+      owner: 1000
+      group: 1000
+      require: File[/srv/nzbget]
+    /srv/nzbget/downloads:
+      ensure: directory
+      owner: 1000
+      group: 1000
+      require: File[/srv/nzbget]
 
 netplan::version: 2
 netplan::renderer: networkd
@@ -72,6 +86,45 @@ docker::volumes::volumes:
       - - type=nfs
         - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
         - device=:/mnt/tank3/sd_old
+
+docker::run_instance::instance:
+  nzbget:
+    image: linuxserver/nzbget:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    expose:
+      - 6789/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.nzbget.rule=Host(`nzbget.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.nzbget.entrypoints=websecure'"
+      - "'traefik.http.routers.nzbget.tls=true'"
+      - "'traefik.http.middlewares.nzbget-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.nzbget.middlewares=nzbget-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/nzbget/config:/config
+      - /srv/nzbget/downloads:/downloads
+      - nfs_movies:/movies
+      - nfs_shows:/shows
+      - nfs_kids_movies:/kids_movies
+      - nfs_kids_shows:/kids_shows
+    require:
+      - Docker_volume[nfs_movies]
+      - Docker_volume[nfs_shows]
+      - Docker_volume[nfs_kids_movies]
+      - Docker_volume[nfs_kids_shows]
+      - File[/srv/nzbget/config]
+      - File[/srv/nzbget/downloads]
 
 kickstart_nginx::labels:
   - "'traefik.enable=true'"
