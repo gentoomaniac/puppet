@@ -31,6 +31,9 @@ ressources:
     /srv/portainer:
       ensure: directory
       require: File[/srv]
+    /srv/quassel-core:
+      ensure: directory
+      require: File[/srv]
     /srv/radarr:
       ensure: directory
       require: File[/srv]
@@ -199,6 +202,27 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/portainer]
+  quassel-core:
+    image: linuxserver/quassel-core:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - 4242/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=false'"
+    pull_on_start: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /srv/quassel-core:/config
+    require:
+      - Class[docker]
+      - File[/srv/quassel-core]
   radarr:
     image: linuxserver/radarr:latest
     dns:
