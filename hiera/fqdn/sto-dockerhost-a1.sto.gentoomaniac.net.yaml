@@ -33,52 +33,45 @@ docker::volumes::volumes:
   nfs_movies:
     ensure: present
     driver: local
-    driver_opts:
-      type: "nfs"
-      o: "addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw"
-      device: ":/mnt/movies/movies"
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/movies/movies
   nfs_kids_movies:
     ensure: present
     driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-      device: ":/mnt/tank0/kids_movies"
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank0/kids_movies
   nfs_shows:
     ensure: present
     driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-      device: ":/mnt/tank3/shows"
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank3/shows
   nfs_kids_shows:
     ensure: present
     driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-      device: ":/mnt/tank0/kids_shows"
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank0/kids_shows
   nfs_kids_shows_se:
     ensure: present
     driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-      device: ":/mnt/tank0/kids_shows_se"
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank0/kids_shows_se
   nfs_sd_old:
     ensure: present
     driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-      device: ":/mnt/tank3/sd_old"
-  share:
-    ensure: present
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-      device: ":/mnt/tank5/share"
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank3/sd_old
 
 kickstart_nginx::labels:
   - "'traefik.enable=true'"
