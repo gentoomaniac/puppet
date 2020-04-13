@@ -12,6 +12,10 @@ ressources:
     vm.max_map_count:
       value: 262144
   file:
+    /srv/grafana:
+      owner: 1000
+      group: 1000
+      ensure: directory
     /srv/nzbget:
       ensure: directory
     /srv/nzbget/config:
@@ -94,6 +98,35 @@ docker::volumes::volumes:
         - device=:/mnt/tank3/sd_old
 
 docker::run_instance::instance:
+  grafana:
+    image: grafana/grafana:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - GF_SERVER_ROOT_URL=https://grafana.srv.gentoomaniac.net
+      # - GF_SECURITY_ADMIN_PASSWORD=
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    expose:
+      - 3000/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.grafana.rule=Host(`grafana.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.grafana.entrypoints=websecure'"
+      - "'traefik.http.routers.grafana.tls=true'"
+      - "'traefik.http.middlewares.grafana-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.grafana.middlewares=grafana-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    username: 1000:1000
+    volumes:
+      - /srv/grafana:/var/lib/grafana
+    require:
+      - Class[docker]
+      - File[/srv/grafana]
   nzbget:
     image: linuxserver/nzbget:latest
     dns:
