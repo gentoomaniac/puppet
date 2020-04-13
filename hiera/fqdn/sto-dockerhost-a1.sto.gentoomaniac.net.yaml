@@ -4,7 +4,6 @@ classes:
   - tftpd
   - kickstart_nginx
   - tautulli
-  - portainer
   - docker_registry
   - ioquake3
   - docker::volumes
@@ -27,6 +26,9 @@ ressources:
       owner: 1000
       group: 1000
       require: File[/srv/nzbget]
+    /srv/portainer:
+      ensure: directory
+      require: File[/srv]
 
 netplan::version: 2
 netplan::renderer: networkd
@@ -119,12 +121,38 @@ docker::run_instance::instance:
       - nfs_kids_movies:/kids_movies
       - nfs_kids_shows:/kids_shows
     require:
+      - Class[docker]
       - Docker_volume[nfs_movies]
       - Docker_volume[nfs_shows]
       - Docker_volume[nfs_kids_movies]
       - Docker_volume[nfs_kids_shows]
       - File[/srv/nzbget/config]
       - File[/srv/nzbget/downloads]
+  portainer:
+    image: portainer/portainer:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    expose:
+      - 9000/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.portainer.rule=Host(`portainer.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.portainer.entrypoints=websecure'"
+      - "'traefik.http.routers.portainer.tls=true'"
+      - "'traefik.http.middlewares.portainer-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.portainer.middlewares=portainer-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/portainer:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    require:
+      - Class[docker]
+      - File[/srv/portainer]
 
 kickstart_nginx::labels:
   - "'traefik.enable=true'"
@@ -141,14 +169,6 @@ tautulli::labels:
   - "'traefik.http.routers.tautulli.tls=true'"
   - "'traefik.http.middlewares.tautulli-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
   - "'traefik.http.routers.tautulli.middlewares=tautulli-whitelist'"
-
-portainer::labels:
-  - "'traefik.enable=true'"
-  - "'traefik.http.routers.portainer.rule=Host(`portainer.srv.gentoomaniac.net`)'"
-  - "'traefik.http.routers.portainer.entrypoints=websecure'"
-  - "'traefik.http.routers.portainer.tls=true'"
-  - "'traefik.http.middlewares.portainer-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
-  - "'traefik.http.routers.portainer.middlewares=portainer-whitelist'"
 
 docker_registry::labels:
   - "'traefik.enable=true'"
