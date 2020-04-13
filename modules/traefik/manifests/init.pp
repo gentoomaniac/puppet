@@ -1,6 +1,5 @@
 class traefik (
   $args,
-  $ports,
   $ssl_cert_location,
   $ssl_cert_name = 'fullchain1.pem',
   $ssl_key_name = 'privkey1.pem',
@@ -44,7 +43,7 @@ class traefik (
   docker::run { 'traefik':
     image            => "${image}:${tag}",
     command          => join($args, ' '),
-    ports            => $ports,
+    ports            => lookup('traefik::ports', Array[String], 'unique'),
     labels           => $labels,
     net              =>  ['web'],
     dns              => hiera('dns::servers'),

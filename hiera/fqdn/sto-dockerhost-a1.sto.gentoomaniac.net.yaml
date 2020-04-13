@@ -7,11 +7,17 @@ classes:
   - docker::volumes
   - docker::run_instance
 
+traefik::ports:
+  - 9200:9200/tcp
+
 ressources:
   sysctl:
     vm.max_map_count:
       value: 262144
   file:
+    /srv/elasticsearch:
+      ensure: directory
+      require: File[/srv]
     /srv/grafana:
       owner: 1000
       group: 1000
@@ -110,6 +116,42 @@ docker::volumes::volumes:
         - device=:/mnt/tank3/sd_old
 
 docker::run_instance::instance:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - node.name=es01
+      - cluster.initial_master_nodes=es01
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    expose:
+      - 9200/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+      - --ulimit memlock=-1:-1
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.elasticsearch-http.rule=Host(`elasticsearch.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.elasticsearch-http.entrypoints=web'"
+      - "'traefik.http.routers.elasticsearch-http.middlewares=es-redirect-to-https'"
+      - "'traefik.http.middlewares.es-redirect-to-https.redirectscheme.scheme=https'"
+      - "'traefik.http.middlewares.es-redirect-to-https.redirectscheme.port=9200'"
+      - "'traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.elasticsearch.entrypoints=elasticsearch'"
+      - "'traefik.http.routers.elasticsearch.tls=true'"
+      - "'traefik.http.middlewares.elasticsearch-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.elasticsearch.middlewares=elasticsearch-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/elasticsearch:/usr/share/elasticsearch/data
+    require:
+      - Class[docker]
+      - File[/srv/elasticsearch]
   grafana:
     image: grafana/grafana:latest
     dns:
@@ -211,7 +253,7 @@ docker::run_instance::instance:
       - PUID=1000
       - PGID=1000
     ports:
-      - 4242/tcp
+      - 4242:4242/tcp
     extra_parameters:
       - --restart=unless-stopped
     labels:
