@@ -3,7 +3,6 @@ classes:
   - logstash_docker
   - tftpd
   - kickstart_nginx
-  - tautulli
   - docker_registry
   - ioquake3
   - docker::volumes
@@ -27,6 +26,9 @@ ressources:
       group: 1000
       require: File[/srv/nzbget]
     /srv/portainer:
+      ensure: directory
+      require: File[/srv]
+    /srv/tautulli:
       ensure: directory
       require: File[/srv]
 
@@ -153,6 +155,30 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/portainer]
+  tautulli:
+    image: linuxserver/tautulli:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    expose:
+      - 8181/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.tautulli.rule=Host(`tautulli.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.tautulli.entrypoints=websecure'"
+      - "'traefik.http.routers.tautulli.tls=true'"
+      - "'traefik.http.middlewares.tautulli-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.tautulli.middlewares=tautulli-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/tautulli:/config
+    require:
+      - Class[docker]
+      - File[/srv/tautulli]
 
 kickstart_nginx::labels:
   - "'traefik.enable=true'"
@@ -161,14 +187,6 @@ kickstart_nginx::labels:
   - "'traefik.http.routers.ksnginx.tls=true'"
   - "'traefik.http.middlewares.ksnginx-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
   - "'traefik.http.routers.ksnginx.middlewares=ksnginx-whitelist'"
-
-tautulli::labels:
-  - "'traefik.enable=true'"
-  - "'traefik.http.routers.tautulli.rule=Host(`tautulli.srv.gentoomaniac.net`)'"
-  - "'traefik.http.routers.tautulli.entrypoints=websecure'"
-  - "'traefik.http.routers.tautulli.tls=true'"
-  - "'traefik.http.middlewares.tautulli-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
-  - "'traefik.http.routers.tautulli.middlewares=tautulli-whitelist'"
 
 docker_registry::labels:
   - "'traefik.enable=true'"
