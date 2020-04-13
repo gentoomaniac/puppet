@@ -3,7 +3,6 @@ classes:
   - logstash_docker
   - tftpd
   - kickstart_nginx
-  - docker_registry
   - ioquake3
   - docker::volumes
   - docker::run_instance
@@ -26,6 +25,9 @@ ressources:
       group: 1000
       require: File[/srv/nzbget]
     /srv/portainer:
+      ensure: directory
+      require: File[/srv]
+    /srv/registry:
       ensure: directory
       require: File[/srv]
     /srv/tautulli:
@@ -155,6 +157,32 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/portainer]
+  registry:
+    image: registry:2
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - REGISTRY_HTTP_ADDR=0.0.0.0:80
+    expose:
+      - 80/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.registry.rule=Host(`registry.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.registry.entrypoints=websecure'"
+      - "'traefik.http.routers.registry.tls=true'"
+      - "'traefik.http.middlewares.registry-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.registry.middlewares=registry-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/registry:/var/lib/registry
+    require:
+      - Class[docker]
+      - File[/srv/registry]
   tautulli:
     image: linuxserver/tautulli:latest
     dns:
