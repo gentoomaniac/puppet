@@ -34,6 +34,9 @@ ressources:
     /srv/registry:
       ensure: directory
       require: File[/srv]
+    /srv/sonarr:
+      ensure: directory
+      require: File[/srv]
     /srv/tautulli:
       ensure: directory
       require: File[/srv]
@@ -216,6 +219,36 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/registry]
+  sonarr:
+    image: linuxserver/sonarr:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - TZ=Europe/Berlin
+    expose:
+      - 8989/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.sonarr.rule=Host(`sonarr.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.sonarr.entrypoints=websecure'"
+      - "'traefik.http.routers.sonarr.tls=true'"
+      - "'traefik.http.middlewares.sonarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.registry.middlewares=sonarr-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/sonarr:/config
+      - nfs_shows:/shows
+    require:
+      - Class[docker]
+      - File[/srv/sonarr]
   tautulli:
     image: linuxserver/tautulli:latest
     dns:
