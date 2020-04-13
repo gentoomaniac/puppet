@@ -17,11 +17,11 @@ Description=Daemon for <%= @title %>
 After=<%= @after.uniq.join(" ") %>
 Wants=<%= @wants.uniq.join(" ") %>
 Requires=<%= @requires.uniq.join(" ") %>
+StartLimitIntervalSec=20
+StartLimitBurst=5
 
 [Service]
 Restart=<%= @systemd_restart %>
-StartLimitInterval=20
-StartLimitBurst=5
 TimeoutStartSec=0
 RestartSec=5
 Environment="HOME=/root"
@@ -30,6 +30,9 @@ SyslogIdentifier=<%= @_syslog_identifier %>
 <%- end -%>
 ExecStart=/usr/local/bin/docker-run-<%= @sanitised_title %>-start.sh
 ExecStop=-/usr/local/bin/docker-run-<%= @sanitised_title %>-stop.sh
+<%- if @remain_after_exit %>
+RemainAfterExit=<%= @remain_after_exit %>
+<%- end -%>
 
 [Install]
 WantedBy=multi-user.target
