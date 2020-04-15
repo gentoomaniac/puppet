@@ -1,6 +1,9 @@
 ---
 classes:
   - netplan
+  - hostbase::hostname
+
+hostbase::hostname::hostname: sto-dockerhost-a2.sto.gentoomaniac.net
 
 netplan::version: 2
 netplan::renderer: networkd
