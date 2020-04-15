@@ -1,17 +1,20 @@
 ---
 classes:
   - netplan
+  - hostbase::hostname
+
+hostbase::hostname::hostname: sto-coredns-b1.sto.gentoomaniac.net
 
 netplan::version: 2
 netplan::renderer: networkd
 netplan::ethernets:
-  ens18:
+  enp0s4:
     dhcp4: no
     addresses:
-      - 10.1.1.99/24
+      - 10.1.1.53/24
     nameservers:
       search: [gentoomaniac.net]
-      addresses: [10.1.1.152, 10.1.1.153]
+      addresses: [10.1.1.152, 127.0.0.1]
     routes:
       - to: 0.0.0.0/0
         via: 10.1.1.1
