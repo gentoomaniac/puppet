@@ -1,0 +1,115 @@
+---
+classes:
+  - docker
+  - certbot
+  - traefik
+
+ressources:
+  file:
+    "/srv":
+      ensure: directory
+    /srv/nzbget:
+      ensure: directory
+    /srv/nzbget/config:
+      ensure: directory
+      owner: 1000
+      group: 1000
+      require: File[/srv/nzbget]
+
+docker::volumes::volumes:
+  nfs_movies:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/movies/movies
+  nfs_kids_movies:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank0/kids_movies
+  nfs_shows:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank3/shows
+  nfs_kids_shows:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank0/kids_shows
+  nfs_share:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank5/share
+
+docker::docker_users:
+  - marco
+
+certbot::domain: "*.srv.gentoomaniac.net"
+traefik::args:
+  - --api.insecure=true
+  - --entrypoints.web.address=:80
+  - --entrypoints.websecure.address=:443
+  - --entrypoints.elasticsearch.address=:9200
+  - --providers.file.directory=/conf
+  - --providers.file.watch=true
+  - --providers.docker
+  - --providers.docker.exposedbydefault=false
+  - --serverstransport.insecureskipverify=true
+traefik::labels: []
+traefik::ports:
+  - 80:80/tcp
+  - 443:443/tcp
+  - 8080:8080/tcp
+traefik::ssl_cert_location: /srv/certbot-srv_gentoomaniac_net/data/srv.gentoomaniac.net
+
+docker::run_instance::instance:
+  nzbget:
+    image: linuxserver/nzbget:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    expose:
+      - 6789/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.nzbget.rule=Host(`nzbget.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.nzbget.entrypoints=websecure'"
+      - "'traefik.http.routers.nzbget.tls=true'"
+      - "'traefik.http.middlewares.nzbget-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.nzbget.middlewares=nzbget-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/nzbget/config:/config
+      - nfs_share:/downloads
+      - nfs_movies:/movies
+      - nfs_shows:/shows
+      - nfs_kids_movies:/kids_movies
+      - nfs_kids_shows:/kids_shows
+    require:
+      - Class[docker]
+      - Docker_volume[nfs_movies]
+      - Docker_volume[nfs_shows]
+      - Docker_volume[nfs_kids_movies]
+      - Docker_volume[nfs_kids_shows]
+      - Docker_volume[nfs_share]
+      - File[/srv/nzbget/config]
