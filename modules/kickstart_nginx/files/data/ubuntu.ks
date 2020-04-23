@@ -55,7 +55,7 @@ preseed partman-auto-lvm/no_boot        boolean true
 authconfig --useshadow --passalgo=sha512
 
 #Network information
-network --bootproto=dhcp --device=eth0
+network --bootproto=dhcp
 
 #Firewall configuration
 firewall --disabled

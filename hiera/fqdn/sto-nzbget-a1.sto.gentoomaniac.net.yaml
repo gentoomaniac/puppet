@@ -2,7 +2,8 @@
 classes:
   - docker
   - certbot
-  - traefik
+  - docker::volumes
+  - docker::run_instance
 
 ressources:
   file:
@@ -57,22 +58,6 @@ docker::docker_users:
   - marco
 
 certbot::domain: "*.srv.gentoomaniac.net"
-traefik::args:
-  - --api.insecure=true
-  - --entrypoints.web.address=:80
-  - --entrypoints.websecure.address=:443
-  - --entrypoints.elasticsearch.address=:9200
-  - --providers.file.directory=/conf
-  - --providers.file.watch=true
-  - --providers.docker
-  - --providers.docker.exposedbydefault=false
-  - --serverstransport.insecureskipverify=true
-traefik::labels: []
-traefik::ports:
-  - 80:80/tcp
-  - 443:443/tcp
-  - 8080:8080/tcp
-traefik::ssl_cert_location: /srv/certbot-srv_gentoomaniac_net/data/srv.gentoomaniac.net
 
 docker::run_instance::instance:
   nzbget:
@@ -113,3 +98,29 @@ docker::run_instance::instance:
       - Docker_volume[nfs_kids_shows]
       - Docker_volume[nfs_share]
       - File[/srv/nzbget/config]
+  traefik:
+    image: traefik:v2.2
+    command: --api.insecure=true --entrypoints.web.address=:80 --entrypoints.websecure.address=:443 --providers.docker --providers.docker.exposedbydefault=false --providers.docker.tls.cert=/ssl/fullchain.pem --providers.docker.tls.key=/ssl/privkey.pem --serverstransport.insecureskipverify=true
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    expose:
+      - 6789/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels: []
+    net:
+      - web
+    ports:
+      - 80:80/tcp
+      - 443:443/tcp
+      - 8080:8080/tcp
+    pull_on_start: true
+    volumes:
+      - /srv/certbot-srv_gentoomaniac_net/data/live/srv.gentoomaniac.net:/ssl:ro
+    require:
+      - Class[docker]
