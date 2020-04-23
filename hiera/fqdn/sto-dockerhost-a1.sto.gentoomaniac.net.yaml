@@ -56,21 +56,6 @@ ressources:
       ensure: directory
       require: File[/srv]
 
-netplan::version: 2
-netplan::renderer: networkd
-netplan::ethernets:
-  enp0s25:
-    dhcp4: no
-    addresses:
-      - 10.1.1.3/24
-    nameservers:
-      search: [gentoomaniac.net]
-      addresses: [10.1.1.52, 10.1.1.53]
-    routes:
-      - to: 0.0.0.0/0
-        via: 10.1.1.1
-        metric: 10
-
 docker::volumes::volumes:
   nfs_movies:
     ensure: present

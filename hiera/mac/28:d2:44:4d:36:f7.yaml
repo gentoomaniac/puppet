@@ -1,17 +1,17 @@
 ---
 classes:
-  - netplan
+  #- netplan
   - hostbase::hostname
 
-hostbase::hostname::hostname: sto-dockerhost-a2.sto.gentoomaniac.net
+hostbase::hostname::hostname: sto-dockerhost-a1.sto.gentoomaniac.net
 
 netplan::version: 2
 netplan::renderer: networkd
 netplan::ethernets:
-  ens18:
+  enp0s25:
     dhcp4: no
     addresses:
-      - 10.1.1.4/24
+      - 10.1.1.3/24
     nameservers:
       search: [gentoomaniac.net]
       addresses: [10.1.1.52, 10.1.1.53]
