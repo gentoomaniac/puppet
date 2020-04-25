@@ -67,10 +67,9 @@ docker::run_instance::instance:
 vault::storage:
   file:
     path: /tmp
-
 vault::listener:
   - tcp:
       address: 172.17.0.1:8200
       tls_disable: 1
-
 vault::default_lease_ttl: 720h
+vault::enable_ui: true
