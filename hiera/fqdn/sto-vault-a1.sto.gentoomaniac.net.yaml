@@ -2,6 +2,7 @@
 classes:
   - docker
   - docker::run_instance
+  - vault
 
 ressources:
   file:
