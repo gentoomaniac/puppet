@@ -36,8 +36,6 @@ docker::run_instance::instance:
       - "'traefik.http.routers.vault.middlewares=vault-whitelist'"
       - "'traefik.http.services.vault.loadBalancer.servers.url=http://localhost:8200'"
       - "'traefik.http.routers.vault.service=vault'"
-    net:
-      - web
     ports:
       - 443:443/tcp
       - 8080:8080/tcp
