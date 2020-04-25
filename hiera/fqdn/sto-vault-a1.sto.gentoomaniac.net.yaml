@@ -43,3 +43,13 @@ docker::run_instance::instance:
     pull_on_start: true
     require:
       - Class[docker]
+
+vault::storage:
+  file:
+    path: /tmp
+
+vault::listener:
+  - tcp:
+      address: 127.0.0.1:8200
+
+vault::default_lease_ttl: 720h
