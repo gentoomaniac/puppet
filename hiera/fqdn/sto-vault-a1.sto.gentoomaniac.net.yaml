@@ -17,7 +17,7 @@ ressources:
         [http.services]
           [http.services.vault.loadBalancer]
             [[http.services.vault.loadBalancer.servers]]
-                url = "http://localhost:8200"
+                url = "http://172.17.0.1:8200"
         [http.routers]
           [http.routers.vault]
             rule = "Host(`vault.srv.gentoomaniac.net`)"
@@ -33,7 +33,6 @@ ressources:
 
 docker::docker_users:
   - marco
-
 
 docker::run_instance::instance:
   traefik:
@@ -71,7 +70,7 @@ vault::storage:
 
 vault::listener:
   - tcp:
-      address: 127.0.0.1:8200
+      address: 172.17.0.1:8200
       tls_disable: 1
 
 vault::default_lease_ttl: 720h
