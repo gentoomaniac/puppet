@@ -1,0 +1,45 @@
+---
+classes:
+  - docker
+  - docker::run_instance
+
+ressources:
+  file:
+    "/srv":
+      ensure: directory
+
+docker::docker_users:
+  - marco
+
+
+docker::run_instance::instance:
+  traefik:
+    image: traefik:v2.2
+    command: --api.insecure=true --entrypoints.websecure.address=:443 --providers.docker --providers.docker.exposedbydefault=false  --serverstransport.insecureskipverify=true
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    expose:
+      - 6789/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.http.routers.vault.rule=Host(`vault.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.vault.entrypoints=websecure'"
+      - "'traefik.http.routers.vault.tls=true'"
+      - "'traefik.http.middlewares.vault-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.vault.middlewares=vault-whitelist'"
+      - "'traefik.http.services.vault.loadBalancer.servers.url=http://localhost:8200'"
+      - "'traefik.http.routers.vault.service=vault'"
+    net:
+      - web
+    ports:
+      - 443:443/tcp
+      - 8080:8080/tcp
+    pull_on_start: true
+    require:
+      - Class[docker]
