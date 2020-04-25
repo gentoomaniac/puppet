@@ -16,7 +16,12 @@ docker::docker_users:
 docker::run_instance::instance:
   traefik:
     image: traefik:v2.2
-    command: --api.insecure=true --entrypoints.websecure.address=:443 --providers.docker --providers.docker.exposedbydefault=false --serverstransport.insecureskipverify=true
+    command: >
+      --api.insecure=true
+      --entrypoints.websecure.address=:443
+      --providers.docker
+      --providers.docker.exposedbydefault=false
+      --serverstransport.insecureskipverify=true
     dns:
       - 10.1.1.52
       - 10.1.1.53
