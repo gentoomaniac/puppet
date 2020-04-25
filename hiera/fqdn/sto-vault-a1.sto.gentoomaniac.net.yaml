@@ -20,13 +20,13 @@ docker::run_instance::instance:
       --api.insecure=true
       --entrypoints.websecure.address=:443
       --serverstransport.insecureskipverify=true
-      --traefik.http.routers.vault.rule='Host(`vault.srv.gentoomaniac.net`)'
-      --traefik.http.routers.vault.entrypoints=websecure
-      --traefik.http.routers.vault.tls=true
-      --traefik.http.middlewares.vault-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24
-      --traefik.http.routers.vault.middlewares=vault-whitelist
-      --traefik.http.services.vault.loadBalancer.servers.url=http://localhost:8200
-      --traefik.http.routers.vault.service=vault
+      --http.routers.vault.rule='Host(`vault.srv.gentoomaniac.net`)'
+      --http.routers.vault.entrypoints=websecure
+      --http.routers.vault.tls=true
+      --http.middlewares.vault-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24
+      --http.routers.vault.middlewares=vault-whitelist
+      --http.services.vault.loadBalancer.servers.url=http://localhost:8200
+      --http.routers.vault.service=vault
     dns:
       - 10.1.1.52
       - 10.1.1.53
