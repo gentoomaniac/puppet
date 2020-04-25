@@ -19,8 +19,6 @@ docker::run_instance::instance:
     command: >
       --api.insecure=true
       --entrypoints.websecure.address=:443
-      --providers.docker
-      --providers.docker.exposedbydefault=false
       --serverstransport.insecureskipverify=true
       --traefik.http.routers.vault.rule=Host(`vault.srv.gentoomaniac.net`)
       --traefik.http.routers.vault.entrypoints=websecure
@@ -46,8 +44,6 @@ docker::run_instance::instance:
     pull_on_start: true
     require:
       - Class[docker]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
 
 vault::storage:
   file:
