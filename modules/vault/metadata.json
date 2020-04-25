@@ -1,0 +1,91 @@
+{
+  "name": "jsok-vault",
+  "version": "2.2.0",
+  "author": "jsok",
+  "summary": "Puppet module to manage Vault (https://vaultproject.io)",
+  "license": "Apache-2.0",
+  "source": "https://github.com/jsok/puppet-vault.git",
+  "project_page": "https://github.com/jsok/puppet-vault",
+  "issues_url": "https://github.com/jsok/puppet-vault/issues",
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 4.24.0 < 7.0.0"
+    },
+    {
+      "name": "puppet-archive",
+      "version_requirement": ">= 2.0.0 < 5.0.0"
+    },
+    {
+      "name": "camptocamp-systemd",
+      "version_requirement": ">= 1.1.1 < 3.0.0"
+    },
+    {
+      "name": "stm-file_capability",
+      "version_requirement": ">= 1.0.1 < 3.0.0"
+    }
+  ],
+  "data_provider": null,
+  "tags": [
+    "vault",
+    "hashicorp",
+    "secrets"
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "14.04",
+        "16.04",
+        "18.04"
+      ]
+    },
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "8",
+        "9"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6.0",
+        "7.0"
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "6.0",
+        "7.0"
+      ]
+    },
+    {
+      "operatingsystem": "Amazon",
+      "operatingsystemrelease": [
+        "2016.03"
+      ]
+    },
+    {
+      "operatingsystem": "Fedora",
+      "operatingsystemrelease": [
+        "25",
+        "26",
+        "27"
+      ]
+    },
+    {
+      "operatingsystem": "Archlinux"
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">= 4.0.0 < 7.0.0"
+    }
+  ],
+  "pdk-version": "1.8.0",
+  "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-templates.git",
+  "template-ref": "1.8.0-0-g0d9da00"
+}
