@@ -8,6 +8,28 @@ ressources:
   file:
     "/srv":
       ensure: directory
+    "/srv/traefik":
+      ensure: directory
+      require: File[/srv]
+    "/srv/traefik/static.toml":
+      ensure: present
+      content: |
+        [http.services]
+          [http.services.vault.loadBalancer]
+            [[http.services.vault.loadBalancer.servers]]
+                url = "http://localhost:8200"
+        [http.routers]
+          [http.routers.vault]
+            rule = "Host(`vault.srv.gentoomaniac.net`)"
+            service = "vault"
+            entryPoints = ["websecure"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.vault.tls]
+        [http.middlewares]
+          [http.middlewares.local-only-whitelist]
+              [http.middlewares.local-only-whitelist.ipwhitelist]
+                  sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
+      require: File[/srv/traefik]
 
 docker::docker_users:
   - marco
@@ -20,13 +42,8 @@ docker::run_instance::instance:
       --api.insecure=true
       --entrypoints.websecure.address=:443
       --serverstransport.insecureskipverify=true
-      --http.routers.vault.rule='Host(`vault.srv.gentoomaniac.net`)'
-      --http.routers.vault.entrypoints=websecure
-      --http.routers.vault.tls=true
-      --http.middlewares.vault-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24
-      --http.routers.vault.middlewares=vault-whitelist
-      --http.services.vault.loadBalancer.servers.url=http://localhost:8200
-      --http.routers.vault.service=vault
+      --providers.file.directory=/conf
+      --providers.file.watch=true
     dns:
       - 10.1.1.52
       - 10.1.1.53
@@ -44,6 +61,9 @@ docker::run_instance::instance:
     pull_on_start: true
     require:
       - Class[docker]
+      - File[/srv/traefik/static.toml]
+    volumes:
+      - /srv/traefik:/conf:ro
 
 vault::storage:
   file:
