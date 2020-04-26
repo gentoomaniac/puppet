@@ -33,6 +33,9 @@ ressources:
         }
 
         default_lease_ttl = "720h"
+    "/tmp/testfile":
+      ensure: present
+      content: "%{vault_lookup::lookup('secret/data/roles/nzbget/somesecret/secret', 'https://vault.srv.gentoomaniac.net')}"
 
 docker::docker_users:
   - marco
