@@ -1,3 +1,5 @@
+TOKEN_FILE = "/etc/secrets_access_token"
+
 Puppet::Functions.create_function(:'vault_lookup::lookup') do
   dispatch :lookup do
     param 'String', :path
@@ -21,7 +23,7 @@ Puppet::Functions.create_function(:'vault_lookup::lookup') do
         token = file.read.strip
         File.close
     end
-    raise Puppet::Error, "No vault token found" unless access_token
+    raise Puppet::Error, "No vault token found" unless defined?(access_token).nil?
 
     secret_response = connection.get("/v1/#{path}", 'X-Vault-Token' => token)
     unless secret_response.is_a?(Net::HTTPOK)
