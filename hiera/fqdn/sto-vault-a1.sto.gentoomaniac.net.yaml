@@ -1,38 +1,45 @@
 ---
 classes:
   - docker
+  - docker::networks
   - docker::run_instance
-  - vault
 
 ressources:
   file:
     "/srv":
       ensure: directory
-    "/srv/traefik":
+    "/srv/vault":
       ensure: directory
       require: File[/srv]
-    "/srv/traefik/static.toml":
+    "/srv/vault/data":
+      ensure: directory
+      owner: 100
+      group: 1000
+      mode: "0770"
+      require: File[/srv/vault]
+    "/srv/vault/conf":
+      ensure: directory
+      require: File[/srv/vault]
+    "/srv/vault/conf/config.hcl":
       ensure: present
       content: |
-        [http.services]
-          [http.services.vault.loadBalancer]
-            [[http.services.vault.loadBalancer.servers]]
-                url = "http://172.17.0.1:8200"
-        [http.routers]
-          [http.routers.vault]
-            rule = "Host(`vault.srv.gentoomaniac.net`)"
-            service = "vault"
-            entryPoints = ["websecure"]
-            middlewares = ["local-only-whitelist"]
-            [http.routers.vault.tls]
-        [http.middlewares]
-          [http.middlewares.local-only-whitelist]
-              [http.middlewares.local-only-whitelist.ipwhitelist]
-                  sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
-      require: File[/srv/traefik]
+        isable_cache = true
+        disable_mlock = true
+
+        ui = true
+
+        storage "file" {
+          path = "/data"
+        }
+
+        default_lease_ttl = "720h"
 
 docker::docker_users:
   - marco
+
+docker::networks::networks:
+  web:
+    ensure: 'present'
 
 docker::run_instance::instance:
   traefik:
@@ -41,35 +48,53 @@ docker::run_instance::instance:
       --api.insecure=true
       --entrypoints.websecure.address=:443
       --serverstransport.insecureskipverify=true
-      --providers.file.directory=/conf
-      --providers.file.watch=true
+      --providers.docker
+      --providers.docker.exposedbydefault=false
     dns:
       - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/Berlin
-    expose:
-      - 6789/tcp
+      - TZ=Europe/Berlin  
     extra_parameters:
       - --restart=unless-stopped
+    net:
+      - web
     ports:
       - 443:443/tcp
       - 8080:8080/tcp
     pull_on_start: true
     require:
       - Class[docker]
-      - File[/srv/traefik/static.toml]
+      - Docker_network[web]
     volumes:
-      - /srv/traefik:/conf:ro
-
-vault::storage:
-  file:
-    path: /tmp
-vault::listener:
-  - tcp:
-      address: 172.17.0.1:8200
-      tls_disable: 1
-vault::default_lease_ttl: 720h
-vault::enable_ui: true
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  vault:
+    image: vault:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    expose:
+      - 8200/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+      - --cap-add=IPC_LOCK
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.vault.rule=Host(`vault.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.vault.entrypoints=websecure'"
+      - "'traefik.http.routers.vault.tls=true'"
+      - "'traefik.http.middlewares.vault-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.vault.middlewares=vault-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    require:
+      - Class[docker]
+      - Docker_network[web]
+      - File[/srv/vault/conf/config.hcl]
+      - File[/srv/vault/data]
+    volumes:
+      - /srv/vault/conf:/vault/config
+      - /srv/vault/data:/data
