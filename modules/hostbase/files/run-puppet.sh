@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+start_time=$(date +%s)
+
 if [ "$1" != "now" ]; then
     sleep $((1 + RANDOM % 360))
     SYSLOG="-l syslog"
@@ -26,3 +28,19 @@ else
 fi
 
 ${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt ${NOOP} ${SYSLOG} "${PUPPET_GIT_PATH}/manifests/site.pp"
+
+puppet_returncode=$?
+
+runtime=$[$(date +%s) - ${start_time}]
+es_index_name="puppet-run-$(date +%Y-%m-%d)"
+timestamp=$(date --iso-8601=seconds)
+hostname=$(hostname)
+
+curl https://elasticsearch.srv.gentoomaniac.net:9200/${es_index_name}/_doc -X POST -H 'Content-Type: application/json' -d '
+{
+    "timestamp": "'${timestamp}'",
+    "hostname": "'${hostname}'",
+    "execution_time": '${runtime}',
+    "returncode": "'${puppet_returncode}'"
+}
+'
