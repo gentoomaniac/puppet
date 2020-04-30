@@ -33,7 +33,7 @@ puppet_returncode=$?
 
 es_url=http://elasticsearch.srv.gentoomaniac.net:9200
 runtime=$[$(date +%s) - ${start_time}]
-es_index_name="puppet-run-$(date +%Y-%m-%d)"
+es_index_name="puppet-run-$(date +%Y.%m.%d)"
 timestamp=$(date --iso-8601=seconds)
 hostname=$(hostname)
 
