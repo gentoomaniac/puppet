@@ -38,7 +38,7 @@ hostname=$(hostname)
 
 curl https://elasticsearch.srv.gentoomaniac.net:9200/${es_index_name}/_doc -X POST -H 'Content-Type: application/json' -d '
 {
-    "timestamp": "'${timestamp}'",
+    "@timestamp": "'${timestamp}'",
     "hostname": "'${hostname}'",
     "execution_time": '${runtime}',
     "returncode": "'${puppet_returncode}'"
