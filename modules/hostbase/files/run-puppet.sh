@@ -31,12 +31,41 @@ ${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt ${NOOP} ${SYSLOG
 
 puppet_returncode=$?
 
+es_url=http://elasticsearch.srv.gentoomaniac.net:9200
 runtime=$[$(date +%s) - ${start_time}]
 es_index_name="puppet-run-$(date +%Y-%m-%d)"
 timestamp=$(date --iso-8601=seconds)
 hostname=$(hostname)
 
-curl https://elasticsearch.srv.gentoomaniac.net:9200/${es_index_name}/_doc -X POST -H 'Content-Type: application/json' -d '
+if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev/null; then
+    curl -X PUT "${es_url}/${es_index_name}" -H 'Content-Type: application/json' -d '
+    {
+    "mappings": {
+        "properties": {
+        "@timestamp": {
+            "type": "date"
+        },
+        "hostname": {
+            "type": "text",
+            "fields": {
+            "keyword": {
+                "type": "keyword"
+            }
+            }
+        },
+        "execution_time": {
+            "type": "integer"
+        },
+        "returncode": {
+            "type": "integer"
+        }
+        }
+    }
+    }
+    '
+fi
+
+curl -X POST "${es_url}/${es_index_name}/_doc" -H 'Content-Type: application/json' -d '
 {
     "@timestamp": "'${timestamp}'",
     "hostname": "'${hostname}'",
