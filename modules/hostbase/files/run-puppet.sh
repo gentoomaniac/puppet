@@ -39,7 +39,7 @@ hostname=$(hostname)
 
 if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev/null; then
     curl -X PUT "${es_url}/${es_index_name}" -H 'Content-Type: application/json' -d '
-    {
+{
     "mappings": {
         "properties": {
         "@timestamp": {
@@ -48,21 +48,25 @@ if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev
         "hostname": {
             "type": "text",
             "fields": {
-            "keyword": {
-                "type": "keyword"
-            }
+                "keyword": {
+                    "type": "keyword"
+                }
             }
         },
         "execution_time": {
             "type": "integer"
         },
         "returncode": {
-            "type": "integer"
-        }
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
         }
     }
-    }
-    '
+}
+'
 fi
 
 curl -X POST "${es_url}/${es_index_name}/_doc" -H 'Content-Type: application/json' -d '
