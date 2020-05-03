@@ -27,12 +27,15 @@ else
     logger -s "failed to clone puppet git repo"
 fi
 
+git_finished=$(date +%s)
+
 ${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt ${NOOP} ${SYSLOG} "${PUPPET_GIT_PATH}/manifests/site.pp"
 
 puppet_returncode=$?
 
 es_url=http://elasticsearch.srv.gentoomaniac.net:9200
-runtime=$[$(date +%s) - ${start_time}]
+git_time=$[${git_finished} - ${start_time}]
+puppet_time=$[$(date +%s) - ${git_finished}]
 es_index_name="puppet-run-$(date +%Y.%m.%d)"
 timestamp=$(date --iso-8601=seconds)
 hostname=$(hostname)
@@ -53,7 +56,10 @@ if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev
                 }
             }
         },
-        "execution_time": {
+        "git_time": {
+            "type": "integer"
+        },
+        "puppet_time": {
             "type": "integer"
         },
         "returncode": {
@@ -73,7 +79,8 @@ curl -X POST "${es_url}/${es_index_name}/_doc" -H 'Content-Type: application/jso
 {
     "@timestamp": "'${timestamp}'",
     "hostname": "'${hostname}'",
-    "execution_time": '${runtime}',
+    "git_time": '${git_time}',
+    "puppet_time": '${puppet_time}',
     "returncode": "'${puppet_returncode}'"
 }
 '
