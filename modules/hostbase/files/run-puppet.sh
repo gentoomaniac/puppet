@@ -34,11 +34,13 @@ ${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt ${NOOP} ${SYSLOG
 puppet_returncode=$?
 
 es_url=http://elasticsearch.srv.gentoomaniac.net:9200
-git_time=$[${git_finished} - ${start_time}]
-puppet_time=$[$(date +%s) - ${git_finished}]
 es_index_name="puppet-run-$(date +%Y.%m.%d)"
 timestamp=$(date --iso-8601=seconds)
 hostname=$(hostname)
+
+git_time=$[${git_finished} - ${start_time}]
+puppet_time=$[$(date +%s) - ${git_finished}]
+puppet_branch=$(cat /etc/puppet_branch | tr -d '\n')
 
 if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev/null; then
     curl -X PUT "${es_url}/${es_index_name}" -H 'Content-Type: application/json' -d '
@@ -62,6 +64,14 @@ if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev
         "puppet_time": {
             "type": "integer"
         },
+        "puppet_branch": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
         "returncode": {
             "type": "text",
             "fields": {
@@ -81,6 +91,7 @@ curl -X POST "${es_url}/${es_index_name}/_doc" -H 'Content-Type: application/jso
     "hostname": "'${hostname}'",
     "git_time": '${git_time}',
     "puppet_time": '${puppet_time}',
+    "puppet_branch": "'${puppet_branch}'",
     "returncode": "'${puppet_returncode}'"
 }
 '
