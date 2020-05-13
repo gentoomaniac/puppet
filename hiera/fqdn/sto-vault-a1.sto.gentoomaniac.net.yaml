@@ -44,11 +44,11 @@ ressources:
       require: File[/srv/traefik]
     "/srv/traefik/ssl/key.pem":
       ensure: present
-      content: "%{lookup('secret_srv.gentoomaniac.net_key')}"
+      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
       require: File[/srv/traefik/ssl]
     "/srv/traefik/ssl/cert.pem":
       ensure: present
-      content: "%{lookup('secret_srv.gentoomaniac.net_cert')}"
+      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
       require: File[/srv/traefik/ssl]
     "/srv/traefik/conf/certs.toml":
       ensure: present
