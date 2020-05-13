@@ -95,6 +95,23 @@ if [ ! -z "${hostname}" ]; then
     hostnamectl set-hostname "${hostname}" 2>&1 | tee -a /var/log/kickstart.log
 fi
 
+# set vault token if specified as boot parameter
+VAULT_TOKEN=$(sed -e 's/.*vault_token=\(\w\.\w\+\).*/\1/'' /proc/cmdline)
+echo "VAULT_TOKEN set on kernel command line" | tee -a /var/log/kickstart.log
+if [ ! -z "${VAULT_TOKEN}" ]; then
+    echo ${VAULT_TOKEN} > /etc/vault_token
+    chmod 600 /etc/vault_token
+fi
+
+# Prepare Hashicorp Vault
+VAULT_VERSION=1.4.1
+pushd /usr/local/bin
+curl https://releases.hashicorp.com/vault/1.4.1/vault_${VAULT_VERSION}_linux_amd64.zip -o /tmp/vault_${VAULT_VERSION}_linux_amd64.zip
+unzip /tmp/vault_${VAULT_VERSION}_linux_amd64.zip
+mv vault vault-${VAULT_VERSION}
+ln -s vault-${VAULT_VERSION} vault
+popd
+
 # prepare future puppet runs
 echo master > /etc/puppet_branch
 apt-get install -y gnupg2
@@ -103,6 +120,9 @@ curl "https://apt.puppetlabs.com/puppet6-release-${CODENAME}.deb" -o "/tmp/puppe
 dpkg -i "/tmp/puppet6-release-${CODENAME}.deb" 2>&1 | tee -a /var/log/kickstart.log
 apt-get update && apt-get install -y "puppet-agent=6.13.0-1${CODENAME}" 2>&1 | tee -a /var/log/kickstart.log
 
+# prepare secrets for puppet
+gem install vault
+gem install debouncer
 
 # run puppet
 git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/kickstart.log
