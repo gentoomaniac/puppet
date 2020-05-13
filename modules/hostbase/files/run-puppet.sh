@@ -12,12 +12,18 @@ if [ -f /etc/puppet_disable ]; then
     NOOP=--noop
 fi
 
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
+VAULT_BIN=$(which vault)
 PUPPET=$(test -f /usr/local/bin/puppet && echo /usr/local/bin/puppet || echo /opt/puppetlabs/bin/puppet)
 PUPPET_GIT_PATH=/var/lib/puppet-repo
 PUPPET_GIT_BRANCH=$(head -1 /etc/puppet_branch)
 temp_dir=$(mktemp -d -t puppet-$(date +%Y-%m-%d-%H-%M-%S)-XXX)
+
+# renew vault token:
+if [ ! -z "${VAULT_BIN}" ]; then
+    vault token renew
+fi
 
 if git clone --single-branch --branch "${PUPPET_GIT_BRANCH}" https://github.com/gentoomaniac/puppet.git "${temp_dir}" ; then
     rm -rf "${PUPPET_GIT_PATH}"
