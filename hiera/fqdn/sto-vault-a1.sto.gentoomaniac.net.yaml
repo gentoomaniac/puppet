@@ -33,15 +33,34 @@ ressources:
         }
 
         default_lease_ttl = "720h"
-    "/srv/vault/ssl":
+    "/srv/traefik":
       ensure: directory
-      require: File[/srv/vault]
-    "/srv/vault/ssl/key.pem":
+      require: File[/srv]
+    "/srv/traefik/conf":
+      ensure: directory
+      require: File[/srv/traefik]
+    "/srv/traefik/ssl":
+      ensure: directory
+      require: File[/srv/traefik]
+    "/srv/traefik/ssl/key.pem":
       ensure: present
       content: "%{lookup('secret_srv.gentoomaniac.net_key')}"
-    "/srv/vault/ssl/cert.pem":
+      require: File[/srv/traefik/ssl]
+    "/srv/traefik/ssl/cert.pem":
       ensure: present
       content: "%{lookup('secret_srv.gentoomaniac.net_cert')}"
+      require: File[/srv/traefik/ssl]
+    "/srv/traefik/conf/certs.toml":
+      ensure: present
+      content: |
+        [tls.stores]
+          [tls.stores.default]
+          [tls.stores.default.defaultCertificate]
+            certFile = "/ssl/cert.pem"
+            keyFile = "/ssl/key.pem"
+      require:
+        - File[/srv/traefik/ssl/cert.pem]
+        - File[/srv/traefik/ssl/key.pem]
 
 docker::docker_users:
   - marco
@@ -59,8 +78,8 @@ docker::run_instance::instance:
       --serverstransport.insecureskipverify=true
       --providers.docker
       --providers.docker.exposedbydefault=false
-      --tls.stores.default.defaultCertificate.certFile=/ssl/cert.pem
-      --tls.stores.default.defaultCertificate.keyFile=/ssl/key.pem
+      --providers.file.directory=/conf
+      --providers.file.watch=true
     dns:
       - 10.1.1.52
       - 10.1.1.53
@@ -79,9 +98,11 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Docker_network[web]
+      - File[/srv/traefik/conf/certs.toml]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /srv/vault/ssl:/ssl:ro
+      - /srv/traefik/ssl:/ssl:ro
+      - /srv/traefik/conf:/conf:ro
   vault:
     image: vault:latest
     dns:
