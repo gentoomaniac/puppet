@@ -33,6 +33,15 @@ ressources:
         }
 
         default_lease_ttl = "720h"
+    "/srv/vault/ssl":
+      ensure: directory
+      require: File[/srv/vault]
+    "/srv/vault/ssl/key.pem":
+      ensure: present
+      content: "%{lookup('secret_srv.gentoomaniac.net_key')}"
+    "/srv/vault/ssl/cert.pem":
+      ensure: present
+      content: "%{lookup('secret_srv.gentoomaniac.net_cert')}"
 
 docker::docker_users:
   - marco
@@ -50,6 +59,8 @@ docker::run_instance::instance:
       --serverstransport.insecureskipverify=true
       --providers.docker
       --providers.docker.exposedbydefault=false
+      --tls.stores.default.defaultCertificate.certFile=/ssl/cert.pem
+      --tls.stores.default.defaultCertificate.keyFile=/ssl/key.pem
     dns:
       - 10.1.1.52
       - 10.1.1.53
@@ -70,6 +81,7 @@ docker::run_instance::instance:
       - Docker_network[web]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /srv/vault/ssl:/ssl:ro
   vault:
     image: vault:latest
     dns:
