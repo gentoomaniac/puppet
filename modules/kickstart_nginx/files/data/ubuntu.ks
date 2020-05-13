@@ -121,8 +121,7 @@ dpkg -i "/tmp/puppet6-release-${CODENAME}.deb" 2>&1 | tee -a /var/log/kickstart.
 apt-get update && apt-get install -y "puppet-agent=6.13.0-1${CODENAME}" 2>&1 | tee -a /var/log/kickstart.log
 
 # prepare secrets for puppet
-gem install vault
-gem install debouncer
+/opt/puppetlabs/puppet/bin/gem install vault debouncer
 
 # run puppet
 git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/kickstart.log
