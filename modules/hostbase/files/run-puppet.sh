@@ -82,8 +82,9 @@ git_time=$[${git_finished} - ${start_time}]
 puppet_time=$[$(date +%s) - ${git_finished}]
 puppet_branch=$(cat /etc/puppet_branch | tr -d '\n')
 
-if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev/null; then
-    curl -X PUT "${es_url}/${es_index_name}" -H 'Content-Type: application/json' -d '
+if [ "${NOOP}" == "" ]; then
+    if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev/null; then
+        curl -X PUT "${es_url}/${es_index_name}" -H 'Content-Type: application/json' -d '
 {
     "mappings": {
         "properties": {
@@ -123,9 +124,9 @@ if curl -X GET "${es_url}/${es_index_name}" 2> /dev/null | grep error 2>&1 >/dev
     }
 }
 '
-fi
+    fi
 
-curl -X POST "${es_url}/${es_index_name}/_doc" -H 'Content-Type: application/json' -d '
+    curl -X POST "${es_url}/${es_index_name}/_doc" -H 'Content-Type: application/json' -d '
 {
     "@timestamp": "'${timestamp}'",
     "hostname": "'${hostname}'",
@@ -135,3 +136,4 @@ curl -X POST "${es_url}/${es_index_name}/_doc" -H 'Content-Type: application/jso
     "returncode": "'${puppet_returncode}'"
 }
 '
+fi
