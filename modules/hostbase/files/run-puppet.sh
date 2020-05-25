@@ -2,7 +2,39 @@
 
 start_time=$(date +%s)
 
-if [ "$1" != "now" ]; then
+for param in $*; do
+    arg=${param/=*}
+    val=${param#*=}
+
+    case ${arg} in
+
+    --no-clone)
+        NO_CLONE=true
+        shift
+        ;;
+
+    --noop)
+        NOOP=--noop
+        shift
+        ;;
+
+    --now)
+        NOW=true
+        shift
+        ;;
+
+    *)
+        if [[ "${arg}" = --* ]]; then
+            echo "Unknown argument: ${arg}"
+            exit 1
+        else
+            break
+        fi
+
+    esac
+done
+
+if [ "${NOW}" == "" ]; then
     sleep $((1 + RANDOM % 360))
     SYSLOG="-l syslog"
 fi
@@ -25,12 +57,14 @@ if [ ! -z "${VAULT_BIN}" ]; then
     vault token renew
 fi
 
-if git clone --single-branch --branch "${PUPPET_GIT_BRANCH}" https://github.com/gentoomaniac/puppet.git "${temp_dir}" ; then
-    rm -rf "${PUPPET_GIT_PATH}"
-    mv "${temp_dir}" "${PUPPET_GIT_PATH}"
-    chmod -R 755 "${PUPPET_GIT_PATH}"
-else
-    logger -s "failed to clone puppet git repo"
+if [[ "${NO_CLONE}" == "" ]]; then
+    if git clone --single-branch --branch "${PUPPET_GIT_BRANCH}" https://github.com/gentoomaniac/puppet.git "${temp_dir}" ; then
+        rm -rf "${PUPPET_GIT_PATH}"
+        mv "${temp_dir}" "${PUPPET_GIT_PATH}"
+        chmod -R 755 "${PUPPET_GIT_PATH}"
+    else
+        logger -s "failed to clone puppet git repo"
+    fi
 fi
 
 git_finished=$(date +%s)
