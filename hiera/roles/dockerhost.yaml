@@ -28,4 +28,4 @@ traefik::ports:
   - 80:80/tcp
   - 443:443/tcp
   - 8080:8080/tcp
-traefik::ssl_cert_location: /srv/certbot-srv_gentoomaniac_net/data/srv.gentoomaniac.net
+traefik::ssl_cert_location: /srv/certbot-srv_gentoomaniac_net/data/live/srv.gentoomaniac.net

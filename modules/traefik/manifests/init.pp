@@ -1,8 +1,8 @@
 class traefik (
   $args,
   $ssl_cert_location,
-  $ssl_cert_name = 'fullchain1.pem',
-  $ssl_key_name = 'privkey1.pem',
+  $ssl_cert_name = 'fullchain.pem',
+  $ssl_key_name = 'privkey.pem',
   $labels = [],
   $image = 'traefik',
   $tag = 'v2.2',
