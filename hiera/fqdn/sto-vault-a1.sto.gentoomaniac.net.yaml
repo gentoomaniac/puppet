@@ -20,6 +20,12 @@ ressources:
     "/srv/vault/conf":
       ensure: directory
       require: File[/srv/vault]
+    "/srv/vault/file":
+      ensure: directory
+      require: File[/srv/vault]
+    "/srv/vault/logs":
+      ensure: directory
+      require: File[/srv/vault]
     "/srv/vault/conf/config.hcl":
       ensure: present
       content: |
@@ -103,7 +109,8 @@ docker::run_instance::instance:
   vault:
     image: vault:latest
     command: >
-      server
+      vault server
+      -config /vault/config/config.hcl
     dns:
       - 10.1.1.52
       - 10.1.1.53
@@ -127,6 +134,10 @@ docker::run_instance::instance:
       - Docker_network[web]
       - File[/srv/vault/conf/config.hcl]
       - File[/srv/vault/data]
+      - File[/srv/vault/file]
+      - File[/srv/vault/logs]
     volumes:
       - /srv/vault/conf:/vault/config
       - /srv/vault/data:/data
+      - /srv/vault/logs:/vault/logs
+      - /srv/vault/file:/vault/file
