@@ -126,19 +126,19 @@ ressources:
             [http.routers.proxmox2.tls]
 
         [http.middlewares]
-            [http.middlewares.redirect-to-https]
-                [http.middlewares.redirect-to-https.redirectscheme]
-                    scheme = "https"
+          [http.middlewares.redirect-to-https]
+            [http.middlewares.redirect-to-https.redirectscheme]
+              scheme = "https"
 
-            [http.middlewares.local-only-whitelist]
-                [http.middlewares.local-only-whitelist.ipwhitelist]
-                    sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
+          [http.middlewares.local-only-whitelist]
+            [http.middlewares.local-only-whitelist.ipwhitelist]
+              sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
 
-            [http.middlewares.gsuite-sso]
-                [http.middlewares.gsuite-sso.forwardauth]
-                    address = "http://authelia:8080/api/verify?rd=https://auth.example.com/%23/"
-                    trustForwardHeader = true
-                    authResponseHeaders="X-Auth-User, X-Secret"
+          [http.middlewares.gsuite-sso]
+            [http.middlewares.gsuite-sso.forwardauth]
+              address = "http://authelia:8080/api/verify?rd=https://auth.example.com/%23/"
+              trustForwardHeader = true
+              authResponseHeaders="X-Auth-User, X-Secret"
     /srv/elasticsearch:
       ensure: directory
       require: File[/srv]
@@ -312,7 +312,7 @@ docker::run_instance::instance:
     env:
       - GF_SERVER_ROOT_URL=https://grafana.srv.gentoomaniac.net
       # - GF_SECURITY_ADMIN_PASSWORD=
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel,vonage-status-panel
     expose:
       - 3000/tcp
     extra_parameters:
