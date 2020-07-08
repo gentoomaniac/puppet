@@ -2,7 +2,6 @@
 classes:
   - docker
   - certbot
-  - traefik
 
 ressources:
   file:
