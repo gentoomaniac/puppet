@@ -22,14 +22,23 @@ ressources:
       require: File[/srv/vault]
     "/srv/vault/file":
       ensure: directory
+      owner: 100
+      group: 1000
       require: File[/srv/vault]
     "/srv/vault/logs":
       ensure: directory
+      owner: 100
+      group: 1000
       require: File[/srv/vault]
     "/srv/vault/conf/config.hcl":
       ensure: present
       content: |
         ui = true
+
+        listener "tcp" {
+          address = "0.0.0.0:8200"
+          tls_disable = 1
+        }
 
         storage "file" {
           path = "/data"
