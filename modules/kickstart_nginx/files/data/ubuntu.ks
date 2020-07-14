@@ -32,13 +32,13 @@ text
 install
 
 #System bootloader configuration
-bootloader --location=mbr 
+bootloader --location=mbr
 
 #Clear the Master Boot Record
 zerombr yes
 
 #Partition clearing information
-clearpart --all --initlabel 
+clearpart --all --initlabel
 
 #Basic disk partition
 clearpart --all --initlabel
@@ -51,7 +51,7 @@ logvol / --fstype ext4 --vgname=vg0 --size=1 --grow --name=slash
 preseed partman-lvm/confirm_nooverwrite boolean true
 preseed partman-auto-lvm/no_boot        boolean true
 
-#System authorization information 
+#System authorization information
 authconfig --useshadow --passalgo=sha512
 
 #Network information
@@ -90,20 +90,21 @@ echo 'LC_ALL=en_GB.UTF-8' >> /etc/environment
 
 # set hostname if specified as boot parameter
 hostname=$(sed -e 's/^.*hostname=\([[:alnum:]\.\-]\+\).*$/\1/' /proc/cmdline)
-echo "Hostname set on kernel command line: ${hostname}" | tee -a /var/log/kickstart.log
 if [ ! -z "${hostname}" ]; then
+    echo "Hostname set on kernel command line: ${hostname}" | tee -a /var/log/kickstart.log
     hostnamectl set-hostname "${hostname}" 2>&1 | tee -a /var/log/kickstart.log
 fi
 
 # set vault token if specified as boot parameter
 VAULT_TOKEN=$(sed -e 's/.*vault_token=\(\w\.\w\+\).*/\1/'' /proc/cmdline)
-echo "VAULT_TOKEN set on kernel command line" | tee -a /var/log/kickstart.log
 if [ ! -z "${VAULT_TOKEN}" ]; then
+    echo "VAULT_TOKEN set on kernel command line" | tee -a /var/log/kickstart.log
     echo ${VAULT_TOKEN} > /etc/vault_token
     chmod 600 /etc/vault_token
 fi
 
 # Prepare Hashicorp Vault
+echo "Preparing VAULT client ..." | tee -a /var/log/kickstart.log
 VAULT_VERSION=1.4.1
 pushd /usr/local/bin
 curl https://releases.hashicorp.com/vault/1.4.1/vault_${VAULT_VERSION}_linux_amd64.zip -o /tmp/vault_${VAULT_VERSION}_linux_amd64.zip
@@ -113,6 +114,7 @@ ln -s vault-${VAULT_VERSION} vault
 popd
 
 # prepare future puppet runs
+echo "Setting up puppet ..." | tee -a /var/log/kickstart.log
 echo master > /etc/puppet_branch
 apt-get install -y gnupg2
 curl https://apt.puppetlabs.com/DEB-GPG-KEY-puppet | sudo apt-key add
@@ -124,12 +126,14 @@ apt-get update && apt-get install -y "puppet-agent=6.13.0-1${CODENAME}" 2>&1 | t
 /opt/puppetlabs/puppet/bin/gem install vault debouncer
 
 # run puppet
+echo "Starting initial puppet run ..." | tee -a /var/log/kickstart.log
 git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/kickstart.log
 sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf 2>&1 | tee -a /var/log/kickstart.log
 
 /opt/puppetlabs/puppet/bin/puppet apply --config /tmp/puppet/puppet.conf -vvvt --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp 2>&1 | tee -a /var/log/kickstart.log
 
 # update system
+echo "Updating the system ..." | tee -a /var/log/kickstart.log
 apt-get update 2>&1 | tee -a /var/log/kickstart.log
 apt-get upgrade -y 2>&1 | tee -a /var/log/kickstart.log
 
