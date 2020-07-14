@@ -92,7 +92,8 @@ echo 'LC_ALL=en_GB.UTF-8' >> /etc/environment
 hostname=$(sed -e 's/^.*hostname=\([[:alnum:]\.\-]\+\).*$/\1/' /proc/cmdline)
 if [ ! -z "${hostname}" ]; then
     echo "Hostname set on kernel command line: ${hostname}" | tee -a /var/log/kickstart.log
-    hostnamectl set-hostname "${hostname}" 2>&1 | tee -a /var/log/kickstart.log
+    hostname "${hostname}" 2>&1 | tee -a /var/log/kickstart.log
+    sed -i 's/clients/sto/' /etc/hosts
 fi
 
 # set vault token if specified as boot parameter
