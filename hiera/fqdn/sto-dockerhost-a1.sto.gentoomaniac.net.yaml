@@ -134,11 +134,6 @@ ressources:
             [http.middlewares.local-only-whitelist.ipwhitelist]
               sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
 
-          [http.middlewares.gsuite-sso]
-            [http.middlewares.gsuite-sso.forwardauth]
-              address = "http://authelia:8080/api/verify?rd=https://auth.example.com/%23/"
-              trustForwardHeader = true
-              authResponseHeaders="X-Auth-User, X-Secret"
     /srv/elasticsearch:
       ensure: directory
       require: File[/srv]
@@ -182,7 +177,7 @@ ressources:
 
 docker::networks::networks:
   web:
-    ensure: 'present'
+    ensure: "present"
 
 docker::volumes::volumes:
   nfs_movies:
