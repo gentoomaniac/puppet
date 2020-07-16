@@ -1,6 +1,6 @@
 ---
 classes:
-  #- netplan
+  - netplan
   - hostbase::hostname
 
 hostbase::hostname::hostname: sto-dockerhost-a1.sto.gentoomaniac.net
