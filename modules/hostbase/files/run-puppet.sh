@@ -55,7 +55,7 @@ temp_dir=$(mktemp -d -t puppet-$(date +%Y-%m-%d-%H-%M-%S)-XXX)
 
 # renew vault token:
 if [ ! -z "${VAULT_BIN}" ]; then
-    vault token renew
+    VAULT_TOKEN=$(cat /etc/vault_token) vault token renew
 fi
 
 if [[ "${NO_CLONE}" == "" ]]; then
