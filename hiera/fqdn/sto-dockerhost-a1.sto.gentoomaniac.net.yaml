@@ -271,6 +271,7 @@ docker::run_instance::instance:
       - cluster.initial_master_nodes=es01
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
+      - gateway.recover_after_time=1m
       - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     expose:
       - 9200/tcp
@@ -307,7 +308,7 @@ docker::run_instance::instance:
     env:
       - GF_SERVER_ROOT_URL=https://grafana.srv.gentoomaniac.net
       # - GF_SECURITY_ADMIN_PASSWORD=
-      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel,vonage-status-panel
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel,vonage-status-panel,grafana-image-renderer
     expose:
       - 3000/tcp
     extra_parameters:
