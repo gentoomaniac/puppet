@@ -41,9 +41,6 @@ ressources:
           [tls.stores.default.defaultCertificate]
             certFile = "/ssl/cert.pem"
             keyFile = "/ssl/key.pem"
-      require:
-        - File[/srv/traefik/ssl/cert.pem]
-        - File[/srv/traefik/ssl/key.pem]
     "/srv/traefik/conf/static.toml":
       ensure: present
       content: |
@@ -257,6 +254,8 @@ docker::run_instance::instance:
       - Docker_network[web]
       - File[/srv/traefik/conf/certs.toml]
       - File[/srv/traefik/conf/static.toml]
+      - File[/srv/traefik/ssl/cert.pem]
+      - File[/srv/traefik/ssl/key.pem]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/traefik/ssl:/ssl:ro
