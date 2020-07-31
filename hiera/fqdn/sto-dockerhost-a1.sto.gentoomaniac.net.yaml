@@ -271,7 +271,7 @@ docker::run_instance::instance:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - gateway.recover_after_time=1m
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
     expose:
       - 9200/tcp
     extra_parameters:
