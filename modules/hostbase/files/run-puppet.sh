@@ -60,7 +60,7 @@ temp_dir=$(mktemp -d -t puppet-$(date +%Y-%m-%d-%H-%M-%S)-XXX)
 
 # renew vault token:
 if [ ! -z "${VAULT_BIN}" ]; then
-    VAULT_TOKEN=$(cat /etc/vault_token) vault token renew 2>&1 /dev/null
+    VAULT_TOKEN=$(cat /etc/vault_token) vault token renew 2>&1 >/dev/null
 else
     echo "Vault binary not found"
     exit 1
