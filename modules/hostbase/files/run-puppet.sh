@@ -23,6 +23,11 @@ for param in $*; do
         shift
         ;;
 
+    --verbose)
+        set -x
+        shift
+        ;;
+
     *)
         if [[ "${arg}" = --* ]]; then
             echo "Unknown argument: ${arg}"
@@ -44,10 +49,10 @@ if [ -f /etc/puppet_disable ]; then
     NOOP=--noop
 fi
 
-PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/snap/bin
 
 VAULT_BIN=$(which vault)
-VAULT_ADDR=https://vault.srv.gentoomaniac.net/
+export VAULT_ADDR=https://vault.srv.gentoomaniac.net/
 PUPPET=$(test -f /usr/local/bin/puppet && echo /usr/local/bin/puppet || echo /opt/puppetlabs/bin/puppet)
 PUPPET_GIT_PATH=/var/lib/puppet-repo
 PUPPET_GIT_BRANCH=$(head -1 /etc/puppet_branch)
@@ -55,7 +60,10 @@ temp_dir=$(mktemp -d -t puppet-$(date +%Y-%m-%d-%H-%M-%S)-XXX)
 
 # renew vault token:
 if [ ! -z "${VAULT_BIN}" ]; then
-    VAULT_TOKEN=$(cat /etc/vault_token) vault token renew
+    VAULT_TOKEN=$(cat /etc/vault_token) vault token renew 2>&1 /dev/null
+else
+    echo "Vault binary not found"
+    exit 1
 fi
 
 if [[ "${NO_CLONE}" == "" ]]; then
