@@ -80,7 +80,7 @@ docker::volumes::volumes:
     options:
       - - type=nfs
         - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-        - device=:/mnt/tank5/share
+        - device=:/mnt/tank5/share/nzbget
 
 docker::docker_users:
   - marco
