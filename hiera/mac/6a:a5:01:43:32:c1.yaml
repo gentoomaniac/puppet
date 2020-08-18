@@ -23,4 +23,3 @@ netplan::ethernets:
     dhcp4: no
     addresses:
       - 192.168.0.60/24
-    mtu: 9000
