@@ -81,6 +81,7 @@ set -x
 
 CODENAME="$(lsb_release -cs)"
 echo "Codename: ${CODENAME}" | tee -a /var/log/kickstart.log
+tee -a /var/log/kickstart.log < /proc/cmdline
 
 # setup locales
 locale-gen en_GB.UTF-8
@@ -93,14 +94,18 @@ hostname=$(sed -e 's/^.*hostname=\([[:alnum:]\.\-]\+\).*$/\1/' /proc/cmdline)
 if [ ! -z "${hostname}" ]; then
     echo "Hostname set on kernel command line: ${hostname}" | tee -a /var/log/kickstart.log
     hostname "${hostname}" 2>&1 | tee -a /var/log/kickstart.log
+    echo "${hostname}" >/etc/hostname
+    export HOSTNAME="${hostname}"
+    echo "Edit /etc/hosts ..." | tee -a /var/log/kickstart.log
     sed -i 's/clients/sto/' /etc/hosts
 fi
 
 # set vault token if specified as boot parameter
-VAULT_TOKEN=$(sed -e 's/.*vault_token=\(\w\.\w\+\).*/\1/'' /proc/cmdline)
+echo "Setting vault token" | tee -a /var/log/kickstart.log
+VAULT_TOKEN=$(sed -e 's/.*vault_token=\(\w\.\w\+\).*/\1/' /proc/cmdline)
 if [ ! -z "${VAULT_TOKEN}" ]; then
     echo "VAULT_TOKEN set on kernel command line" | tee -a /var/log/kickstart.log
-    echo ${VAULT_TOKEN} > /etc/vault_token
+    echo "${VAULT_TOKEN}" > /etc/vault_token
     chmod 600 /etc/vault_token
 fi
 

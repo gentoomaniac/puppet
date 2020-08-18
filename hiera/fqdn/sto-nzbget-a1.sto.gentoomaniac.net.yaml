@@ -1,6 +1,7 @@
 ---
 classes:
   - docker
+  - docker::networks
   - docker::volumes
   - docker::run_instance
 
