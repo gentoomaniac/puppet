@@ -111,12 +111,12 @@ fi
 
 # Prepare Hashicorp Vault
 echo "Preparing VAULT client ..." | tee -a /var/log/kickstart.log
-VAULT_VERSION=1.4.1
+VAULT_VERSION=1.5.0
 pushd /usr/local/bin
-curl https://releases.hashicorp.com/vault/1.4.1/vault_${VAULT_VERSION}_linux_amd64.zip -o /tmp/vault_${VAULT_VERSION}_linux_amd64.zip
-unzip /tmp/vault_${VAULT_VERSION}_linux_amd64.zip
-mv vault vault-${VAULT_VERSION}
-ln -s vault-${VAULT_VERSION} vault
+curl https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip -o /tmp/vault_${VAULT_VERSION}_linux_amd64.zip | tee -a /var/log/kickstart.log
+unzip /tmp/vault_${VAULT_VERSION}_linux_amd64.zip | tee -a /var/log/kickstart.log
+mv vault vault-${VAULT_VERSION} | tee -a /var/log/kickstart.log
+ln -s vault-${VAULT_VERSION} vault | tee -a /var/log/kickstart.log
 popd
 
 # prepare future puppet runs
