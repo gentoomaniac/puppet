@@ -1,0 +1,103 @@
+---
+classes:
+  - docker
+  - docker::run_instance
+
+ressources:
+  file:
+    "/srv":
+      ensure: directory
+    "/srv/traefik":
+      ensure: directory
+      require: File[/srv]
+    "/srv/traefik/conf":
+      ensure: directory
+      require: File[/srv/traefik]
+    "/srv/traefik/ssl":
+      ensure: directory
+      require: File[/srv/traefik]
+    "/srv/traefik/ssl/key.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
+      require: File[/srv/traefik/ssl]
+    "/srv/traefik/ssl/cert.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
+      require: File[/srv/traefik/ssl]
+    "/srv/traefik/conf/certs.toml":
+      ensure: present
+      content: |
+        [tls.stores]
+          [tls.stores.default]
+          [tls.stores.default.defaultCertificate]
+            certFile = "/ssl/cert.pem"
+            keyFile = "/ssl/key.pem"
+      require:
+        - File[/srv/traefik/ssl/cert.pem]
+        - File[/srv/traefik/ssl/key.pem]
+    "/srv/influxdb":
+      ensure: directory
+      require: File[/srv]
+
+docker::run_instance::instance:
+  nzbget:
+    image: influxdb:1.7-alpine
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - INFLUXDB_DB=metrics
+      - INFLUXDB_ADMIN_USER=%{lookup('secret_influxdb_admin_user')}
+      - INFLUXDB_ADMIN_PASSWORD=%{lookup('secret_influxdb_admin_password')}
+      - INFLUXDB_HTTP_AUTH_ENABLED=TRUE
+      - INFLUXDB_USER=%{lookup('secret_influxdb_user')}
+      - INFLUXDB_USER_PASSWORD=%{lookup('secret_influxdb_user_password')}
+    expose:
+      - 6789/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.nzbget.rule=Host(`influxdb.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.nzbget.entrypoints=influxdb'"
+      - "'traefik.http.routers.nzbget.tls=true'"
+      - "'traefik.http.middlewares.nzbget-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.nzbget.middlewares=nzbget-whitelist'"
+    pull_on_start: true
+    volumes:
+      - /srv/influxdb:/var/lib/influxdb
+    require:
+      - Class[docker]
+      - File[/srv/influxdb]
+  traefik:
+    image: traefik:v2.2
+    command: >
+      --api.insecure=true
+      --entrypoints.influxdb.address=:8086
+      --serverstransport.insecureskipverify=true
+      --providers.docker
+      --providers.docker.exposedbydefault=false
+      --providers.file.directory=/conf
+      --providers.file.watch=true
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - web
+    ports:
+      - 8086:8086/tcp
+    pull_on_start: true
+    require:
+      - Class[docker]
+      - Docker_network[web]
+      - File[/srv/traefik/conf/certs.toml]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /srv/traefik/ssl:/ssl:ro
+      - /srv/traefik/conf:/conf:ro
