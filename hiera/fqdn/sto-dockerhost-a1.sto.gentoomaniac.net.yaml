@@ -260,45 +260,45 @@ docker::run_instance::instance:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/traefik/ssl:/ssl:ro
       - /srv/traefik/conf:/conf:ro
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    env:
-      - node.name=es01
-      - cluster.initial_master_nodes=es01
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - gateway.recover_after_time=1m
-      - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
-    expose:
-      - 9200/tcp
-    extra_parameters:
-      - --restart=unless-stopped
-      - --ulimit memlock=-1:-1
-    labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.elasticsearch-http.rule=Host(`elasticsearch.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.elasticsearch-http.entrypoints=elasticsearch'"
-      - "'traefik.http.middlewares.elasticsearch-dockeronly-whitelist.ipwhitelist.sourcerange=172.17.0.0/24'"
-      - "'traefik.http.routers.elasticsearch.middlewares=elasticsearch-dockeronly-whitelist'"
-      #- "'traefik.http.routers.elasticsearch-http.middlewares=es-redirect-to-https'"
-      #- "'traefik.http.middlewares.es-redirect-to-https.redirectscheme.scheme=https'"
-      #- "'traefik.http.middlewares.es-redirect-to-https.redirectscheme.port=9200'"
-      - "'traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.elasticsearch.entrypoints=elasticsearch'"
-      - "'traefik.http.routers.elasticsearch.tls=true'"
-      - "'traefik.http.middlewares.elasticsearch-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24'"
-      - "'traefik.http.routers.elasticsearch.middlewares=elasticsearch-whitelist'"
-    net:
-      - web
-    pull_on_start: true
-    volumes:
-      - /srv/elasticsearch:/usr/share/elasticsearch/data
-    require:
-      - Class[docker]
-      - File[/srv/elasticsearch]
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+  #   dns:
+  #     - 10.1.1.52
+  #     - 10.1.1.53
+  #   env:
+  #     - node.name=es01
+  #     - cluster.initial_master_nodes=es01
+  #     - cluster.name=docker-cluster
+  #     - bootstrap.memory_lock=true
+  #     - gateway.recover_after_time=1m
+  #     - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+  #   expose:
+  #     - 9200/tcp
+  #   extra_parameters:
+  #     - --restart=unless-stopped
+  #     - --ulimit memlock=-1:-1
+  #   labels:
+  #     - "'traefik.enable=true'"
+  #     - "'traefik.http.routers.elasticsearch-http.rule=Host(`elasticsearch.srv.gentoomaniac.net`)'"
+  #     - "'traefik.http.routers.elasticsearch-http.entrypoints=elasticsearch'"
+  #     - "'traefik.http.middlewares.elasticsearch-dockeronly-whitelist.ipwhitelist.sourcerange=172.17.0.0/24'"
+  #     - "'traefik.http.routers.elasticsearch.middlewares=elasticsearch-dockeronly-whitelist'"
+  #     #- "'traefik.http.routers.elasticsearch-http.middlewares=es-redirect-to-https'"
+  #     #- "'traefik.http.middlewares.es-redirect-to-https.redirectscheme.scheme=https'"
+  #     #- "'traefik.http.middlewares.es-redirect-to-https.redirectscheme.port=9200'"
+  #     - "'traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.srv.gentoomaniac.net`)'"
+  #     - "'traefik.http.routers.elasticsearch.entrypoints=elasticsearch'"
+  #     - "'traefik.http.routers.elasticsearch.tls=true'"
+  #     - "'traefik.http.middlewares.elasticsearch-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24'"
+  #     - "'traefik.http.routers.elasticsearch.middlewares=elasticsearch-whitelist'"
+  #   net:
+  #     - web
+  #   pull_on_start: true
+  #   volumes:
+  #     - /srv/elasticsearch:/usr/share/elasticsearch/data
+  #   require:
+  #     - Class[docker]
+  #     - File[/srv/elasticsearch]
   grafana:
     image: grafana/grafana:latest
     dns:
