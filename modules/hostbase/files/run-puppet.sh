@@ -58,6 +58,8 @@ PUPPET_GIT_PATH=/var/lib/puppet-repo
 PUPPET_GIT_BRANCH=$(head -1 /etc/puppet_branch)
 temp_dir=$(mktemp -d -t puppet-$(date +%Y-%m-%d-%H-%M-%S)-XXX)
 
+export VAULT_SKIP_VERIFY=True
+
 # renew vault token:
 if [ ! -z "${VAULT_BIN}" ]; then
     VAULT_TOKEN=$(cat /etc/vault_token) vault token renew 2>&1 >/dev/null
