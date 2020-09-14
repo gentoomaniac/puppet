@@ -1,6 +1,8 @@
 ---
 classes:
+  - netplan
   - docker
+  - docker::networks
   - docker::run_instance
 
 ressources:
@@ -38,6 +40,13 @@ ressources:
     "/srv/influxdb":
       ensure: directory
       require: File[/srv]
+
+docker::docker_users:
+  - marco
+
+docker::networks::networks:
+  web:
+    ensure: "present"
 
 docker::run_instance::instance:
   nzbget:
