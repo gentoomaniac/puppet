@@ -62,7 +62,7 @@ docker::run_instance::instance:
       - INFLUXDB_USER=%{lookup('secret_influxdb_user')}
       - INFLUXDB_USER_PASSWORD=%{lookup('secret_influxdb_user_password')}
     expose:
-      - 80886/tcp
+      - 8086/tcp
     extra_parameters:
       - --restart=unless-stopped
     labels:
