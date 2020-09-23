@@ -40,6 +40,9 @@ ressources:
     "/srv/influxdb":
       ensure: directory
       require: File[/srv]
+    "/srv/chronograf":
+      ensure: directory
+      require: File[/srv]
 
 docker::docker_users:
   - marco
@@ -78,11 +81,34 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/influxdb]
+  chronograf:
+    image: chronograf:1.7-alpine
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    expose:
+      - 8888/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.chronograf.rule=Host(`chronograf.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.chronograf.entrypoints=ssl'"
+      - "'traefik.http.routers.chronograf.tls=true'"
+      - "'traefik.http.middlewares.chronograf-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.chronograf.middlewares=chronograf-whitelist'"
+    pull_on_start: true
+    volumes:
+      - /srv/chronograf:/var/lib/chronograf
+    require:
+      - Class[docker]
+      - File[/srv/chronograf]
   traefik:
     image: traefik:v2.2
     command: >
       --api.insecure=true
       --entrypoints.influxdb.address=:8086
+      --entrypoints.ssl.address=:443
       --serverstransport.insecureskipverify=true
       --providers.docker
       --providers.docker.exposedbydefault=false
@@ -102,6 +128,7 @@ docker::run_instance::instance:
     ports:
       - 8086:8086/tcp
       - 8080:8080/tcp
+      - 443:443/tcp
     pull_on_start: true
     require:
       - Class[docker]
