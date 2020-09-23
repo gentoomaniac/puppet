@@ -49,7 +49,7 @@ docker::networks::networks:
     ensure: "present"
 
 docker::run_instance::instance:
-  nzbget:
+  influxdb:
     image: influxdb:1.7-alpine
     dns:
       - 10.1.1.52
