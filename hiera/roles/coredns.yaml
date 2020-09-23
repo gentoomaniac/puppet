@@ -2,4 +2,3 @@
 classes:
   - docker
   - coredns
-  - hostbase::filebeat

@@ -30,11 +30,4 @@ class coredns {
     volumes          => ['/opt/coredns:/data'],
     require          => [File['/opt/coredns/Corefile'],Service['systemd-resolved'], Vcsrepo['/opt/coredns/dnsdata'], Class['docker']],
   }
-
-  file { '/etc/metricbeat/modules.d/coredns.yml':
-    ensure  => present,
-    source  => 'puppet:///modules/coredns/metricbeat.coredns.yml',
-    require => Package['metricbeat'],
-    notify  => Service['metricbeat-svc'],
-  }
 }

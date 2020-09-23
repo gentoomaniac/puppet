@@ -5,7 +5,6 @@ classes:
   #  - hostbase::disable_cloud
   - hostbase::dotfiles
   - hostbase::github_userkeys
-  # hostbase::metricbeat
   - hostbase::puppet
   - hostbase::puppet_cron
   - hostbase::resolved
