@@ -62,16 +62,16 @@ docker::run_instance::instance:
       - INFLUXDB_USER=%{lookup('secret_influxdb_user')}
       - INFLUXDB_USER_PASSWORD=%{lookup('secret_influxdb_user_password')}
     expose:
-      - 6789/tcp
+      - 80886/tcp
     extra_parameters:
       - --restart=unless-stopped
     labels:
       - "'traefik.enable=true'"
-      - "'traefik.http.routers.nzbget.rule=Host(`influxdb.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.nzbget.entrypoints=influxdb'"
-      - "'traefik.http.routers.nzbget.tls=true'"
-      - "'traefik.http.middlewares.nzbget-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
-      - "'traefik.http.routers.nzbget.middlewares=nzbget-whitelist'"
+      - "'traefik.http.routers.influxdb.rule=Host(`influxdb.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.influxdb.entrypoints=influxdb'"
+      - "'traefik.http.routers.influxdb.tls=true'"
+      - "'traefik.http.middlewares.influxdb-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.influxdb.middlewares=influxdb-whitelist'"
     pull_on_start: true
     volumes:
       - /srv/influxdb:/var/lib/influxdb
