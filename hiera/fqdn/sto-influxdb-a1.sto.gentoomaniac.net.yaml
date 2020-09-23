@@ -101,6 +101,7 @@ docker::run_instance::instance:
       - web
     ports:
       - 8086:8086/tcp
+      - 8080:8080/tcp
     pull_on_start: true
     require:
       - Class[docker]
