@@ -96,7 +96,8 @@ telegraf::inputs:
   mem: [{}]
   io: [{}]
   net: [{}]
-  disk: [{}]
+  disk:
+    - ignore_fs: ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs", "nfs"]
   swap: [{}]
   system: [{}]
   docker:
