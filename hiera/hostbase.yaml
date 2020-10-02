@@ -94,6 +94,7 @@ telegraf::inputs:
     - commands:
         - cat /proc/uptime | awk '{print $1}'
   mem: [{}]
+  processes: [{}]
   io: [{}]
   net: [{}]
   disk:
