@@ -13,7 +13,6 @@ classes:
   - timezone
 
 hostbase::puppet::version: 6.13.0-1bionic
-hostbase::metricbeat::version: 7.6.2
 
 hostbase::packages::base_packages:
   - mailutils
@@ -22,9 +21,6 @@ hostbase::packages::base_packages:
   - python3-virtualenv
   - python3-pip
   - hwinfo
-
-hostbase::metricbeat::es_host: elasticsearch.srv.gentoomaniac.net
-hostbase::metricbeat::es_port: 9200
 
 github_userkeys:
   "marco": gentoomaniac
