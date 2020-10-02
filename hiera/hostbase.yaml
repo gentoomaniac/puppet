@@ -12,6 +12,9 @@ classes:
   - hostbase::syslog
   - timezone
 
+docker::docker_users:
+  - marco
+
 hostbase::puppet::version: 6.13.0-1bionic
 
 hostbase::packages::base_packages:
