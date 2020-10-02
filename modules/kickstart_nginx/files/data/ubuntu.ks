@@ -128,8 +128,8 @@ curl "https://apt.puppetlabs.com/puppet6-release-${CODENAME}.deb" -o "/tmp/puppe
 dpkg -i "/tmp/puppet6-release-${CODENAME}.deb" 2>&1 | tee -a /var/log/kickstart.log
 apt-get update && apt-get install -y "puppet-agent=6.13.0-1${CODENAME}" 2>&1 | tee -a /var/log/kickstart.log
 
-# prepare secrets for puppet
-/opt/puppetlabs/puppet/bin/gem install vault debouncer
+# install dependency gems
+/opt/puppetlabs/puppet/bin/gem install vault debouncer toml-rb
 
 # run puppet
 echo "Starting initial puppet run ..." | tee -a /var/log/kickstart.log
