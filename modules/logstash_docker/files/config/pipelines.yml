@@ -1,2 +1,0 @@
-- pipeline.id: coredns
-  path.config: "/usr/share/logstash/config/coredns"
