@@ -11,9 +11,8 @@ classes:
   - hostbase::sshd
   - hostbase::syslog
   - timezone
-
-docker::docker_users:
-  - marco
+  - docker
+  - telegraf
 
 hostbase::puppet::version: 6.13.0-1bionic
 
@@ -73,3 +72,39 @@ ressources:
         - sudo
         - adm
       purge_ssh_keys: true
+  file:
+    "/srv":
+      ensure: directory
+
+docker::docker_users:
+  - marco
+  - telegraf
+
+telegraf::hostname: "%{::fqdn}"
+telegraf::global_tags:
+  role: "%{::role}"
+  domain: "%{::domain}"
+telegraf::inputs:
+  cpu:
+    - percpu: true
+      totalcpu: true
+  exec:
+    - commands:
+        - who | wc -l
+    - commands:
+        - cat /proc/uptime | awk '{print $1}'
+  mem: [{}]
+  io: [{}]
+  net: [{}]
+  disk: [{}]
+  swap: [{}]
+  system: [{}]
+  docker:
+    - endpoint: unix:///var/run/docker.sock
+telegraf::outputs:
+  influxdb:
+    - urls:
+        - "https://influxdb.srv.gentoomaniac.net:8086"
+      database: 'telegraf'
+      username: "%{lookup('secret_telegraf_user')}"
+      password: "%{lookup('secret_telegraf_password')}"
