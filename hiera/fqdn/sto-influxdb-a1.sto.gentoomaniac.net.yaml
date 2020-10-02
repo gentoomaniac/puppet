@@ -115,8 +115,8 @@ ressources:
             timeout = "5s"
 
             ## HTTP Basic Auth
-            username = "%{lookup('secret_influxdb_user')}"
-            password = "%{lookup('secret_influxdb_user_password')}"
+            username = "%{lookup('secret_telegraf_user')}"
+            password = "%{lookup('secret_telegraf_password')}"
         [[inputs.cpu]]
           ## Whether to report per-cpu stats or not
           percpu = true
