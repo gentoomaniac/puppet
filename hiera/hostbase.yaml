@@ -97,6 +97,7 @@ telegraf::inputs:
   io: [{}]
   net: [{}]
   disk:
+    - mount_points: ["/", "/boot"]
     - ignore_fs: ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs", "nfs"]
   swap: [{}]
   system: [{}]
