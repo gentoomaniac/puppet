@@ -3,7 +3,6 @@ classes:
   - docker::networks
   - docker::volumes
   - docker::run_instance
-  - logstash_docker
   - tftpd
   - kickstart_nginx
   - ioquake3
@@ -260,45 +259,6 @@ docker::run_instance::instance:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/traefik/ssl:/ssl:ro
       - /srv/traefik/conf:/conf:ro
-  # elasticsearch:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
-  #   dns:
-  #     - 10.1.1.52
-  #     - 10.1.1.53
-  #   env:
-  #     - node.name=es01
-  #     - cluster.initial_master_nodes=es01
-  #     - cluster.name=docker-cluster
-  #     - bootstrap.memory_lock=true
-  #     - gateway.recover_after_time=1m
-  #     - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
-  #   expose:
-  #     - 9200/tcp
-  #   extra_parameters:
-  #     - --restart=unless-stopped
-  #     - --ulimit memlock=-1:-1
-  #   labels:
-  #     - "'traefik.enable=true'"
-  #     - "'traefik.http.routers.elasticsearch-http.rule=Host(`elasticsearch.srv.gentoomaniac.net`)'"
-  #     - "'traefik.http.routers.elasticsearch-http.entrypoints=elasticsearch'"
-  #     - "'traefik.http.middlewares.elasticsearch-dockeronly-whitelist.ipwhitelist.sourcerange=172.17.0.0/24'"
-  #     - "'traefik.http.routers.elasticsearch.middlewares=elasticsearch-dockeronly-whitelist'"
-  #     #- "'traefik.http.routers.elasticsearch-http.middlewares=es-redirect-to-https'"
-  #     #- "'traefik.http.middlewares.es-redirect-to-https.redirectscheme.scheme=https'"
-  #     #- "'traefik.http.middlewares.es-redirect-to-https.redirectscheme.port=9200'"
-  #     - "'traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.srv.gentoomaniac.net`)'"
-  #     - "'traefik.http.routers.elasticsearch.entrypoints=elasticsearch'"
-  #     - "'traefik.http.routers.elasticsearch.tls=true'"
-  #     - "'traefik.http.middlewares.elasticsearch-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24'"
-  #     - "'traefik.http.routers.elasticsearch.middlewares=elasticsearch-whitelist'"
-  #   net:
-  #     - web
-  #   pull_on_start: true
-  #   volumes:
-  #     - /srv/elasticsearch:/usr/share/elasticsearch/data
-  #   require:
-  #     - Class[docker]
-  #     - File[/srv/elasticsearch]
   grafana:
     image: grafana/grafana:latest
     dns:
@@ -344,44 +304,6 @@ docker::run_instance::instance:
     pull_on_start: true
     require:
       - Class[docker]
-  nzbget:
-    image: linuxserver/nzbget:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    env:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Berlin
-    expose:
-      - 6789/tcp
-    extra_parameters:
-      - --restart=unless-stopped
-    labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.nzbget.rule=Host(`nzbget.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.nzbget.entrypoints=websecure'"
-      - "'traefik.http.routers.nzbget.tls=true'"
-      - "'traefik.http.middlewares.nzbget-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24'"
-      - "'traefik.http.routers.nzbget.middlewares=nzbget-whitelist'"
-    net:
-      - web
-    pull_on_start: true
-    volumes:
-      - /srv/nzbget/config:/config
-      - /srv/nzbget/downloads:/downloads
-      - nfs_movies:/movies
-      - nfs_shows:/shows
-      - nfs_kids_movies:/kids_movies
-      - nfs_kids_shows:/kids_shows
-    require:
-      - Class[docker]
-      - Docker_volume[nfs_movies]
-      - Docker_volume[nfs_shows]
-      - Docker_volume[nfs_kids_movies]
-      - Docker_volume[nfs_kids_shows]
-      - File[/srv/nzbget/config]
-      - File[/srv/nzbget/downloads]
   portainer:
     image: portainer/portainer:latest
     dns:
@@ -407,27 +329,6 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/portainer]
-  quassel-core:
-    image: linuxserver/quassel-core:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    env:
-      - PUID=1000
-      - PGID=1000
-    ports:
-      - 4242:4242/tcp
-    extra_parameters:
-      - --restart=unless-stopped
-    labels:
-      - "'traefik.enable=false'"
-    pull_on_start: true
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /srv/quassel-core:/config
-    require:
-      - Class[docker]
-      - File[/srv/quassel-core]
   radarr:
     image: linuxserver/radarr:latest
     dns:
