@@ -181,6 +181,14 @@ docker::run_instance::instance:
       - VRKN_RADARR_1_QUEUE_RUN_SECONDS=300
       - VRKN_RADARR_1_GET_MISSING=true
       - VRKN_RADARR_1_GET_MISSING_RUN_SECONDS=300
+      - VRKN_TAUTULLI_1_URL=tautulli.srv.gentoomaniac.net
+      - VRKN_TAUTULLI_1_APIKEY=%{lookup('secret_tautulli_api_key')}
+      - VRKN_TAUTULLI_1_SSL=true
+      - VRKN_TAUTULLI_1_VERIFY_SSL=true
+      - VRKN_TAUTULLI_1_GET_ACTIVITY=true
+      - VRKN_TAUTULLI_1_GET_ACTIVITY_RUN_SECONDS=30
+      - VRKN_TAUTULLI_1_GET_STATS=true
+      - VRKN_TAUTULLI_1_GET_STATS_RUN_SECONDS=3600
     extra_parameters:
       - --restart=unless-stopped
     labels:
