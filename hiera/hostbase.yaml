@@ -102,6 +102,14 @@ telegraf::inputs:
     - ignore_fs: ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs", "nfs"]
   swap: [{}]
   system: [{}]
+  kernel: [{}]
+  conntrack: [{}]
+  ethtool: [{}]
+  interrupts: [{}]
+  internal: [{}]
+  iptables: [{}]
+  kernel_vmstat: [{}]
+  temp: [{}]
   docker:
     - endpoint: unix:///var/run/docker.sock
 telegraf::outputs:
