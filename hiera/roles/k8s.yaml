@@ -1,4 +1,4 @@
 ---
 telegraf::inputs:
-  kubernetes:
-    - url: http://127.0.0.1:10255
+  #kubernetes:
+  #  - url: http://127.0.0.1:10255
