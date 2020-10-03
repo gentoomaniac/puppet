@@ -141,6 +141,13 @@ docker::run_instance::instance:
       - 10.1.1.53
     env:
       - TZ=Europe/Berlin
+      - VRKN_GLOBAL_SONARR_SERVER_IDS=1
+      - VRKN_GLOBAL_RADARR_SERVER_IDS=1
+      - VRKN_GLOBAL_LIDARR_SERVER_IDS=false
+      - VRKN_GLOBAL_TAUTULLI_SERVER_IDS=false
+      - VRKN_GLOBAL_OMBI_SERVER_IDS=false
+      - VRKN_GLOBAL_SICKCHILL_SERVER_IDS=false
+      - VRKN_GLOBAL_UNIFI_SERVER_IDS=1
       - VRKN_GLOBAL_MAXMIND_LICENSE_KEY=%{lookup('secret_maxmind_key')}
       - VRKN_INFLUXDB_URL=influxdb.srv.gentoomaniac.net
       - VRKN_INFLUXDB_PORT=8086
@@ -156,6 +163,24 @@ docker::run_instance::instance:
       - VRKN_UNIFI_1_SSL=true
       - VRKN_UNIFI_1_VERIFY_SSL=true
       - VRKN_UNIFI_1_GET_USG_STATS_RUN_SECONDS=300
+      - VRKN_SONARR_1_URL=sonarr.srv.gentoomaniac.net
+      - VRKN_SONARR_1_APIKEY=%{lookup('secret_sonarr_api_key')}
+      - VRKN_SONARR_1_SSL=true
+      - VRKN_SONARR_1_VERIFY_SSL=true
+      - VRKN_SONARR_1_MISSING_DAYS=7
+      - VRKN_SONARR_1_MISSING_DAYS_RUN_SECONDS=300
+      - VRKN_SONARR_1_FUTURE_DAYS=1
+      - VRKN_SONARR_1_FUTURE_DAYS_RUN_SECONDS=300
+      - VRKN_SONARR_1_QUEUE=true
+      - VRKN_SONARR_1_QUEUE_RUN_SECONDS=300
+      - VRKN_RADARR_1_URL=radarr.srv.gentoomaniac.net
+      - VRKN_RADARR_1_APIKEY=%{lookup('secret_radarr_api_key')}
+      - VRKN_RADARR_1_SSL=true
+      - VRKN_RADARR_1_VERIFY_SSL=true
+      - VRKN_RADARR_1_QUEUE=true
+      - VRKN_RADARR_1_QUEUE_RUN_SECONDS=300
+      - VRKN_RADARR_1_GET_MISSING=true
+      - VRKN_RADARR_1_GET_MISSING_RUN_SECONDS=300
     extra_parameters:
       - --restart=unless-stopped
     labels:
