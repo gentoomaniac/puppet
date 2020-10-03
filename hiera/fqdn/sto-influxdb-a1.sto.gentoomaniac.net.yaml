@@ -141,6 +141,7 @@ docker::run_instance::instance:
       - 10.1.1.53
     env:
       - TZ=Europe/Berlin
+      - VRKN_GLOBAL_MAXMIND_LICENSE_KEY=%{lookup('secret_maxmind_key')}
       - VRKN_INFLUXDB_URL=influxdb.srv.gentoomaniac.net
       - VRKN_INFLUXDB_PORT=8086
       - VRKN_INFLUXDB_SSL=true
