@@ -39,6 +39,9 @@ ressources:
     "/srv/chronograf":
       ensure: directory
       require: File[/srv]
+    "/srv/varken":
+      ensure: directory
+      require: File[/srv]
 
 docker::networks::networks:
   web:
@@ -131,3 +134,34 @@ docker::run_instance::instance:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/traefik/ssl:/ssl:ro
       - /srv/traefik/conf:/conf:ro
+  varken:
+    image: boerderij/varken:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - TZ=Europe/Berlin
+      - VRKN_INFLUXDB_URL=influxdb.srv.gentoomaniac.net
+      - VRKN_INFLUXDB_PORT=8086
+      - VRKN_INFLUXDB_SSL=true
+      - VRKN_INFLUXDB_VERIFY_SSL=true
+      - VRKN_INFLUXDB_USERNAME=%{lookup('secret_influxdb_varken_user')}
+      - VRKN_INFLUXDB_PASSWORD=%{lookup('secret_influxdb_varken_password')}
+      - VRKN_UNIFI_1_URL=unifi.srv.gentoomaniac.net:443
+      - VRKN_UNIFI_1_USERNAME=%{lookup('secret_unifi_user')}
+      - VRKN_UNIFI_1_PASSWORD=%{lookup('secret_unifi_password')}
+      - VRKN_UNIFI_1_SITE=Home
+      - VRKN_UNIFI_1_USG_NAME=USG
+      - VRKN_UNIFI_1_SSL=true
+      - VRKN_UNIFI_1_VERIFY_SSL=true
+      - VRKN_UNIFI_1_GET_USG_STATS_RUN_SECONDS=300
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=false'"
+    pull_on_start: true
+    volumes:
+      - /srv/varken:/config
+    require:
+      - Class[docker]
+      - File[/srv/varken]
