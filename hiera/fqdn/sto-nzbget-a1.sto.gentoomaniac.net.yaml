@@ -74,13 +74,13 @@ docker::volumes::volumes:
       - - type=nfs
         - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
         - device=:/mnt/tank0/kids_shows
-  nfs_share:
+  nfs_nzbget:
     ensure: present
     driver: local
     options:
       - - type=nfs
         - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-        - device=:/mnt/tank5/share/nzbget
+        - device=:/mnt/tmp/nzbget
 
 docker::docker_users:
   - marco
@@ -115,7 +115,7 @@ docker::run_instance::instance:
     pull_on_start: true
     volumes:
       - /srv/nzbget/config:/config
-      - nfs_share:/downloads
+      - nfs_nzbget:/downloads
       - nfs_movies:/movies
       - nfs_shows:/shows
       - nfs_kids_movies:/kids_movies
@@ -126,7 +126,7 @@ docker::run_instance::instance:
       - Docker_volume[nfs_shows]
       - Docker_volume[nfs_kids_movies]
       - Docker_volume[nfs_kids_shows]
-      - Docker_volume[nfs_share]
+      - Docker_volume[nfs_nzbget]
       - File[/srv/nzbget/config]
   traefik:
     image: traefik:v2.2
