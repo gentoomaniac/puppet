@@ -51,35 +51,35 @@ docker::volumes::volumes:
     driver: local
     options:
       - - type=nfs
-        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
         - device=:/mnt/movies/movies
   nfs_kids_movies:
     ensure: present
     driver: local
     options:
       - - type=nfs
-        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
         - device=:/mnt/tank0/kids_movies
   nfs_shows:
     ensure: present
     driver: local
     options:
       - - type=nfs
-        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
         - device=:/mnt/tank3/shows
   nfs_kids_shows:
     ensure: present
     driver: local
     options:
       - - type=nfs
-        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
         - device=:/mnt/tank0/kids_shows
   nfs_nzbget:
     ensure: present
     driver: local
     options:
       - - type=nfs
-        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
         - device=:/mnt/tmp/nzbget
 
 docker::docker_users:
