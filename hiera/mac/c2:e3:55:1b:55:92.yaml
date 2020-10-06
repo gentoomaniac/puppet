@@ -1,0 +1,21 @@
+---
+classes:
+  - netplan
+  - hostbase::hostname
+
+hostbase::hostname::hostname: sto-infra-a1.sto.gentoomaniac.net
+
+netplan::version: 2
+netplan::renderer: networkd
+netplan::ethernets:
+  ens18:
+    dhcp4: no
+    addresses:
+      - 10.1.1.9/24
+    nameservers:
+      search: [gentoomaniac.net]
+      addresses: [10.1.1.52, 10.1.1.53]
+    routes:
+      - to: 0.0.0.0/0
+        via: 10.1.1.1
+        metric: 10
