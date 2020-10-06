@@ -115,8 +115,8 @@ VAULT_VERSION=1.5.0
 pushd /usr/local/bin
 curl https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip -o /tmp/vault_${VAULT_VERSION}_linux_amd64.zip | tee -a /var/log/kickstart.log
 unzip /tmp/vault_${VAULT_VERSION}_linux_amd64.zip | tee -a /var/log/kickstart.log
-mv vault vault-${VAULT_VERSION} | tee -a /var/log/kickstart.log
-ln -s vault-${VAULT_VERSION} vault | tee -a /var/log/kickstart.log
+mv vault /usr/local/bin/vault-${VAULT_VERSION} | tee -a /var/log/kickstart.log
+ln -s /usr/local/bin/vault-${VAULT_VERSION} /usr/local/bin/vault | tee -a /var/log/kickstart.log
 popd
 
 # prepare future puppet runs
