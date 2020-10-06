@@ -40,7 +40,7 @@ ressources:
         auth-host = auth.gentoomaniac.net
         whitelist = marco@siebecke.se
         # whitelist = user2@domain.com
-      reuire:
+      require:
         - File[/srv/traefik]
 
 docker::run_instance::instance:
