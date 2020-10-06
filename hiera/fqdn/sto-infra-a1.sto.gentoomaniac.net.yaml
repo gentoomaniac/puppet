@@ -1,0 +1,84 @@
+---
+classes:
+  - docker::run_instance
+
+ressources:
+  file:
+    /srv/traefik:
+      ensure: directory
+      require: File[/srv]
+    /srv/traefik/conf:
+      ensure: directory
+      require: File[/srv/traefik]
+    "/srv/traefik/ssl":
+      ensure: directory
+      require: File[/srv/traefik]
+    "/srv/traefik/ssl/key.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
+      require: File[/srv/traefik/ssl]
+    "/srv/traefik/ssl/cert.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
+      require: File[/srv/traefik/ssl]
+    "/srv/traefik/conf/certs.toml":
+      ensure: present
+      content: |
+        [tls.stores]
+          [tls.stores.default]
+          [tls.stores.default.defaultCertificate]
+            certFile = "/ssl/cert.pem"
+            keyFile = "/ssl/key.pem"
+    /srv/traefik/forward.ini:
+      ensure: present
+      content: |
+        secret = %{lookup('secret_sso_nonce')}
+        providers.google.client-id = %{lookup('secret_sso_client_id')}
+        providers.google.client-secret = %{lookup('secret_sso_client_secret')}
+        log-level = debug
+        cookie-domain = gentoomaniac.net
+        auth-host = auth.gentoomaniac.net
+        whitelist = marco@siebecke.se
+        # whitelist = user2@domain.com
+      reuire:
+        - File[/srv/traefik]
+
+docker::run_instance::instance:
+  traefik-fa:
+    image: traefik:v2.2
+    command: >
+      --providers.file.directory=/conf
+      --providers.file.watch=true
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - CONFIG=/forward.ini
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.backend=traefik-fa
+      - traefik.http.services.traefik-fa.loadBalancer.server.port=4181
+      # SSL configuration
+      - traefik.http.routers.traefik-fa-ssl.entryPoints=https
+      - traefik.http.routers.traefik-fa-ssl.rule=host(`auth.gentoomaniac.net`)
+      - traefik.http.routers.traefik-fa-ssl.middlewares=sso@file
+      - traefik.http.routers.traefik-fa-ssl.tls=true
+      - traefik.http.routers.traefik-fa-ssl.tls.certResolver=le
+    ports:
+      - 4181:4181/tcp
+    pull_on_start: true
+    require:
+      - Class[docker]
+      - File[/srv/traefik/conf/certs.toml]
+      - File[/srv/traefik/ssl/cert.pem]
+      - File[/srv/traefik/ssl/key.pem]
+      - File[/srv/traefik/forward.ini]
+    volumes:
+      - /srv/traefik/forward.ini:/forward.ini:ro
+      - /srv/traefik/ssl:/ssl:ro
+      - /srv/traefik/conf:/conf:ro
