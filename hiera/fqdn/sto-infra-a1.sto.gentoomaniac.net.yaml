@@ -47,6 +47,7 @@ docker::run_instance::instance:
   traefik-fa:
     image: traefik:v2.2
     command: >
+      --api.insecure=true
       --providers.file.directory=/conf
       --providers.file.watch=true
     dns:
@@ -71,6 +72,7 @@ docker::run_instance::instance:
       - "'traefik.http.routers.traefik-fa-ssl.tls.certResolver=le'"
     ports:
       - 4181:4181/tcp
+      - 8080:8080/tcp
     pull_on_start: true
     require:
       - Class[docker]
