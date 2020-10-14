@@ -60,15 +60,15 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - traefik.enable=true
-      - traefik.backend=traefik-fa
-      - traefik.http.services.traefik-fa.loadBalancer.server.port=4181
+      - "'traefik.enable=true'"
+      - "'traefik.backend=traefik-fa'"
+      - "'traefik.http.services.traefik-fa.loadBalancer.server.port=4181'"
       # SSL configuration
-      - traefik.http.routers.traefik-fa-ssl.entryPoints=https
-      - traefik.http.routers.traefik-fa-ssl.rule=host(`auth.gentoomaniac.net`)
-      - traefik.http.routers.traefik-fa-ssl.middlewares=sso@file
-      - traefik.http.routers.traefik-fa-ssl.tls=true
-      - traefik.http.routers.traefik-fa-ssl.tls.certResolver=le
+      - "'traefik.http.routers.traefik-fa-ssl.entryPoints=https'"
+      - "'traefik.http.routers.traefik-fa-ssl.rule=host(`auth.gentoomaniac.net`)'"
+      - "'traefik.http.routers.traefik-fa-ssl.middlewares=sso@file'"
+      - "'traefik.http.routers.traefik-fa-ssl.tls=true'"
+      - "'traefik.http.routers.traefik-fa-ssl.tls.certResolver=le'"
     ports:
       - 4181:4181/tcp
     pull_on_start: true
