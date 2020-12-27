@@ -13,7 +13,6 @@ hierarchy:
         - "^secret_.*"
       ssl_verify: false
       address: https://vault.srv.gentoomaniac.net
-      token: /etc/vault_token
       default_field: value
       mounts:
         puppet:
