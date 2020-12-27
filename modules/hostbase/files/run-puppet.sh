@@ -62,7 +62,7 @@ export VAULT_SKIP_VERIFY=True
 
 # renew vault token:
 if [ ! -z "${VAULT_BIN}" ]; then
-    VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id=$(cat /etc/vault_role_id) secret_id=$(cat /etc/vault_secret_id))
+    export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id=$(cat /etc/vault_role_id) secret_id=$(cat /etc/vault_secret_id))
 else
     echo "Vault binary not found"
     exit 1
