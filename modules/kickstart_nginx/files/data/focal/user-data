@@ -1,0 +1,47 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_UK
+  keyboard:
+    layout: en
+    variant: uk
+  network:
+    network:
+      version: 2
+      ethernets:
+        ens18:
+          dhcp4: true
+  storage:
+    layout:
+      name: lvm
+  identity:
+    hostname: focal-template
+    username: ubuntu
+    password: $6$rounds=4096$8dkK1P/oE$2DGKKt0wLlTVJ7USY.0jN9du8FetmEr51yjPyeiR.zKE3DGFcitNL/nF1l62BLJNR87lQZixObuXYny.Mf17K1
+  apt:
+    sources:
+        hashicorp.list:
+            source: "deb [arch=amd64] https://apt.releases.hashicorp.com $RELEASE main"
+            keyid: E8A0 32E0 94D8 EB4E A189  D270 DA41 8C88 A321 9F7B
+        puppet6.list:
+            source: "deb http://apt.puppetlabs.com $RELEASE puppet6"
+            keyid: 6F6B 1550 9CF8 E59E 6E46  9F32 7F43 8280 EF8D 349F
+  packages:
+  - curl
+  - dmidecode
+  - git
+  - screen
+  - vim-nox
+  - qemu-guest-agent
+  ssh:
+    install-server: yes
+  user-data:
+    disable_root: false
+  write_files:
+  - path: /etc/puppet_branch
+    content: |
+      master
+  package_update: true
+  package_upgrade: true
+  late-commands:
+    - "echo 'ubuntu ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"

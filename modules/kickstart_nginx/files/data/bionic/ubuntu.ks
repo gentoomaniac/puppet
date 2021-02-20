@@ -100,33 +100,20 @@ if [ ! -z "${hostname}" ]; then
     sed -i 's/clients/sto/' /etc/hosts
 fi
 
-# set vault token if specified as boot parameter
-echo "Setting vault token" | tee -a /var/log/kickstart.log
-VAULT_TOKEN=$(sed -e 's/.*vault_token=\(\w\.\w\+\).*/\1/' /proc/cmdline)
-if [ ! -z "${VAULT_TOKEN}" ]; then
-    echo "VAULT_TOKEN set on kernel command line" | tee -a /var/log/kickstart.log
-    echo "${VAULT_TOKEN}" > /etc/vault_token
-    chmod 600 /etc/vault_token
-fi
-
 # Prepare Hashicorp Vault
 echo "Preparing VAULT client ..." | tee -a /var/log/kickstart.log
-VAULT_VERSION=1.5.0
-pushd /usr/local/bin
-curl https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip -o /tmp/vault_${VAULT_VERSION}_linux_amd64.zip | tee -a /var/log/kickstart.log
-unzip /tmp/vault_${VAULT_VERSION}_linux_amd64.zip | tee -a /var/log/kickstart.log
-mv vault /usr/local/bin/vault-${VAULT_VERSION} | tee -a /var/log/kickstart.log
-ln -s /usr/local/bin/vault-${VAULT_VERSION} /usr/local/bin/vault | tee -a /var/log/kickstart.log
-popd
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com ${CODENAME} main"
+sudo apt-get update && sudo apt-get install vault
 
 # prepare future puppet runs
 echo "Setting up puppet ..." | tee -a /var/log/kickstart.log
 echo master > /etc/puppet_branch
 apt-get install -y gnupg2
 curl https://apt.puppetlabs.com/DEB-GPG-KEY-puppet | sudo apt-key add
-curl "https://apt.puppetlabs.com/puppet6-release-${CODENAME}.deb" -o "/tmp/puppet6-release-${CODENAME}.deb" | tee -a /var/log/kickstart.log
-dpkg -i "/tmp/puppet6-release-${CODENAME}.deb" 2>&1 | tee -a /var/log/kickstart.log
-apt-get update && apt-get install -y "puppet-agent=6.13.0-1${CODENAME}" 2>&1 | tee -a /var/log/kickstart.log
+curl "https://apt.puppetlabs.com/puppet6-release-${CODENAME}.deb" -o "/tmp/puppet6-release-${CODENAME}.deb"
+dpkg -i "/tmp/puppet6-release-${CODENAME}.deb"
+apt-get update && apt-get install -y puppet-agent
 
 # install dependency gems
 /opt/puppetlabs/puppet/bin/gem install vault debouncer toml-rb
@@ -143,6 +130,6 @@ echo "Updating the system ..." | tee -a /var/log/kickstart.log
 apt-get update 2>&1 | tee -a /var/log/kickstart.log
 apt-get upgrade -y 2>&1 | tee -a /var/log/kickstart.log
 
-apt-get install -f -y linux-virtual 2>&1 | tee -a /var/log/kickstart.log
+apt-get install -f -y qemu-guest-agent
 
 chvt 1
