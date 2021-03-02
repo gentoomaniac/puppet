@@ -56,6 +56,7 @@ PUPPET=$(test -f /usr/local/bin/puppet && echo /usr/local/bin/puppet || echo /op
 PUPPET_GIT_PATH=/var/lib/puppet-repo
 PUPPET_GIT_BRANCH=$(head -1 /etc/puppet_branch)
 temp_dir=$(mktemp -d -t "puppet-$(date +%Y-%m-%d-%H-%M-%S)-XXX")
+influxdb_host="https://influxdb.srv.gentoomaniac.net:8086"
 
 export VAULT_SKIP_VERIFY=True
 
@@ -83,11 +84,14 @@ git_finished=$(date +%s)
 # shellcheck disable=SC2086
 ${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt ${NOOP} ${SYSLOG} "${PUPPET_GIT_PATH}/manifests/site.pp"
 
-# shellcheck disable=SC2034
+
 puppet_returncode=$?
-# shellcheck disable=SC2034
 git_time=$((git_finished - start_time))
-# shellcheck disable=SC2034
 puppet_time=$(($(date +%s) - git_finished))
-# shellcheck disable=SC2034
 puppet_branch=$(tr -d '\n' </etc/puppet_branch)
+
+influx_user="$(vault kv get -field=user puppet/common/influxdb_puppet_runs)"
+influx_pw="$(vault kv get -field=password puppet/common/influxdb_puppet_runs)"
+curl -i -XPOST "${influxdb_host}/write?db=puppet_runs" -u "${influx_user}:${influx_pw}" --data-binary "puppet_returncode,hostname=$(hostname),puppet_branch=${puppet_branch} value=${puppet_returncode}"
+curl -i -XPOST "${influxdb_host}/write?db=puppet_runs" -u "${influx_user}:${influx_pw}" --data-binary "puppet_time,hostname=$(hostname),puppet_branch=${puppet_branch} value=${puppet_time}"
+curl -i -XPOST "${influxdb_host}/write?db=puppet_runs" -u "${influx_user}:${influx_pw}" --data-binary "puppet_git_time,hostname=$(hostname),puppet_branch=${puppet_branch} value=${git_time}"
