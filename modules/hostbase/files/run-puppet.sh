@@ -69,7 +69,7 @@ else
 fi
 
 if [[ "${NO_CLONE}" == "" ]]; then
-    if git clone --single-branch --branch "${PUPPET_GIT_BRANCH}" https://github.com/gentoomaniac/puppet.git "${temp_dir}" ; then
+    if git clone --single-branch --branch "${PUPPET_GIT_BRANCH}" --depth 1 https://github.com/gentoomaniac/puppet.git "${temp_dir}" ; then
         rm -rf "${PUPPET_GIT_PATH}"
         mv "${temp_dir}" "${PUPPET_GIT_PATH}"
         chmod -R 755 "${PUPPET_GIT_PATH}"
