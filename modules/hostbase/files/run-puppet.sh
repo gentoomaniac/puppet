@@ -4,7 +4,6 @@ start_time=$(date +%s)
 
 for param in $*; do
     arg=${param/=*}
-    val=${param#*=}
 
     case ${arg} in
 
@@ -56,13 +55,14 @@ export VAULT_ADDR=https://vault.srv.gentoomaniac.net/
 PUPPET=$(test -f /usr/local/bin/puppet && echo /usr/local/bin/puppet || echo /opt/puppetlabs/bin/puppet)
 PUPPET_GIT_PATH=/var/lib/puppet-repo
 PUPPET_GIT_BRANCH=$(head -1 /etc/puppet_branch)
-temp_dir=$(mktemp -d -t puppet-$(date +%Y-%m-%d-%H-%M-%S)-XXX)
+temp_dir=$(mktemp -d -t "puppet-$(date +%Y-%m-%d-%H-%M-%S)-XXX")
 
 export VAULT_SKIP_VERIFY=True
 
 # renew vault token:
-if [ ! -z "${VAULT_BIN}" ]; then
-    export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id=$(cat /etc/vault_role_id) secret_id=$(cat /etc/vault_secret_id))
+if [ -n "${VAULT_BIN}" ]; then
+    VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
+    export VAULT_TOKEN
 else
     echo "Vault binary not found"
     exit 1
@@ -80,15 +80,14 @@ fi
 
 git_finished=$(date +%s)
 
+# shellcheck disable=SC2086
 ${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt ${NOOP} ${SYSLOG} "${PUPPET_GIT_PATH}/manifests/site.pp"
 
+# shellcheck disable=SC2034
 puppet_returncode=$?
-
-es_url=http://elasticsearch.srv.gentoomaniac.net:9200
-es_index_name="puppet-run-$(date +%Y.%m.%d)"
-timestamp=$(date --iso-8601=seconds)
-hostname=$(hostname)
-
-git_time=$[${git_finished} - ${start_time}]
-puppet_time=$[$(date +%s) - ${git_finished}]
-puppet_branch=$(cat /etc/puppet_branch | tr -d '\n')
+# shellcheck disable=SC2034
+git_time=$((git_finished - start_time))
+# shellcheck disable=SC2034
+puppet_time=$(($(date +%s) - git_finished))
+# shellcheck disable=SC2034
+puppet_branch=$(tr -d '\n' </etc/puppet_branch)
