@@ -9,8 +9,8 @@ class hostbase::puppet_cron {
 
   cron::job { 'puppet-cron':
     command     => '/usr/local/bin/run-puppet',
-    minute      => '*/30',
-    hour        => '*',
+    minute      => '0',
+    hour        => '2',
     date        => '*',
     month       => '*',
     weekday     => '*',
