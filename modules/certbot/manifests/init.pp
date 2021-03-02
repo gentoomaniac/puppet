@@ -36,7 +36,7 @@ class certbot (
   }
 
   cron::job { "certbot-cron-${normalized}-update-chain":
-    command     => "vault kv put puppet/common/secret_${normalized}_cert value=\"$(cat /srv/certbot-${normalized}/data/live/${domain}/fullchain.pem)\"",
+    command     => "/usr/local/bin/mvault kv put puppet/common/secret_${normalized}_cert value=\"$(cat /srv/certbot-${normalized}/data/live/${domain}/fullchain.pem)\"",
     minute      => '0',
     hour        => '2',
     date        => '1',
@@ -47,7 +47,7 @@ class certbot (
     description => "Update ${domain} certificate chain in vault",
   }
   cron::job { "certbot-cron-${normalized}-update-privkey":
-    command     => "vault kv put puppet/common/secret_${normalized}_key value=\"$(cat /srv/certbot-${normalized}/data/live/${domain}/privkey.pem)\"",
+    command     => "/usr/local/bin/mvault kv put puppet/common/secret_${normalized}_key value=\"$(cat /srv/certbot-${normalized}/data/live/${domain}/privkey.pem)\"",
     minute      => '0',
     hour        => '2',
     date        => '1',
