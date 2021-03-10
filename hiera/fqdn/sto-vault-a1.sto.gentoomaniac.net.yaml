@@ -45,6 +45,12 @@ ressources:
         }
 
         default_lease_ttl = "720h"
+
+        telemetry {
+          dogstatsd_addr = "172.17.0.1:8125"
+          disable_hostname = true
+        }
+
     "/srv/traefik":
       ensure: directory
       require: File[/srv]
