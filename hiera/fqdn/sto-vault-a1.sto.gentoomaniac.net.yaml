@@ -150,3 +150,17 @@ docker::run_instance::instance:
       - /srv/vault/data:/data
       - /srv/vault/logs:/vault/logs
       - /srv/vault/file:/vault/file
+
+telegraf::inputs:
+  statsd:
+    protocol: "udp"
+    service_address: ":8125"
+    delete_gauges: true
+    delete_counters: true
+    delete_sets: true
+    delete_timings: true
+    percentiles: [90]
+    metric_separator: "_"
+    parse_data_dog_tags: true
+    allowed_pending_messages: 10000
+    percentile_limit: 1000
