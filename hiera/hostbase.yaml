@@ -111,11 +111,15 @@ telegraf::inputs:
     - commands:
         - who | wc -l
     - commands:
-        - cat /proc/uptime | awk '{print $1}'
+        - awk '{print $1}' /proc/uptime
   mem: [{}]
   processes: [{}]
   io: [{}]
-  net: [{}]
+  net:
+    interfaces:
+      - "eth*"
+      - "ens*"
+      - "enp*"
   disk:
     - mount_points: ["/", "/boot"]
     - ignore_fs: ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs", "nfs"]
