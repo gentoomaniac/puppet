@@ -65,8 +65,6 @@ docker::run_instance::instance:
       - INFLUXDB_GRAPHITE_0_DATABASE=truenas
     expose:
       - 8086/tcp
-    ports:
-      - 2003/tcp
     extra_parameters:
       - --restart=unless-stopped
     labels:
