@@ -71,6 +71,7 @@ docker::run_instance::instance:
       - --restart=unless-stopped
     labels:
       - "'traefik.enable=true'"
+      - "'traefik.http.services.influxdb.loadbalancer.server.port=8086'"
       - "'traefik.http.routers.influxdb.rule=Host(`influxdb.srv.gentoomaniac.net`)'"
       - "'traefik.http.routers.influxdb.entrypoints=influxdb'"
       - "'traefik.http.routers.influxdb.tls=true'"
