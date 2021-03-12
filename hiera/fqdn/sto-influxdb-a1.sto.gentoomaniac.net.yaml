@@ -36,6 +36,29 @@ ressources:
     "/srv/influxdb":
       ensure: directory
       require: File[/srv]
+    "/srv/influxdb/conf":
+      ensure: directory
+      require: File[/srv/influxdb]
+    "/srv/influxdb/conf/influxdb.conf":
+      ensure: file
+      require: File[/srv/influxdb/conf]
+      content: |
+        [http]
+          enabled = true
+          bind-address = ":8086"
+
+        [[graphite]]
+          enabled = true
+          bind-address = ":2003"
+          database = "truenas"
+          protocol = "tcp"
+          consistency-level = "one"
+
+          templates = [
+            "*.app env.service.resource.measurement",
+            "servers.* .host.resource.measurement.field*",
+          ]
+
     "/srv/chronograf":
       ensure: directory
       require: File[/srv]
@@ -54,16 +77,10 @@ docker::run_instance::instance:
       - 10.1.1.52
       - 10.1.1.53
     env:
-      - INFLUXDB_DB=metrics
       - INFLUXDB_ADMIN_USER='%{lookup('secret_influxdb_admin_user')}'
       - INFLUXDB_ADMIN_PASSWORD='%{lookup('secret_influxdb_admin_password')}'
       - INFLUXDB_USER='%{lookup('secret_influxdb_user')}'
       - INFLUXDB_USER_PASSWORD='%{lookup('secret_influxdb_user_password')}'
-      - INFLUXDB_HTTP_ENABLED=true
-      - INFLUXDB_HTTP_BIND_ADDRESS=:8086
-      - INFLUXDB_GRAPHITE_0_ENABLED=true
-      - INFLUXDB_GRAPHITE_0_BIND_ADDRESS=:2003
-      - INFLUXDB_GRAPHITE_0_DATABASE=truenas
     expose:
       - 8086/tcp
     ports:
@@ -80,7 +97,8 @@ docker::run_instance::instance:
       - "'traefik.http.routers.influxdb.middlewares=influxdb-whitelist'"
     pull_on_start: true
     volumes:
-      - /srv/influxdb:/var/lib/influxdb
+      - /srv/influxdb/data:/var/lib/influxdb
+      - /srv/influxdb/conf/influxdb.conf:/etc/influxdb/influxdb.conf:ro
     require:
       - Class[docker]
       - File[/srv/influxdb]
