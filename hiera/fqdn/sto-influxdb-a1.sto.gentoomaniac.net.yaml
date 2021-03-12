@@ -55,16 +55,18 @@ docker::run_instance::instance:
       - 10.1.1.53
     env:
       - INFLUXDB_DB=metrics
-      - INFLUXDB_ADMIN_USER=%{lookup('secret_influxdb_admin_user')}
-      - INFLUXDB_ADMIN_PASSWORD=%{lookup('secret_influxdb_admin_password')}
-      - INFLUXDB_HTTP_AUTH_ENABLED=TRUE
-      - INFLUXDB_USER=%{lookup('secret_influxdb_user')}
-      - INFLUXDB_USER_PASSWORD=%{lookup('secret_influxdb_user_password')}
+      - INFLUXDB_ADMIN_USER='%{lookup('secret_influxdb_admin_user')}'
+      - INFLUXDB_ADMIN_PASSWORD='%{lookup('secret_influxdb_admin_password')}'
+      - INFLUXDB_USER='%{lookup('secret_influxdb_user')}'
+      - INFLUXDB_USER_PASSWORD='%{lookup('secret_influxdb_user_password')}'
+      - INFLUXDB_HTTP_ENABLED=true
+      - INFLUXDB_HTTP_BIND_ADDRESS=:8086
       - INFLUXDB_GRAPHITE_0_ENABLED=true
       - INFLUXDB_GRAPHITE_0_BIND_ADDRESS=:2003
       - INFLUXDB_GRAPHITE_0_DATABASE=truenas
     expose:
       - 8086/tcp
+      - ex
     extra_parameters:
       - --restart=unless-stopped
     labels:
