@@ -127,7 +127,11 @@ telegraf::inputs:
   system: [{}]
   kernel: [{}]
   conntrack: [{}]
-  ethtool: [{}]
+  ethtool:
+    interface_include:
+      - "eth*"
+      - "ens*"
+      - "enp*"
   interrupts: [{}]
   internal: [{}]
   iptables: [{}]
