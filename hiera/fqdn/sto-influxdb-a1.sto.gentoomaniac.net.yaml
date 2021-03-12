@@ -171,7 +171,7 @@ docker::run_instance::instance:
     expose:
       - 8086/tcp
     ports:
-      - 2003/tcp
+      - 2003:2003/tcp
     extra_parameters:
       - --restart=unless-stopped
     labels:
