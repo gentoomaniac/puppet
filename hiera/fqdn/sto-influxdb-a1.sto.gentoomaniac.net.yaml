@@ -142,8 +142,20 @@ ressources:
           consistency-level = "one"
 
           templates = [
-            "*.app env.service.resource.measurement",
-            "servers.* .host.resource.measurement.field*",
+            "servers.*.cpu.*.percent.* .host.measurement.core.*.usage",
+            "servers.*.aggregation.cpu-average.percent.* .host.*.measurement.*.usage",
+            "servers.*.load.load.* .host.*.measurement.type",
+            "servers.*.cputemp.*.temperature .host.measurement.core.*",
+            "servers.*.disktemp.*.temperature .host.measurement.disk.*",
+            "servers.*.memory.* .host.measurement.*.type",
+            "servers.*.swap.* .host.measurement.*.type",
+            "servers.*.uptime.* .host.measurement.*",
+            "servers.*.interface.*.*.* .host.*.interface.measurement.flow",
+            "servers.*.processes.ps_state.* .host.measurement.*.state",
+            "servers.*.df.*.df_complex.* .host.measurement.fs.*.type",
+
+            # Default
+            ".host.measurement*"
           ]
 
     "/srv/chronograf":
