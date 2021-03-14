@@ -143,6 +143,7 @@ ressources:
 
           templates = [
             "servers.*.cpu.*.percent.* .host.measurement.core.*.usage",
+            "servers.*.aggregation.cpu-sum.percent.* .host.*.measurement.*.usage",
             "servers.*.aggregation.cpu-average.percent.* .host.*.measurement.*.usage",
             "servers.*.load.load.* .host.*.measurement.type",
             "servers.*.cputemp.*.temperature .host.measurement.core.*",
@@ -153,9 +154,18 @@ ressources:
             "servers.*.interface.*.*.* .host.*.interface.measurement.flow",
             "servers.*.processes.ps_state.* .host.measurement.*.state",
             "servers.*.df.*.df_complex.* .host.measurement.fs.*.type",
-
+            "servers.*.disk.*.pending_operations .host.*.dev.measurement",
+            "servers.*.disk.* .host.*.dev.measurement.type",
+            "servers.*.geom_stat.* .host.*.measurement.dev",
+            "servers.*.geom_stat.*.* .host.*.measurement.dev.type",
+            "servers.*.zfs_arc.* .host.*.measurement.type",
+            "servers.*.zfs_arc_v2.* .host.*.measurement.type",
+            "servers.*.nfsstat.* .host.measurement.measurement.*.type",
             # Default
             ".host.measurement*"
+
+            # RRDcached Info
+            #"servers.*.rrdcached.* .host.measurement.type",
           ]
 
     "/srv/chronograf":
