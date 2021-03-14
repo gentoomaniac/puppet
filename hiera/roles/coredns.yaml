@@ -2,3 +2,8 @@
 classes:
   - docker
   - coredns
+
+telegraf::inputs:
+  prometheus:
+    urls: ["http://172.17.0.2:9100/metrics"]
+    metric_version: 2

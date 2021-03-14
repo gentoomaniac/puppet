@@ -1,6 +1,7 @@
 ---
 classes:
   - apt
+  - cron
   - hostbase::autoupdate
   #  - hostbase::disable_cloud
   - hostbase::dotfiles
@@ -77,7 +78,7 @@ ressources:
       ensure: directory
     "/usr/local/bin/mvault":
       ensure: present
-      mode: "0755"
+      mode: "0754"
       content: |
         #!/usr/bin/env bash
 
@@ -94,6 +95,24 @@ ressources:
         fi
 
         ${VAULT_BIN} "$@"
+    "/usr/local/bin/regular-reboot":
+      ensure: present
+      mode: "0754"
+      content: |
+        #!/usr/bin/env bash
+        if [ ! -f /etc/no_reboot ];
+          sleep $((RANDOM%60*60))
+          sudo reboot
+        fi
+
+cron::job:
+  "regular-reboot":
+    command: "/usr/local/bin/regular-reboot"
+    user: "root"
+    minute: "0"
+    hour: "2"
+    weekday: "*/7"
+    require: File[/usr/local/bin/regular-reboot]
 
 docker::docker_users:
   - marco
