@@ -18,6 +18,23 @@ class certbot (
     require => File["/srv/certbot-${normalized}"],
   }
 
+  $application_key = lookup('secret_ovh_application_key')
+  $application_secret = lookup('secret_ovh_application_secret')
+  $consumer_key = lookup('secret_ovh_consumer_key')
+  $conf = "## MANAGED BY PUPPET ##
+# OVH API credentials used by Certbot
+dns_ovh_endpoint = ovh-eu
+dns_ovh_application_key = ${application_key}
+dns_ovh_application_secret = ${application_secret}
+dns_ovh_consumer_key = ${consumer_key}
+"
+  file  { "/srv/certbot-${normalized}/ovh.ini":
+    ensure  => file,
+    content => $conf,
+    mode    => "0600",
+    require => File["/srv/certbot-${normalized}"],
+  }
+
   docker::image { $certbot_image:
     image_tag => $image_tag,
   }
