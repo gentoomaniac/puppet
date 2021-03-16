@@ -39,41 +39,26 @@ dns_ovh_consumer_key = ${consumer_key}
     image_tag => $image_tag,
   }
 
-  $certbot_parameters = "certonly --dns-ovh --dns-ovh-credentials /ovh.ini --email ${email} --agree-tos --no-eff-email -d '${domain}'"
+  file { '/usr/local/bin/renew-cert':
+    ensure => file,
+    mode   => '0700',
+    source => 'puppet:///modules/certbot/renew-cert.sh',
+  }
+
   cron::job { "certbot-cron-${normalized}":
-    command     => "docker run -v '/srv/certbot-${normalized}/ovh.ini:/ovh.ini:ro' -v '/srv/certbot-${normalized}/data:/etc/letsencrypt' ${certbot_image} ${certbot_parameters}",
+    command     => "/usr/local/bin/renew-cert --domain='${domain}' --email='${email}' --image='${certbot_image}:${image_tag}'",
     minute      => '0',
-    hour        => '0',
-    date        => '1',
+    hour        => '3',
+    date        => '*',
     month       => '*',
     weekday     => '*',
     user        => 'root',
     environment => ['MAILTO=root', 'PATH="/usr/bin:/bin"'],
-    description => "Update ${domain} certificate every ${interval} days",
-    require     => [File["/srv/certbot-${normalized}/data"],Docker::Image[$certbot_image]],
+    description => "Update ${domain} certificate if necessary",
+    require     => [
+      File["/srv/certbot-${normalized}/data"],
+      File["/srv/certbot-${normalized}/ovh.ini"],
+      File['/usr/local/bin/renew-cert'],
+      Docker::Image[$certbot_image]],
   }
-
-  cron::job { "certbot-cron-${normalized}-update-chain":
-    command     => "/usr/local/bin/mvault kv put puppet/common/secret_${normalized}_cert value=\"$(cat /srv/certbot-${normalized}/data/live/${simpledomain}/fullchain.pem)\"",
-    minute      => '0',
-    hour        => '2',
-    date        => '1',
-    month       => '*',
-    weekday     => '*',
-    user        => 'root',
-    environment => ['MAILTO=root', 'PATH="/usr/bin:/bin"'],
-    description => "Update ${domain} certificate chain in vault",
-  }
-  cron::job { "certbot-cron-${normalized}-update-privkey":
-    command     => "/usr/local/bin/mvault kv put puppet/common/secret_${normalized}_key value=\"$(cat /srv/certbot-${normalized}/data/live/${simpledomain}/privkey.pem)\"",
-    minute      => '0',
-    hour        => '2',
-    date        => '1',
-    month       => '*',
-    weekday     => '*',
-    user        => 'root',
-    environment => ['MAILTO=root', 'PATH="/usr/bin:/bin"'],
-    description => "Update ${domain} certificate private key in vault",
-  }
-
 }
