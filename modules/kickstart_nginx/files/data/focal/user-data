@@ -33,73 +33,22 @@ autoinstall:
   - screen
   - vim-nox
   - qemu-guest-agent
+  - zfsutils-linux
 
   ssh:
     install-server: yes
+    authorized-keys:
+      - AAAAB3NzaC1yc2EAAAADAQABAAACAQDVF2/g5C/6rLt9S24Q5Mwb4g2uheXWOOv3rvZ6doKdW+ZDLR/XpBYBPFB8kMEBtwNo56I4PpqClaiR1sv98LiVU08FUJjyL5getlz2/JMHShOfoXRlpu5BToReTcewXSfIIq0Siid0DcE/XKtoDuyIwJb8bY8FNwpdUlpvEnkkjqxlbREaMJ9QYCsmp9BhYUeVP5vcZayiuloZZ05qWYYrgfTDQDNOL9QsMgZKYUezlAsSi0/39q4UB1PkKqpbT22hND4PlTonschUs1JmTq5yAkdf78RGSZ2hzt1gTvEq9kgkAA+XUUv6kIzUm8biEr5DCI/zyltqMiN25I+3iNawEShJXVEDLrJquPEcMdLllzvs7UFkaHy+wIcci9L56HPekmQx1qOe8Reqoy5EVSxBYQhW+2R4X5YLF9zJVfD0wsbV2z1NV9eUDRWKe1h+bOiFc+RZ38MR8V6/AdTiEgnGE8ooXsvaLDVh7WtgKQEm19VkMNT2J8Rbh/CerGTrrqDqL3jH7uewrGaE17qEL+PtEQsO+BYgaW5NRHE6XbYoVcfjCSvZZn9hnt9/itkgbdtbT8AyFduBBhBA6fY+pBSf5SZmVKpJPoaG/w2TeCfRxoIKc2X8VZfsHHXnkJ0JRKIwVi208ctW+k0fHWpdaYdMKIQQJi1jc/1YzzOHWOFDHQ==
+    allow-pw: false
+  update: yes
   user-data:
     disable_root: false
-  write_files:
-  - path: /etc/puppet_branch
-    content: |
-      master
-  - path: /etc/bootstrap
-  - path: /usr/local/bootstrap.sh
-    owner: root:root
-    permissions: '0744'
-    content: |
-      #! /usr/bin/env bash
-
-      if [ -f /etc/bootstrap ]; then
-          apt update
-          apt install puppet6-release puppet-agent vault
-
-          echo "Deleting setup user" | tee -a /var/log/bootstrap.log
-          userdel ubuntu
-          rm -rf /home/ubuntu
-          sudo sed -i '/^ubuntu/d' /etc/sudoers
-
-
-          echo "Regenerating ssh host keys" | tee -a /var/log/bootstrap.log
-          rm -v /etc/ssh/ssh_host* 2>&1 | tee -a /var/log/bootstrap.log
-          dpkg-reconfigure openssh-server 2>&1 | tee -a /var/log/bootstrap.log
-          service ssh restart 2>&1 | tee -a /var/log/bootstrap.log
-
-
-          echo "Starting initial puppet run ..." | tee -a /var/log/bootstrap.log
-          git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/bootstrap.log
-          sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf 2>&1 | tee -a /var/log/bootstrap.log
-
-          /opt/puppetlabs/puppet/bin/puppet apply --config /tmp/puppet/puppet.conf -vvvt --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp 2>&1 | tee -a /var/log/bootstrap.log
-
-
-          echo "Updating the system ..." | tee -a /var/log/bootstrap.log
-          apt-get update 2>&1 | tee -a /var/log/bootstrap.log
-          apt-get upgrade -y 2>&1 | tee -a /var/log/bootstrap.log
-
-          echo "Init complete" | tee -a /var/log/bootstrap.log
-          systemctl disable bootstrap
-          rm /etc/bootstrap /etc/systemd/system/bootstrap.service
-          reboot
-      fi
-  - path: /etc/systemd/system/bootstrap.service
-    owner: root:root
-    permissions: '0644'
-    content: |
-      [Unit]
-      Description=Boostrap Service
-      ConditionPathExists=/etc/bootstrap
-      [Service]
-      Type=forking
-      ExecStart=/usr/local/bin/bootstrap.sh
-      TimeoutSec=0
-      StandardOutput=tty
-      RemainAfterExit=yes
-      SysVStartPriority=99
-
-      [Install]
-      WantedBy=multi-user.target
-
   package_update: true
   package_upgrade: true
   late-commands:
-    - "systemctl enable bootstrap"
+    - echo master > /target/etc/puppet_branch
+    - touch /target/etc/bootstrap
+    - curl https://ks.srv.gentoomaniac.net/focal/bootstrap.sh -o /target/usr/local/bin/bootstrap.sh
+    - chmod +x /target/usr/local/bin/bootstrap.sh
+    - curl https://ks.srv.gentoomaniac.net/focal/bootstrap.service -o /target/etc/systemd/system/bootstrap.service
+    - ln -s /etc/systemd/system/bootstrap.service /target/etc/systemd/system/multi-user.target.wants/bootstrap.service
