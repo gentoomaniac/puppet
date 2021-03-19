@@ -1,2 +1,0 @@
-focal/vmlinuz filter=lfs diff=lfs merge=lfs -text
-focal/initrd filter=lfs diff=lfs merge=lfs -text
