@@ -129,9 +129,6 @@ ressources:
             [http.middlewares.local-only-whitelist.ipwhitelist]
               sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
 
-    /srv/elasticsearch:
-      ensure: directory
-      require: File[/srv]
     /srv/grafana:
       owner: 1000
       group: 1000
