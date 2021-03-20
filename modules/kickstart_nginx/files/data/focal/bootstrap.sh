@@ -10,9 +10,9 @@ if [ -f /etc/bootstrap ]; then
 
 
     echo "*** Setting dependencies" | tee -a /var/log/bootstrap.log
-    curl https://apt.puppetlabs.com/puppet6-release-focal.deb -o /tmp/puppet6-release-focal.deb
-    dpkg -i /tmp/puppet6-release-focal.deb
-    rm /tmp/puppet6-release-focal.deb
+    curl https://apt.puppet.com/puppet7-release-focal.deb -o /tmp/puppet7-release-focal.deb
+    dpkg -i /tmp/puppet7-release-focal.deb
+    rm /tmp/puppet7-release-focal.deb
     apt update 2>&1 | tee -a /var/log/bootstrap.log
     apt install --assume-yes puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
 
