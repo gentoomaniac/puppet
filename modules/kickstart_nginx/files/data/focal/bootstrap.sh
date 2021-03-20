@@ -3,6 +3,8 @@
 export DEBIAN_FRONTEND=noninteractive
 
 if [ -f /etc/bootstrap ]; then
+
+    echo "*** Setting dependencies" | tee -a /var/log/bootstrap.log
     apt-get update 2>&1 | tee -a /var/log/bootstrap.log
     apt-get install -y puppet6-release puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
 
@@ -14,6 +16,16 @@ if [ -f /etc/bootstrap ]; then
     fi
 
 
+    echo "*** Setting up Vault credentials" | tee -a /var/log/bootstrap.log
+    mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
+    export VAULT_TOKEN="$(cat /etc/vault_token)"
+    export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
+    vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
+    vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
+    chmod 600 /etc/vault_*
+    rm /etc/vault_token
+
+
     echo "*** Regenerating ssh host keys" | tee -a /var/log/bootstrap.log
     rm -v /etc/ssh/ssh_host* 2>&1 | tee -a /var/log/bootstrap.log
     dpkg-reconfigure openssh-server 2>&1 | tee -a /var/log/bootstrap.log
@@ -21,6 +33,9 @@ if [ -f /etc/bootstrap ]; then
 
 
     echo "*** Starting initial puppet run ..." | tee -a /var/log/bootstrap.log
+    systectl disable puppet-agent
+    systemctl stop puppet-agent
+    /opt/puppetlabs/puppet/bin/gem install vault debouncer toml-rb
     git clone https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/bootstrap.log
     sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf 2>&1 | tee -a /var/log/bootstrap.log
 

@@ -46,6 +46,8 @@ autoinstall:
   package_update: true
   package_upgrade: true
   late-commands:
+    - sed 's/.*VAULT_TOKEN=\([a-zA-Z\.]\+\).*/\1/' /proc/cmdline > /target/etc/vault_token
+    - chown 600 /target/etc/vault_token
     - echo master > /target/etc/puppet_branch
     - touch /target/etc/bootstrap
     - curl https://ks.srv.gentoomaniac.net/focal/bootstrap.sh -o /target/usr/local/bin/bootstrap.sh
