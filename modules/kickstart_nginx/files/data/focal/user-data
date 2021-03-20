@@ -23,8 +23,9 @@ autoinstall:
     - id: root-partition
       type: partition
       device: root-dev
-      number: 2
+      number: 1
       size: 10G
+      flag: bios_grub
     - id: root-format
       fstype: ext4
       type: format
