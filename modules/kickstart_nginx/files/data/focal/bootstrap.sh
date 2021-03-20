@@ -7,8 +7,8 @@ if [ -f /etc/bootstrap ]; then
     curl https://apt.puppetlabs.com/puppet6-release-focal.deb -o /tmp/puppet6-release-focal.deb
     dpkg -i /tmp/puppet6-release-focal.deb
     rm /tmp/puppet6-release-focal.deb
-    apt-get update 2>&1 | tee -a /var/log/bootstrap.log
-    apt-get install -y puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
+    apt update 2>&1 | tee -a /var/log/bootstrap.log
+    apt install --allow puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
 
     if [ -e /dev/sdb ]; then
         echo "*** Setting up ZFS data disk" | tee -a /var/log/bootstrap.log
@@ -45,7 +45,7 @@ if [ -f /etc/bootstrap ]; then
 
 
     echo "*** Updating the system ..." | tee -a /var/log/bootstrap.log
-    apt-get upgrade -y 2>&1 | tee -a /var/log/bootstrap.log
+    apt upgrade --allow 2>&1 | tee -a /var/log/bootstrap.log
 
 
     echo "*** Init complete" | tee -a /var/log/bootstrap.log
