@@ -9,14 +9,14 @@ class hostbase::puppet_cron {
 
   cron::job { 'puppet-cron':
     command     => '/usr/local/bin/run-puppet',
-    minute      => '0',
-    hour        => '*/6',
+    minute      => '*/30',
+    hour        => '*',
     date        => '*',
     month       => '*',
     weekday     => '*',
     user        => 'root',
     environment => ['MAILTO=root', 'PATH="/usr/bin:/bin:/opt/puppetlabs/bin"'],
-    description => 'Run Puppet every 6 h',
+    description => 'Run Puppet every 30m',
     require     => File['/usr/local/bin/run-puppet'],
   }
 }
