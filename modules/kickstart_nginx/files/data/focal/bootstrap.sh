@@ -5,8 +5,11 @@ export DEBIAN_FRONTEND=noninteractive
 if [ -f /etc/bootstrap ]; then
 
     echo "*** Setting dependencies" | tee -a /var/log/bootstrap.log
+    curl https://apt.puppetlabs.com/puppet6-release-focal.deb -o /tmp/puppet6-release-focal.deb
+    dpkg -i /tmp/puppet6-release-focal.deb
+    rm /tmp/puppet6-release-focal.deb
     apt-get update 2>&1 | tee -a /var/log/bootstrap.log
-    apt-get install -y puppet6-release puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
+    apt-get install -y puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
 
     if [ -e /dev/sdb ]; then
         echo "*** Setting up ZFS data disk" | tee -a /var/log/bootstrap.log

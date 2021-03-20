@@ -23,9 +23,6 @@ autoinstall:
         hashicorp.list:
             source: "deb [arch=amd64] https://apt.releases.hashicorp.com $RELEASE main"
             keyid: E8A0 32E0 94D8 EB4E A189  D270 DA41 8C88 A321 9F7B
-        puppet6.list:
-            source: "deb http://apt.puppetlabs.com $RELEASE puppet6"
-            keyid: 6F6B 1550 9CF8 E59E 6E46  9F32 7F43 8280 EF8D 349F
   packages:
   - curl
   - dmidecode
