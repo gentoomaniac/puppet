@@ -4,6 +4,7 @@ classes:
   - hostbase::hostname
 
 hostbase::hostname::hostname: sto-coredns-a1.sto.gentoomaniac.net
+hostbase::puppet::version: 6.13.0-1bionic
 
 netplan::version: 2
 netplan::renderer: networkd
