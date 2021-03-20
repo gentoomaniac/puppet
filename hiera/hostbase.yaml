@@ -56,6 +56,7 @@ ressources:
     "ubuntu":
       ensure: absent
       before: Group[marco]
+      require: User[ubuntu]
     "marco":
       ensure: present
       gid: 1000
