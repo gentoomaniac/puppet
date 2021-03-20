@@ -1,7 +1,7 @@
 #cloud-config
 autoinstall:
   version: 1
-  locale: en_UK
+  locale: en_GB
   keyboard:
     layout: en
     variant: uk
