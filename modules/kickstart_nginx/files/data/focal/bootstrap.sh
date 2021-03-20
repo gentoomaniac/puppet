@@ -20,12 +20,15 @@ if [ -f /etc/bootstrap ]; then
 
     echo "*** Setting up Vault credentials" | tee -a /var/log/bootstrap.log
     mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
-    export VAULT_TOKEN="$(cat /etc/vault_token)"
+    VAULT_TOKEN="$(cat /etc/vault_token)"
+    export VAULT_TOKEN
     export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
     vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
     vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
     chmod 600 /etc/vault_*
     rm /etc/vault_token
+    VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
+    export VAULT_TOKEN
 
 
     echo "*** Regenerating ssh host keys" | tee -a /var/log/bootstrap.log
