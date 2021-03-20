@@ -36,13 +36,6 @@ dns::servers:
   - 10.1.1.53
 
 apt::sources:
-  "puppet6":
-    location: http://apt.puppetlabs.com
-    release: "%{facts.os.distro.codename}"
-    repos: puppet6
-    key:
-      id: "6F6B15509CF8E59E6E469F327F438280EF8D349F"
-      server: keyserver.ubuntu.com
 
 ressources:
   group:

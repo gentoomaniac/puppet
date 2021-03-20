@@ -11,10 +11,14 @@ class hostbase::puppet (
     ensure => absent,
   }
 
+  package { 'puppet7-release':
+    ensure => present,
+  }
+
   package { 'puppet-agent':
     ensure  => $version,
     mark    => hold,
-    require => [Apt::Source['puppet6'], Package['puppet'], Class['Apt::Update']],
+    require => [Package['puppet7-release'], Package['puppet'], Class['Apt::Update']],
   }
 
   service { 'puppet':
