@@ -8,7 +8,7 @@ if [ -f /etc/bootstrap ]; then
     dpkg -i /tmp/puppet6-release-focal.deb
     rm /tmp/puppet6-release-focal.deb
     apt update 2>&1 | tee -a /var/log/bootstrap.log
-    apt install --allow puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
+    apt install --assume-yes puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
 
     if [ -e /dev/sdb ]; then
         echo "*** Setting up ZFS data disk" | tee -a /var/log/bootstrap.log
@@ -48,7 +48,7 @@ if [ -f /etc/bootstrap ]; then
 
 
     echo "*** Updating the system ..." | tee -a /var/log/bootstrap.log
-    apt upgrade --allow 2>&1 | tee -a /var/log/bootstrap.log
+    apt upgrade --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
 
 
     echo "*** Init complete" | tee -a /var/log/bootstrap.log
