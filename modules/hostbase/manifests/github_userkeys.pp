@@ -19,6 +19,7 @@ class hostbase::github_userkeys {
       group  => root,
       mode   => '0644',
       source => "https://github.com/${githubaccount}.keys",
+      checksum => 'mtime',
     }
   }
 }
