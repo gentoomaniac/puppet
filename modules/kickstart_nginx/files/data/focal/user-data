@@ -16,7 +16,9 @@ autoinstall:
     config:
       - type: disk
         id: root-partition
-        size: 20G
+        size: 10G
+        match:
+          ssd: yes
   identity:
     hostname: focal-template
     username: ubuntu
