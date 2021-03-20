@@ -11,14 +11,10 @@ autoinstall:
         ens18:
           dhcp4: true
   storage:
-    swap:
-      size: 0
-    config:
-      - type: disk
-        id: root-partition
-        size: 10G
-        match:
-          ssd: yes
+    layout:
+      name: lvm
+      match:
+        ssd: yes
   identity:
     hostname: focal-template
     username: ubuntu
