@@ -3,6 +3,10 @@
 export DEBIAN_FRONTEND=noninteractive
 
 if [ -f /etc/bootstrap ]; then
+    echo "*** changing ubuntu user" | tee -a /var/log/bootstrap.log
+    usermod -u 2000 ubuntu
+    groupmod -g 2000 ubuntu
+    chown 2000:2000 -R /home/ubuntu
 
     echo "*** Setting dependencies" | tee -a /var/log/bootstrap.log
     curl https://apt.puppetlabs.com/puppet6-release-focal.deb -o /tmp/puppet6-release-focal.deb
