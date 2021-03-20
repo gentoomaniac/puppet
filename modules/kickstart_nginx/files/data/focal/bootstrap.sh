@@ -3,10 +3,16 @@
 #export DEBIAN_FRONTEND=noninteractive
 
 if [ -f /etc/bootstrap ]; then
+    echo "+++ DEBUG" | tee -a /var/log/bootstrap.log
+    dig repos.influxdata.com 2>&1 | tee -a /var/log/bootstrap.log
+    curl https://download.docker.com/linux/ubuntu/gpg 2>&1 | tee -a /var/log/bootstrap.log
+
+
     echo "*** Disable cloud-init" | tee -a /var/log/bootstrap.log
     apt purge --assume-yes cloud-init 2>&1 | tee -a /var/log/bootstrap.log
     apt autoremove --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
     rm -v /etc/netplan/50-cloud-init.yaml 2>&1 | tee -a /var/log/bootstrap.log
+    rm -v /etc/netplan/00-installer-config.yaml 2>&1 | tee -a /var/log/bootstrap.log
 
 
     echo "*** Setting dependencies" | tee -a /var/log/bootstrap.log
