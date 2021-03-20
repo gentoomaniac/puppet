@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-export DEBIAN_FRONTEND=noninteractive
+#export DEBIAN_FRONTEND=noninteractive
 
 if [ -f /etc/bootstrap ]; then
     echo "*** Setting dependencies" | tee -a /var/log/bootstrap.log
