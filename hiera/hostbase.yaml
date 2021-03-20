@@ -53,11 +53,17 @@ apt::sources:
 
 ressources:
   group:
+    "ubuntu":
+      ensure: absent
+      before: Group[marco]
     "marco":
       ensure: present
       gid: 1000
       before: User[marco]
   user:
+    "ubuntu":
+      ensure: absent
+      before: User[marco]
     "marco":
       ensure: present
       uid: 1000
