@@ -10,11 +10,15 @@ if [ -f /etc/bootstrap ]; then
     apt update 2>&1 | tee -a /var/log/bootstrap.log
     apt install --assume-yes puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
 
+
+    echo "*** Updating the system ..." | tee -a /var/log/bootstrap.log
+    apt upgrade --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
+
+
     if [ -e /dev/sdb ]; then
         echo "*** Setting up ZFS data disk" | tee -a /var/log/bootstrap.log
-        parted -s -a optimal -- /dev/sdb mkpart data '0%' '100%' 2>&1 | tee -a /var/log/bootstrap.log
-        zpool create datapool /dev/sdb1 2>&1 | tee -a /var/log/bootstrap.log
-        zfs create –o mountpoint=/srv  datapool/srv 2>&1 | tee -a /var/log/bootstrap.log
+        parted -s -a optimal /dev/sdb mklabel gpt --  mkpart data zfs '0%' '100%' 2>&1 | tee -a /var/log/bootstrap.log
+        zpool create datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
     fi
 
 
@@ -45,10 +49,6 @@ if [ -f /etc/bootstrap ]; then
     sed -i 's#confdir=/var/lib/puppet-repo#confdir=/tmp/puppet#' /tmp/puppet/puppet.conf 2>&1 | tee -a /var/log/bootstrap.log
 
     /opt/puppetlabs/puppet/bin/puppet apply --config /tmp/puppet/puppet.conf -vvvt --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp 2>&1 | tee -a /var/log/bootstrap.log
-
-
-    echo "*** Updating the system ..." | tee -a /var/log/bootstrap.log
-    apt upgrade --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
 
 
     echo "*** Init complete" | tee -a /var/log/bootstrap.log
