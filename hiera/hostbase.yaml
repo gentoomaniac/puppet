@@ -58,9 +58,6 @@ ressources:
       gid: 1000
       before: User[marco]
   user:
-    "ubuntu":
-      ensure: absent
-      before: User[marco]
     "marco":
       ensure: present
       uid: 1000
@@ -73,6 +70,9 @@ ressources:
         - sudo
         - adm
       purge_ssh_keys: true
+    "ubuntu":
+      ensure: absent
+      after: User[marco]
   file:
     "/srv":
       ensure: directory

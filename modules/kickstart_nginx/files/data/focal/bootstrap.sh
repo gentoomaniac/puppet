@@ -46,11 +46,6 @@ if [ -f /etc/bootstrap ]; then
     apt-get upgrade -y 2>&1 | tee -a /var/log/bootstrap.log
 
 
-    echo "*** Deleting setup user" | tee -a /var/log/bootstrap.log
-    userdel ubuntu
-    rm -rf /home/ubuntu
-    sudo sed -i '/^ubuntu/d' /etc/sudoers
-
     echo "*** Init complete" | tee -a /var/log/bootstrap.log
     systemctl disable bootstrap
     rm /etc/bootstrap /etc/systemd/system/bootstrap.service
