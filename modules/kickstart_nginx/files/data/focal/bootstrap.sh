@@ -3,6 +3,12 @@
 #export DEBIAN_FRONTEND=noninteractive
 
 if [ -f /etc/bootstrap ]; then
+    echo "*** Disable cloud-init" | tee -a /var/log/bootstrap.log
+    apt purge --assume-yes cloud-init 2>&1 | tee -a /var/log/bootstrap.log
+    apt autoremove --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
+    rm -v /etc/netplan/50-cloud-init.yaml 2>&1 | tee -a /var/log/bootstrap.log
+
+
     echo "*** Setting dependencies" | tee -a /var/log/bootstrap.log
     curl https://apt.puppetlabs.com/puppet6-release-focal.deb -o /tmp/puppet6-release-focal.deb
     dpkg -i /tmp/puppet6-release-focal.deb
