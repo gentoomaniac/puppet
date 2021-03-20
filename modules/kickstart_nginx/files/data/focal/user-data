@@ -11,10 +11,28 @@ autoinstall:
         ens18:
           dhcp4: true
   storage:
-    layout:
-      name: lvm
-      match:
-        ssd: yes
+    swap:
+      size: 0
+    config:
+    - id: root-dev
+      type: disk
+      path: /dev/sda
+      ptable: gpt
+      wipe: superblock-recursive
+      grub_device: true
+    - id: root-partition
+      type: partition
+      device: root-dev
+      number: 2
+      size: 10G
+    - id: root-format
+      fstype: ext4
+      type: format
+      volume: root-partition
+    - id: root-mount
+      device: root-format
+      path: /
+      type: mount
   identity:
     hostname: focal-template
     username: ubuntu
