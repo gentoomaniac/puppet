@@ -1,6 +1,8 @@
 #cloud-config
 autoinstall:
   version: 1
+  refresh-installer:
+    update: yes
   locale: en_GB.UTF-8
   keyboard:
     layout: gb
@@ -35,28 +37,34 @@ autoinstall:
     - type: zpool
       id: root-pool
       mountpoint: /
-      pool: rootpool
+      pool: rpool
       vdevs:
       - root-partition
     - type: zfs
       id: root-fs
       pool: root-pool
       properties:
-        canmount: noauto
         mountpoint: /
+        canmount: noauto
       volume: /root
     - type: zfs
       id: home-fs
       pool: root-pool
       properties:
         mountpoint: /home
+        canmount: off
       volume: /home
     - type: zfs
       id: docker-fs
       pool: root-pool
       properties:
         mountpoint: /var/lib/docker
+        canmount: off
       volume: /docker
+    - type: mount
+      id: root-mount
+      device: root-partition
+      path: /
   identity:
     hostname: focal-template
     username: ubuntu
