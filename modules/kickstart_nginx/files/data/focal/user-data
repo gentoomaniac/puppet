@@ -4,14 +4,6 @@ autoinstall:
   locale: en_GB.UTF-8
   keyboard:
     layout: gb
-  network:
-    network:
-      version: 2
-      ethernets:
-        eth*:
-          dhcp4: true
-        en*:
-          dhcp4: true
   storage:
     swap:
       size: 0
@@ -29,7 +21,7 @@ autoinstall:
       size: 1M
       flag: bios_grub
     - type: partition
-      id: root-partitionz
+      id: root-partition
       device: root-dev
       number: 2
       size: 10G
