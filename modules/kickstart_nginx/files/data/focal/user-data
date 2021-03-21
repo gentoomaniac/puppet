@@ -3,9 +3,17 @@ autoinstall:
   version: 1
   refresh-installer:
     update: yes
+
   locale: en_GB.UTF-8
   keyboard:
     layout: gb
+
+  network:
+    version: 2
+    ethernets:
+      ens18:
+        dhcp4: true
+
   storage:
     swap:
       size: 0
@@ -16,64 +24,111 @@ autoinstall:
       ptable: gpt
       wipe: superblock-recursive
       grub_device: true
+
     - type: partition
-      id: boot-partition
+      id: grub-partition
       device: root-dev
       number: 1
       size: 1M
       flag: bios_grub
     - type: partition
-      id: root-partition
+      id: boot-partition
       device: root-dev
       number: 2
-      size: 10G
-      wipe: superblock
+      size: 9G
+    - type: partition
+      id: root-partition
+      device: root-dev
+      number: 3
+      size: 9G
     - type: partition
       id: data-partition
       device: root-dev
-      number: 3
+      number: 4
       size: -1
-      wipe: superblock
-    - type: zpool
-      id: root-pool
-      mountpoint: /
-      pool: rpool
-      vdevs:
-      - root-partition
-    - type: zfs
-      id: root-fs
-      pool: root-pool
-      properties:
-        mountpoint: /
-        canmount: noauto
-      volume: /root
-    - type: zfs
-      id: home-fs
-      pool: root-pool
-      properties:
-        mountpoint: /home
-        canmount: off
-      volume: /home
-    - type: zfs
-      id: docker-fs
-      pool: root-pool
-      properties:
-        mountpoint: /var/lib/docker
-        canmount: off
-      volume: /docker
-    - type: mount
-      id: root-mount
-      device: root-partition
+
+    - id: rootvg
+      name: rootvg
+      type: lvm_volgroup
+      devices:
+        - root-partition
+    - id: datavg
+      name: datavg
+      type: lvm_volgroup
+      devices:
+        - data-partition
+
+    - id: rootvol
+      name: root
+      size: 9G
+      type: lvm_partition
+      volgroup: rootvg
+
+    - id: root-fs
+      type: format
+      fstype: ext4
+      label: root-fs
+      volume: rootvol
+
+    - id: root-mount
+      type: mount
       path: /
+      device: rootvol
+
+    #- type: zpool
+    #  id: boot-pool
+    #  pool: bpool
+    #  vdevs:
+    #    - boot-partition
+    #  mountpoint: /boot
+    #  pool_properties:
+    #    ashift: 12      # (or more, based on /sys)
+    #  fs_properties:
+    #    acltype: posixacl
+    #    relatime: on
+    #    canmount: off
+    #    compression: lz4
+    #    devices: off
+    #    #normalization: formD  # Disabled for the time being until boot is stable
+    #    xattr: sa
+    #- type: zpool
+    #  id: root-pool
+    #  mountpoint: /
+    #  pool: rpool
+    #  vdevs:
+    #  - root-partition
+
+    #- type: zfs
+    #  id: root-fs
+    #  pool: root-pool
+    #  properties:
+    #    mountpoint: /
+    #    org.zsys:bootfs: 'yes'
+    #  volume: /root
+    #- type: zfs
+    #  id: home-fs
+    #  pool: root-pool
+    #  properties:
+    #    mountpoint: /home
+    #  volume: /home
+    #- type: zfs
+    #  id: docker-fs
+    #  pool: root-pool
+    #  properties:
+    #    mountpoint: /var/lib/docker
+    #  volume: /docker
+
   identity:
     hostname: focal-template
     username: ubuntu
     password: $6$rounds=4096$8dkK1P/oE$2DGKKt0wLlTVJ7USY.0jN9du8FetmEr51yjPyeiR.zKE3DGFcitNL/nF1l62BLJNR87lQZixObuXYny.Mf17K1
+
   apt:
     sources:
         hashicorp.list:
             source: "deb [arch=amd64] https://apt.releases.hashicorp.com $RELEASE main"
             keyid: E8A0 32E0 94D8 EB4E A189  D270 DA41 8C88 A321 9F7B
+
   packages:
   - curl
   - dmidecode
@@ -88,11 +143,13 @@ autoinstall:
     authorized-keys:
       - AAAAB3NzaC1yc2EAAAADAQABAAACAQDVF2/g5C/6rLt9S24Q5Mwb4g2uheXWOOv3rvZ6doKdW+ZDLR/XpBYBPFB8kMEBtwNo56I4PpqClaiR1sv98LiVU08FUJjyL5getlz2/JMHShOfoXRlpu5BToReTcewXSfIIq0Siid0DcE/XKtoDuyIwJb8bY8FNwpdUlpvEnkkjqxlbREaMJ9QYCsmp9BhYUeVP5vcZayiuloZZ05qWYYrgfTDQDNOL9QsMgZKYUezlAsSi0/39q4UB1PkKqpbT22hND4PlTonschUs1JmTq5yAkdf78RGSZ2hzt1gTvEq9kgkAA+XUUv6kIzUm8biEr5DCI/zyltqMiN25I+3iNawEShJXVEDLrJquPEcMdLllzvs7UFkaHy+wIcci9L56HPekmQx1qOe8Reqoy5EVSxBYQhW+2R4X5YLF9zJVfD0wsbV2z1NV9eUDRWKe1h+bOiFc+RZ38MR8V6/AdTiEgnGE8ooXsvaLDVh7WtgKQEm19VkMNT2J8Rbh/CerGTrrqDqL3jH7uewrGaE17qEL+PtEQsO+BYgaW5NRHE6XbYoVcfjCSvZZn9hnt9/itkgbdtbT8AyFduBBhBA6fY+pBSf5SZmVKpJPoaG/w2TeCfRxoIKc2X8VZfsHHXnkJ0JRKIwVi208ctW+k0fHWpdaYdMKIQQJi1jc/1YzzOHWOFDHQ==
     allow-pw: false
+
   update: yes
   user-data:
     disable_root: false
   package_update: true
   package_upgrade: true
+
   late-commands:
     - sed 's/.*VAULT_TOKEN=\([a-zA-Z0-9\.]\+\).*/\1/' /proc/cmdline > /target/etc/vault_token
     - chown 600 /target/etc/vault_token
@@ -102,3 +159,6 @@ autoinstall:
     - chmod +x /target/usr/local/bin/bootstrap.sh
     - curl https://ks.srv.gentoomaniac.net/focal/bootstrap.service -o /target/etc/systemd/system/bootstrap.service
     - ln -s /etc/systemd/system/bootstrap.service /target/etc/systemd/system/multi-user.target.wants/bootstrap.service
+    - cat /autoinstall.yaml | nc -w 5 10.1.1.163 1234
+  error-commands:
+    - cat /var/crash/* | nc -w 5 10.1.1.163 1234
