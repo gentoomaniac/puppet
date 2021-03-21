@@ -24,12 +24,18 @@ autoinstall:
       ptable: gpt
       wipe: superblock-recursive
       grub_device: true
-    - id: root-partition
+    - id: boot-partition
       type: partition
       device: root-dev
       number: 1
-      size: 10G
+      size: 500M
       flag: bios_grub
+    - id: root-partition
+      type: partition
+      device: root-dev
+      number: 2
+      size: 10G
+      wipe: superblock
     - id: root-format
       fstype: ext4
       type: format
