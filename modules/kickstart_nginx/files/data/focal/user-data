@@ -8,7 +8,11 @@ autoinstall:
     network:
       version: 2
       ethernets:
-        ens18:
+        eth*:
+          dhcp4: true
+        ens*:
+          dhcp4: true
+        enp*:
           dhcp4: true
   storage:
     swap:
