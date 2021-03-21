@@ -10,40 +10,61 @@ autoinstall:
       ethernets:
         eth*:
           dhcp4: true
-        ens*:
-          dhcp4: true
-        enp*:
+        en*:
           dhcp4: true
   storage:
     swap:
       size: 0
     config:
-    - id: root-dev
-      type: disk
+    - type: disk
+      id: root-dev
       path: /dev/sda
       ptable: gpt
       wipe: superblock-recursive
       grub_device: true
-    - id: boot-partition
-      type: partition
+    - type: partition
+      id: boot-partition
       device: root-dev
       number: 1
-      size: 500M
+      size: 1M
       flag: bios_grub
-    - id: root-partition
-      type: partition
+    - type: partition
+      id: root-partitionz
       device: root-dev
       number: 2
       size: 10G
       wipe: superblock
-    - id: root-format
-      fstype: ext4
-      type: format
-      volume: root-partition
-    - id: root-mount
-      device: root-format
-      path: /
-      type: mount
+    - type: partition
+      id: data-partition
+      device: root-dev
+      number: 3
+      size: -1
+      wipe: superblock
+    - type: zpool
+      id: root-pool
+      mountpoint: /
+      pool: rootpool
+      vdevs:
+      - root-partition
+    - type: zfs
+      id: root-fs
+      pool: root-pool
+      properties:
+        canmount: noauto
+        mountpoint: /
+      volume: /root
+    - type: zfs
+      id: home-fs
+      pool: root-pool
+      properties:
+        mountpoint: /home
+      volume: /home
+    - type: zfs
+      id: docker-fs
+      pool: root-pool
+      properties:
+        mountpoint: /var/lib/docker
+      volume: /docker
   identity:
     hostname: focal-template
     username: ubuntu
