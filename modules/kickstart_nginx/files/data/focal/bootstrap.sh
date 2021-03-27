@@ -27,8 +27,10 @@ if [ -f /etc/bootstrap ]; then
     echo "*** Updating the system ..." | tee -a /var/log/bootstrap.log
     apt upgrade --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
 
-    echo "*** Setting up ZFS local partition" | tee -a /var/log/bootstrap.log
-    zpool create localpool /dev/sda4 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
+    if [[ -b /dev/sda4 ]]; then
+        echo "*** Setting up ZFS local partition" | tee -a /var/log/bootstrap.log
+        zpool create localpool /dev/sda4 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
+    fi
 
     if [ -b /dev/sdb ]; then
         if parted /dev/sdb p 2>&1| grep "Partition Table: unknown" -q; then
