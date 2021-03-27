@@ -85,7 +85,7 @@ ressources:
         fi
 
         ${VAULT_BIN} "$@"
-    "/usr/local/bin/regular-reboot":
+    "/etc/cron.weekly/regular-reboot":
       ensure: present
       mode: "0754"
       content: |
@@ -94,15 +94,6 @@ ressources:
           sleep $((RANDOM%60*60))
           sudo reboot
         fi
-
-cron::job:
-  "regular-reboot":
-    command: "/usr/local/bin/regular-reboot"
-    user: "root"
-    minute: "0"
-    hour: "2"
-    weekday: "*/7"
-    require: File[/usr/local/bin/regular-reboot]
 
 docker::docker_users:
   - marco
