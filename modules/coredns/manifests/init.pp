@@ -17,6 +17,7 @@ class coredns {
     provider => git,
     source   => 'https://github.com/gentoomaniac/dnsdata.git',
     revision => 'master',
+    require => Zfs['localpool/coredns'],
     notify   => Docker::Run['coredns'],
   }
 
