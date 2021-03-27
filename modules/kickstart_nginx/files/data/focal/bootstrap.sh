@@ -27,18 +27,21 @@ if [ -f /etc/bootstrap ]; then
     echo "*** Updating the system ..." | tee -a /var/log/bootstrap.log
     apt upgrade --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
 
-    if [[ -b /dev/sda4 ]]; then
-        echo "*** Setting up ZFS local partition" | tee -a /var/log/bootstrap.log
-        zpool create localpool /dev/sda4 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
-    fi
 
+    # Set up datapool on either /dev/sda4 or /dev/sdb1
+    # This is mainly to cover Physical machines with only one drive
     if [ -b /dev/sdb ]; then
         if parted /dev/sdb p 2>&1| grep "Partition Table: unknown" -q; then
-            echo "*** Setting up ZFS data disk" | tee -a /var/log/bootstrap.log
+            echo "*** Setting up ZFS data disk on /dev/sdb1" | tee -a /var/log/bootstrap.log
             parted -s -a optimal /dev/sdb mklabel gpt --  mkpart data zfs '0%' '100%' 2>&1 | tee -a /var/log/bootstrap.log
             zpool create datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
         else
             echo "!!! /dev/sdb has a partition table. Skipping datapool creation" | tee -a /var/log/bootstrap.log
+        fi
+    else
+        if [[ -b /dev/sda4 ]]; then
+            echo "*** Setting up ZFS data disk on /dev/sda4" | tee -a /var/log/bootstrap.log
+            zpool create localpool /dev/sda4 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
         fi
     fi
 
