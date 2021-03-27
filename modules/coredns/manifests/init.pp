@@ -2,17 +2,17 @@
 #
 #
 class coredns {
-  file { '/opt/coredns':
-    ensure => directory,
+  zfs { 'datapool/coredns':
+    ensure => present,
   }
-  file { '/opt/coredns/Corefile':
+  file { '/srv/coredns/Corefile':
     ensure  => file,
     source  => 'puppet:///modules/coredns/Corefile',
-    require => File['/opt/coredns'],
+    require => Zfs['datapool/coredns'],
     notify  => Docker::Run['coredns'],
   }
 
-  vcsrepo { '/opt/coredns/dnsdata':
+  vcsrepo { '/srv/coredns/dnsdata':
     ensure   => latest,
     provider => git,
     source   => 'https://github.com/gentoomaniac/dnsdata.git',
@@ -27,7 +27,7 @@ class coredns {
     dns              => ['8.8.8.8', '8.8.4.4'],
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
-    volumes          => ['/opt/coredns:/data'],
-    require          => [File['/opt/coredns/Corefile'],Service['systemd-resolved'], Vcsrepo['/opt/coredns/dnsdata'], Class['docker']],
+    volumes          => ['/srv/coredns:/data'],
+    require          => [File['/srv/coredns/Corefile'],Service['systemd-resolved'], Vcsrepo['/srv/coredns/dnsdata'], Class['docker']],
   }
 }
