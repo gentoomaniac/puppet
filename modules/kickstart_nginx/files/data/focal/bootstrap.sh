@@ -4,6 +4,7 @@
 
 if [ -f /etc/bootstrap ]; then
     echo "+++ DEBUG" | tee -a /var/log/bootstrap.log
+    cat /proc/cmdline 2>&1 | tee -a /var/log/bootstrap.log
     dig repos.influxdata.com 2>&1 | tee -a /var/log/bootstrap.log
     curl https://download.docker.com/linux/ubuntu/gpg 2>&1 | tee -a /var/log/bootstrap.log
 
@@ -26,11 +27,17 @@ if [ -f /etc/bootstrap ]; then
     echo "*** Updating the system ..." | tee -a /var/log/bootstrap.log
     apt upgrade --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
 
+    echo "*** Setting up ZFS local partition" | tee -a /var/log/bootstrap.log
+    zpool create localpool /dev/sda4 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
 
-    if [ -b /dev/sdb ] && parted /dev/sdb p 2>&1| grep "Partition Table: unknown" -q; then
-        echo "*** Setting up ZFS data disk" | tee -a /var/log/bootstrap.log
-        parted -s -a optimal /dev/sdb mklabel gpt --  mkpart data zfs '0%' '100%' 2>&1 | tee -a /var/log/bootstrap.log
-        zpool create datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
+    if [ -b /dev/sdb ]; then
+        if parted /dev/sdb p 2>&1| grep "Partition Table: unknown" -q; then
+            echo "*** Setting up ZFS data disk" | tee -a /var/log/bootstrap.log
+            parted -s -a optimal /dev/sdb mklabel gpt --  mkpart data zfs '0%' '100%' 2>&1 | tee -a /var/log/bootstrap.log
+            zpool create datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
+        else
+            echo "!!! /dev/sdb has a partition table. Skipping datapool creation" | tee -a /var/log/bootstrap.log
+        fi
     fi
 
 
@@ -38,6 +45,7 @@ if [ -f /etc/bootstrap ]; then
     mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
     VAULT_TOKEN="$(cat /etc/vault_token)"
     export VAULT_TOKEN
+    [[ -n "${VAULT_TOKEN}" ]] && echo '!!! No initial vault token set' | tee -a /var/log/bootstrap.log
     export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
     vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
     vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
@@ -45,6 +53,7 @@ if [ -f /etc/bootstrap ]; then
     rm /etc/vault_token
     VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
     export VAULT_TOKEN
+    [[ -n "${VAULT_TOKEN}" ]] && echo '!!! Could not get vault token from approle' | tee -a /var/log/bootstrap.log
 
 
     echo "*** Regenerating ssh host keys" | tee -a /var/log/bootstrap.log

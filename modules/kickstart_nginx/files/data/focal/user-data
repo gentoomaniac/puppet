@@ -80,12 +80,12 @@ autoinstall:
     #    devices: off
     #    #normalization: formD  # Disabled for the time being until boot is stable
     #    xattr: sa
-    - type: zpool
-      id: local-pool
-      mountpoint: /local
-      pool: localpool
-      vdevs:
-      - local-partition
+    # - type: zpool
+    #   id: local-pool
+    #   mountpoint: /local
+    #   pool: localpool
+    #   vdevs:
+    #   - local-partition
 
     #- type: zfs
     #  id: root-fs
