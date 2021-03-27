@@ -2,13 +2,13 @@
 #
 #
 class coredns {
-  zfs { 'datapool/coredns':
+  zfs { 'localpool/coredns':
     ensure => present,
   }
   file { '/srv/coredns/Corefile':
     ensure  => file,
     source  => 'puppet:///modules/coredns/Corefile',
-    require => Zfs['datapool/coredns'],
+    require => Zfs['localpool/coredns'],
     notify  => Docker::Run['coredns'],
   }
 

@@ -142,7 +142,7 @@ autoinstall:
   late-commands:
   - sed 's/.*VAULT_TOKEN=\([a-zA-Z0-9\.]\+\).*/\1/' /proc/cmdline > /target/etc/vault_token
   - chown 600 /target/etc/vault_token
-  - echo master > /target/etc/puppet_branch
+  - PUPPET_BRANCH=$(sed 's/.*PUPPET_BRANCH=\([a-zA-Z0-9\._-/]\+\).*/\1/' /proc/cmdline); echo ${PUPPET_BRANCH:-master} > /target/etc/puppet_branch
   - touch /target/etc/bootstrap
   - curl https://ks.srv.gentoomaniac.net/focal/bootstrap.sh -o /target/usr/local/bin/bootstrap.sh
   - chmod +x /target/usr/local/bin/bootstrap.sh
