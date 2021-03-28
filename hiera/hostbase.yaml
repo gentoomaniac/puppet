@@ -129,9 +129,9 @@ telegraf::inputs:
       totalcpu: true
   exec:
     - commands:
-        - who | wc -l
-    - commands:
-        - awk '{print $1}' /proc/uptime
+        - /usr/local/bin/custom-metrics
+      timeout: 5s
+      data_format: influx
   mem: [{}]
   processes: [{}]
   io: [{}]
