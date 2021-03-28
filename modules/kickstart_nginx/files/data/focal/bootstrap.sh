@@ -38,7 +38,7 @@ if [ -f /etc/bootstrap ]; then
         else
             if zpool import | grep -q ^\s\+pool: datapool$; then
                 echo "*** found existing datapool. Importing ..." | tee -a /var/log/bootstrap.log
-                zpool import datapool 2>&1 | tee -a /var/log/bootstrap.log
+                zpool import -f datapool 2>&1 | tee -a /var/log/bootstrap.log
             else
                 echo "!!! /dev/sdb has a partition table but no datapool. Skipping datapool creation/import" | tee -a /var/log/bootstrap.log
             fi
