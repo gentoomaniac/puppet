@@ -6,13 +6,13 @@ classes:
 ressources:
   zfs:
     "datapool/traefik":
-      ensure: exists
+      ensure: present
     "datapool/influxdb":
-      ensure: exists
+      ensure: present
     "datapool/chronograf":
-      ensure: exists
+      ensure: present
     "datapool/varken":
-      ensure: exists
+      ensure: present
   file:
     "/srv/traefik/conf":
       ensure: directory
