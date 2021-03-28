@@ -89,6 +89,13 @@ ressources:
         fi
 
         ${VAULT_BIN} "$@"
+    "/usr/local/bin/custom-metrics":
+        ensure: present
+        mode: "0755"
+        content: |
+          #!/usr/bin/env bash
+
+          echo $(lsb_release -d | sed "s/^Description:\s\+\(.*\)$/lsb_release,hostname=$(hostname) value=\1/")
     "/etc/cron.weekly/regular-reboot":
       ensure: present
       mode: "0754"
