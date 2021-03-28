@@ -41,6 +41,16 @@ autoinstall:
       number: 4
       size: -1
 
+    - id: boot-fs
+      type: format
+      fstype: ext4
+      label: boot-fs
+      volume: rootvol
+    - id: boot-mount
+      type: mount
+      path: /boot
+      device: boot-fs
+
     - id: rootvg
       name: rootvg
       type: lvm_volgroup
