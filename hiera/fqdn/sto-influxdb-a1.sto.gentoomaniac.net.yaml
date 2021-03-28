@@ -19,7 +19,7 @@ ressources:
       require: Zfs[datapool/traefik]
     "/srv/traefik/ssl":
       ensure: directory
-      require: File[/srv/traefik]
+      require: Zfs[datapool/traefik]
     "/srv/traefik/ssl/key.pem":
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
