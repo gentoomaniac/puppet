@@ -96,7 +96,16 @@ ressources:
         #!/usr/bin/env bash
         if [ ! -f /etc/no_reboot ];
           sleep $((RANDOM%60*60))
-          sudo reboot
+          reboot
+        fi
+    "/etc/cron.weekly/docker-system-prune":
+      ensure: present
+      mode: "0750"
+      content: |
+        #!/usr/bin/env bash
+        if [ ! -f /etc/no_prune ];
+          sleep $((RANDOM%60*60))
+          yes | docker system prune --volumes
         fi
 
 docker::docker_users:
