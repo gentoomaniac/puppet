@@ -17,10 +17,12 @@ ressources:
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
       require: File[/srv/traefik/ssl]
+      notify: Docker::Run[traefik]
     "/srv/traefik/ssl/cert.pem":
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
       require: File[/srv/traefik/ssl]
+      notify: Docker::Run[traefik]
     "/srv/traefik/conf/certs.toml":
       ensure: present
       content: |
