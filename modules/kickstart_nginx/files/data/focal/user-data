@@ -148,6 +148,5 @@ autoinstall:
   - chmod +x /target/usr/local/bin/bootstrap.sh
   - curl https://ks.srv.gentoomaniac.net/focal/bootstrap.service -o /target/etc/systemd/system/bootstrap.service
   - ln -s /etc/systemd/system/bootstrap.service /target/etc/systemd/system/multi-user.target.wants/bootstrap.service
-  - cat /autoinstall.yaml | nc -w 5 10.1.1.3 1234
   error-commands:
   - cat /var/crash/* | nc -w 5 10.1.1.3 1234
