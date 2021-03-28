@@ -38,13 +38,13 @@ for param in $*; do
     esac
 done
 
-if [ "${NOW}" == "" ]; then
+if [ -z "${NOW}" ]; then
     sleep $((1 + RANDOM % 360))
     SYSLOG="-l syslog"
 fi
 
 
-if [ -f /etc/puppet_disable ]; then
+if [ -f /etc/puppet_disable ] && [ -z "${NOW}" ]; then
     NOOP=--noop
 fi
 
