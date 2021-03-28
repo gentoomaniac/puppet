@@ -36,7 +36,12 @@ if [ -f /etc/bootstrap ]; then
             parted -s -a optimal /dev/sdb mklabel gpt --  mkpart data zfs '0%' '100%' 2>&1 | tee -a /var/log/bootstrap.log
             zpool create datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
         else
-            echo "!!! /dev/sdb has a partition table. Skipping datapool creation" | tee -a /var/log/bootstrap.log
+            if zpool import | grep -q ^\s\+pool: datapool$; then
+                echo "*** found existing datapool. Importing ..." | tee -a /var/log/bootstrap.log
+                zpool import datapool 2>&1 | tee -a /var/log/bootstrap.log
+            else
+                echo "!!! /dev/sdb has a partition table but no datapool. Skipping datapool creation/import" | tee -a /var/log/bootstrap.log
+            fi
         fi
     else
         if [[ -b /dev/sda4 ]]; then
