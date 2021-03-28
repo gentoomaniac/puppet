@@ -4,13 +4,19 @@ classes:
   - docker::run_instance
 
 ressources:
+  zfs:
+    "datapool/traefik":
+      ensure: exists
+    "datapool/influxdb":
+      ensure: exists
+    "datapool/chronograf":
+      ensure: exists
+    "datapool/varken":
+      ensure: exists
   file:
-    "/srv/traefik":
-      ensure: directory
-      require: File[/srv]
     "/srv/traefik/conf":
       ensure: directory
-      require: File[/srv/traefik]
+      require: Zfs[datapool/traefik]
     "/srv/traefik/ssl":
       ensure: directory
       require: File[/srv/traefik]
@@ -33,12 +39,9 @@ ressources:
       require:
         - File[/srv/traefik/ssl/cert.pem]
         - File[/srv/traefik/ssl/key.pem]
-    "/srv/influxdb":
-      ensure: directory
-      require: File[/srv]
     "/srv/influxdb/conf":
       ensure: directory
-      require: File[/srv/influxdb]
+      require: Zfs[datapool/influxdb]
     "/srv/influxdb/conf/influxdb.conf":
       ensure: file
       require: File[/srv/influxdb/conf]
@@ -168,13 +171,6 @@ ressources:
             #"servers.*.rrdcached.* .host.measurement.type",
           ]
 
-    "/srv/chronograf":
-      ensure: directory
-      require: File[/srv]
-    "/srv/varken":
-      ensure: directory
-      require: File[/srv]
-
 docker::networks::networks:
   web:
     ensure: "present"
@@ -210,7 +206,7 @@ docker::run_instance::instance:
       - /srv/influxdb/conf/influxdb.conf:/etc/influxdb/influxdb.conf:ro
     require:
       - Class[docker]
-      - File[/srv/influxdb]
+      - Zfs[datapool/influxdb]
   chronograf:
     image: chronograf:1.7-alpine
     dns:
@@ -232,7 +228,7 @@ docker::run_instance::instance:
       - /srv/chronograf:/var/lib/chronograf
     require:
       - Class[docker]
-      - File[/srv/chronograf]
+      - Zfs[datapool/chronograf]
   traefik:
     image: traefik:v2.2
     command: >
@@ -332,4 +328,4 @@ docker::run_instance::instance:
       - /srv/varken:/config
     require:
       - Class[docker]
-      - File[/srv/varken]
+      - Zfs[datapool/varken]
