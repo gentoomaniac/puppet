@@ -83,7 +83,6 @@ if [ -f /etc/bootstrap ]; then
 
 
     echo "*** Init complete" | tee -a /var/log/bootstrap.log
-    mv /etc/netplan/00-installer-config.yaml /etc/netplan/99-installer-config.yaml
     systemctl disable bootstrap
     rm /etc/bootstrap /etc/systemd/system/bootstrap.service
     reboot
