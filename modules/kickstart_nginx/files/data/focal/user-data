@@ -45,7 +45,7 @@ autoinstall:
       type: format
       fstype: ext4
       label: boot-fs
-      volume: rootvol
+      volume: boot-partition
     - id: boot-mount
       type: mount
       path: /boot
