@@ -69,6 +69,11 @@ else
     exit 1
 fi
 
+if [ -z "${VAULT_TOKEN}" ]; then
+    echo 'Oops! no vault token! Skipping puppet run to not break stuff!'
+    exit 1
+fi
+
 if [[ "${NO_CLONE}" == "" ]]; then
     if git clone --single-branch --branch "${PUPPET_GIT_BRANCH}" --depth 1 https://github.com/gentoomaniac/puppet.git "${temp_dir}" ; then
         rm -rf "${PUPPET_GIT_PATH}"
