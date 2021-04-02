@@ -189,6 +189,11 @@ ressources:
         /nfs   /etc/auto.nfs --timeout 60
 
       require: File[/etc/auto.nfs]
+    /srv/plex:
+      ensure: directory
+    /srv/plex/config:
+      ensure: directory
+      require: File[/srv/plex]
   service:
     autofs:
       ensure: running
@@ -196,6 +201,9 @@ ressources:
       require:
         - File[/etc/auto.nfs]
         - File[/etc/auto.master.d/nfs.autofs]
+    avahi-daemon:
+      ensure: stopped
+      enable: false
 
 docker::networks::networks:
   web:
@@ -496,6 +504,47 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/tautulli]
+  plex:
+    image: plexinc/pms-docker:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PLEX_CLAIM="claim-McptpawppqGxrrc82qqd"
+      - TZ="Europe/Berlin"
+      - PLEX_GID=44
+    labels:
+      - "'traefik.enable=false'"
+    ports:
+      - 32400:32400/tcp
+      - 1900:1900/udp
+      - 3005:3005/tcp
+      - 5353:5353/udp
+      - 8324:8324/tcp
+      - 32410:32410/tcp
+      - 32412-32414:32412-32414/udp
+      - 32469:32469/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    pull_on_start: true
+    volumes:
+      - /srv/plex/config:/config
+      - nfs_movies:/data/movies:ro
+      - nfs_shows:/data/shows:ro
+      - nfs_kids_movies:/data/kids_movies:ro
+      - nfs_kids_shows:/data/kids_shows:ro
+      - nfs_kids_shows_se:/data/kids_shows_se:ro
+      - nfs_sd_old:/data/sd_old:ro
+    require:
+      - Class[docker]
+      - File[/srv/plex/config]
+      - Docker_volume[nfs_movies]
+      - Docker_volume[nfs_shows]
+      - Docker_volume[nfs_kids_movies]
+      - Docker_volume[nfs_kids_shows]
+      - Docker_volume[nfs_kids_shows_se]
+      - Docker_volume[nfs_sd_old]
+      - Service[avahi-daemon]
 
 kickstart_nginx::labels:
   - "'traefik.enable=true'"
