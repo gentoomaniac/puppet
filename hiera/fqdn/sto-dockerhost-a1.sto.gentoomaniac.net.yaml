@@ -10,6 +10,9 @@ traefik::ports:
   - 9200:9200/tcp
 
 ressources:
+  package:
+    autofs:
+      ensure: installed
   sysctl:
     vm.max_map_count:
       value: 262144
@@ -188,7 +191,9 @@ ressources:
       content: |
         /nfs   /etc/auto.nfs --timeout 60
 
-      require: File[/etc/auto.nfs]
+      require:
+        - File[/etc/auto.nfs]
+        - Package[autofs]
     /srv/plex:
       ensure: directory
     /srv/plex/config:
