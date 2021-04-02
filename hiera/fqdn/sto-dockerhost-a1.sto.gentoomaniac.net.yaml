@@ -168,6 +168,34 @@ ressources:
     /srv/tautulli:
       ensure: directory
       require: File[/srv]
+    /etc/auto.nfs:
+      ensure: present
+      content: |
+        movies  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/movies/movies
+        kids_movies  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_movies
+        shows  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank3/shows
+        kids_shows  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows
+        kids_shows_se  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows_se
+        sd_old  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank3/sd_old
+
+        docker  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/bak/docker
+        share  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tank5/share
+        nzbget  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tmp/nzbget
+        tftpboot  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tank1/tftpboot
+
+    /etc/auto.master.d/nfs.autofs:
+      ensure: present
+      content: |
+        /nfs   /etc/auto.nfs --timeout 60
+
+      require: File[/etc/auto.nfs]
+  service:
+    autofs:
+      ensure: running
+      enable: true
+      require:
+        - File[/etc/auto.nfs]
+        - File[/etc/auto.master.d/nfs.autofs]
 
 docker::networks::networks:
   web:
