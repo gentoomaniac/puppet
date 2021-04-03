@@ -3,7 +3,7 @@ classes:
   - netplan
   - hostbase::hostname
 
-hostbase::hostname::hostname: sto-dockerhost-a1.sto.gentoomaniac.net
+hostbase::hostname::hostname: sto-plex-a1.sto.gentoomaniac.net
 hostbase::puppet::version: 6.13.0-1bionic
 
 netplan::version: 2
