@@ -56,11 +56,13 @@ if [ -f /etc/bootstrap ]; then
     VAULT_TOKEN="$(cat /etc/vault_token)"
     export VAULT_TOKEN
     if [[ -n "${VAULT_TOKEN}" ]]; then
+        echo "*** Getting Vault Token from cmd line" | tee -a /var/log/bootstrap.log
         export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
         vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
         vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
         rm /etc/vault_token
     else
+        echo "*** Getting Vault Token from BIOS" | tee -a /var/log/bootstrap.log
         dmidecode | sed -n 's/\s\+Serial Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
         dmidecode | sed -n 's/\s\+SKU Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
     fi
