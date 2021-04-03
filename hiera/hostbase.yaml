@@ -106,7 +106,10 @@ ressources:
           #!/usr/bin/env bash
 
           echo $(lsb_release -d | sed "s/^Description:\s\+//; s/ /\\\ /g; s/\(.*\)/lsb_release,hostname=$(hostname),release=\1 value=1/")
+
     "/etc/cron.weekly/regular-reboot":
+      ensure: absent
+    "/usr/local/bin/unattended-reboot":
       ensure: present
       mode: "0754"
       content: |
@@ -115,6 +118,35 @@ ressources:
           sleep $((RANDOM%60*60))
           reboot
         fi
+    "/etc/systemd/system/unattended-reboot-weekly.timer":
+      content: |
+        [Unit]
+        Description=Run unattended-reboot weekly
+
+        [Timer]
+        OnCalendar=weekly
+        Persistent=true
+        Unit=unattended-reboot.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/unattended-reboot.service]
+    "/etc/systemd/system/unattended-reboot.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=reboot system after a random delay
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/unattended-reboot
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/usr/local/bin/unattended-reboot]
+
     "/etc/cron.weekly/docker-system-prune":
       ensure: present
       mode: "0750"
@@ -124,6 +156,10 @@ ressources:
           sleep $((RANDOM%60*60))
           yes | docker system prune --volumes
         fi
+  service:
+    "unattended-reboot-weekly.timer":
+      status: stopped
+      enable: true
 
 docker::docker_users:
   - marco
