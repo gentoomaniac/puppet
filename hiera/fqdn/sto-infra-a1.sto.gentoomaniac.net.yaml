@@ -17,12 +17,12 @@ ressources:
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
       require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
+      notify: Docker::Run[traefik-fa]
     "/srv/traefik/ssl/cert.pem":
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
       require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
+      notify: Docker::Run[traefik-fa]
     "/srv/traefik/conf/certs.toml":
       ensure: present
       content: |
@@ -31,6 +31,8 @@ ressources:
           [tls.stores.default.defaultCertificate]
             certFile = "/ssl/cert.pem"
             keyFile = "/ssl/key.pem"
+      require: File[/srv/traefik/conf]
+      notify: Docker::Run[traefik-fa]
     /srv/traefik/forward.ini:
       ensure: present
       content: |
