@@ -199,6 +199,9 @@ ressources:
     /srv/plex/config:
       ensure: directory
       require: File[/srv/plex]
+    /srv/plex/transcode:
+      ensure: directory
+      require: File[/srv/plex]
   service:
     autofs:
       ensure: running
@@ -534,6 +537,7 @@ docker::run_instance::instance:
     pull_on_start: true
     volumes:
       - /srv/plex/config:/config
+      - /srv/plex/transcode:/transcode
       - nfs_movies:/data/movies:ro
       - nfs_shows:/data/shows:ro
       - nfs_kids_movies:/data/kids_movies:ro
@@ -543,6 +547,7 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/plex/config]
+      - File[/srv/plex/transcode]
       - Docker_volume[nfs_movies]
       - Docker_volume[nfs_shows]
       - Docker_volume[nfs_kids_movies]
