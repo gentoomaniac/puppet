@@ -3,13 +3,13 @@ classes:
   - docker::run_instance
 
 ressources:
+  zfs:
+    "datapool/traefik":
+      ensure: present
   file:
-    /srv/traefik:
-      ensure: directory
-      require: File[/srv]
     /srv/traefik/conf:
       ensure: directory
-      require: File[/srv/traefik]
+      require: Zfs[datapool/traefik]
     "/srv/traefik/ssl":
       ensure: directory
       require: File[/srv/traefik]
