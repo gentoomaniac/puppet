@@ -5,7 +5,7 @@ classes:
   - hostbase::autoupdate
   #  - hostbase::disable_cloud
   - hostbase::dotfiles
-  - hostbase::github_userkeys
+  #  - hostbase::github_userkeys
   - hostbase::puppet
   - hostbase::puppet_cron
   - hostbase::resolved
@@ -64,6 +64,16 @@ ressources:
         - adm
       purge_ssh_keys: true
   file:
+    /etc/userkeys/marco/authorized_keys:
+      ensure: present
+      mode: "0644"
+      content: |
+        ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDVF2/g5C/6rLt9S24Q5Mwb4g2uheXWOOv3rvZ6doKdW+ZDLR/XpBYBPFB8kMEBtwNo56I4PpqClaiR1sv98LiVU08FUJjyL5getlz2/JMHShOfoXRlpu5BToReTcewXSfIIq0Siid0DcE/XKtoDuyIwJb8bY8FNwpdUlpvEnkkjqxlbREaMJ9QYCsmp9BhYUeVP5vcZayiuloZZ05qWYYrgfTDQDNOL9QsMgZKYUezlAsSi0/39q4UB1PkKqpbT22hND4PlTonschUs1JmTq5yAkdf78RGSZ2hzt1gTvEq9kgkAA+XUUv6kIzUm8biEr5DCI/zyltqMiN25I+3iNawEShJXVEDLrJquPEcMdLllzvs7UFkaHy+wIcci9L56HPekmQx1qOe8Reqoy5EVSxBYQhW+2R4X5YLF9zJVfD0wsbV2z1NV9eUDRWKe1h+bOiFc+RZ38MR8V6/AdTiEgnGE8ooXsvaLDVh7WtgKQEm19VkMNT2J8Rbh/CerGTrrqDqL3jH7uewrGaE17qEL+PtEQsO+BYgaW5NRHE6XbYoVcfjCSvZZn9hnt9/itkgbdtbT8AyFduBBhBA6fY+pBSf5SZmVKpJPoaG/w2TeCfRxoIKc2X8VZfsHHXnkJ0JRKIwVi208ctW+k0fHWpdaYdMKIQQJi1jc/1YzzOHWOFDHQ==
+    /etc/userkeys/root/authorized_keys:
+      ensure: present
+      mode: "0644"
+      content: |
+        ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDVF2/g5C/6rLt9S24Q5Mwb4g2uheXWOOv3rvZ6doKdW+ZDLR/XpBYBPFB8kMEBtwNo56I4PpqClaiR1sv98LiVU08FUJjyL5getlz2/JMHShOfoXRlpu5BToReTcewXSfIIq0Siid0DcE/XKtoDuyIwJb8bY8FNwpdUlpvEnkkjqxlbREaMJ9QYCsmp9BhYUeVP5vcZayiuloZZ05qWYYrgfTDQDNOL9QsMgZKYUezlAsSi0/39q4UB1PkKqpbT22hND4PlTonschUs1JmTq5yAkdf78RGSZ2hzt1gTvEq9kgkAA+XUUv6kIzUm8biEr5DCI/zyltqMiN25I+3iNawEShJXVEDLrJquPEcMdLllzvs7UFkaHy+wIcci9L56HPekmQx1qOe8Reqoy5EVSxBYQhW+2R4X5YLF9zJVfD0wsbV2z1NV9eUDRWKe1h+bOiFc+RZ38MR8V6/AdTiEgnGE8ooXsvaLDVh7WtgKQEm19VkMNT2J8Rbh/CerGTrrqDqL3jH7uewrGaE17qEL+PtEQsO+BYgaW5NRHE6XbYoVcfjCSvZZn9hnt9/itkgbdtbT8AyFduBBhBA6fY+pBSf5SZmVKpJPoaG/w2TeCfRxoIKc2X8VZfsHHXnkJ0JRKIwVi208ctW+k0fHWpdaYdMKIQQJi1jc/1YzzOHWOFDHQ==
     "/etc/netplan/00-installer-config.yaml":
       ensure: absent
     "/etc/netplan/99-installer-config.yaml":
