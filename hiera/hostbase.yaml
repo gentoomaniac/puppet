@@ -114,7 +114,7 @@ ressources:
       mode: "0754"
       content: |
         #!/usr/bin/env bash
-        if [ ! -f /etc/no_reboot ];
+        if [ ! -f /etc/no_reboot ]; then
           sleep $((RANDOM%60*60))
           reboot
         fi
@@ -152,7 +152,7 @@ ressources:
       mode: "0750"
       content: |
         #!/usr/bin/env bash
-        if [ ! -f /etc/no_prune ];
+        if [ ! -f /etc/no_prune ]; then
           sleep $((RANDOM%60*60))
           yes | docker system prune --volumes
         fi
