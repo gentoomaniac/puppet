@@ -146,6 +146,10 @@ ressources:
         Group=systemd-journal
       require:
         - File[/usr/local/bin/unattended-reboot]
+    "/etc/systemd/system/timers.target.wants/unattended-reboot-weekly.timer":
+      ensure: link
+      target: /etc/systemd/system/unattended-reboot-weekly.timer
+      require: File[/etc/systemd/system/unattended-reboot-weekly.timer]
 
     "/etc/cron.weekly/docker-system-prune":
       ensure: absent
@@ -186,14 +190,17 @@ ressources:
         Group=systemd-journal
       require:
         - File[/usr/local/bin/docker-system-prune]
+    "/etc/systemd/system/timers.target.wants/docker-system-prune-weekly.timer":
+      ensure: link
+      target: /etc/systemd/system/docker-system-prune-weekly.timer
+      require: File[/etc/systemd/system/docker-system-prune-weekly.timer]
 
-  service:
-    "unattended-reboot-weekly.timer":
-      status: started
-      enable: true
-    "docker-system-prune-weekly.timer":
-      status: started
-      enable: true
+  exec:
+    "/usr/bin/systemctl daemon-reload":
+      refreshonly: true
+      subscribe:
+        - File[/etc/systemd/system/timers.target.wants/docker-system-prune-weekly.timer]
+        - File[/etc/systemd/system/timers.target.wants/unattended-reboot-weekly.timer]
 
 docker::docker_users:
   - marco
