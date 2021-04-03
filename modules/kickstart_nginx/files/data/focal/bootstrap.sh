@@ -55,12 +55,16 @@ if [ -f /etc/bootstrap ]; then
     mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
     VAULT_TOKEN="$(cat /etc/vault_token)"
     export VAULT_TOKEN
-    [[ -n "${VAULT_TOKEN}" ]] && echo '!!! No initial vault token set' | tee -a /var/log/bootstrap.log
-    export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
-    vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
-    vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
+    if [[ -n "${VAULT_TOKEN}" ]]; then
+        export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
+        vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
+        vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
+        rm /etc/vault_token
+    else
+        dmidecode | sed -n 's/\s\+Serial Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
+        dmidecode | sed -n 's/\s\+SKU Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
+    fi
     chmod 600 /etc/vault_*
-    rm /etc/vault_token
     VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
     export VAULT_TOKEN
     [[ -n "${VAULT_TOKEN}" ]] && echo '!!! Could not get vault token from approle' | tee -a /var/log/bootstrap.log
