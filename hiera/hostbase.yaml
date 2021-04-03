@@ -196,8 +196,11 @@ ressources:
       require: File[/etc/systemd/system/docker-system-prune-weekly.timer]
 
   exec:
-    "/usr/bin/systemctl daemon-reload":
+    "systemctl daemon-reload":
       refreshonly: true
+      path:
+        - /bin
+        - /usr/bin
       subscribe:
         - File[/etc/systemd/system/timers.target.wants/docker-system-prune-weekly.timer]
         - File[/etc/systemd/system/timers.target.wants/unattended-reboot-weekly.timer]
