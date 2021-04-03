@@ -148,6 +148,8 @@ ressources:
         - File[/usr/local/bin/unattended-reboot]
 
     "/etc/cron.weekly/docker-system-prune":
+      ensure: absent
+    "/usr/local/bin/docker-system-prune":
       ensure: present
       mode: "0750"
       content: |
@@ -156,9 +158,41 @@ ressources:
           sleep $((RANDOM%60*60))
           yes | docker system prune --volumes
         fi
+    "/etc/systemd/system/docker-system-prune-weekly.timer":
+      content: |
+        [Unit]
+        Description=Run docker-system-prune weekly
+
+        [Timer]
+        OnCalendar=weekly
+        Persistent=true
+        Unit=docker-system-prune.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/docker-system-prune.service]
+    "/etc/systemd/system/docker-system-prune.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=docker system prune after a random delay
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/docker-system-prune
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/usr/local/bin/docker-system-prune]
+
   service:
     "unattended-reboot-weekly.timer":
-      status: stopped
+      status: started
+      enable: true
+    "docker-system-prune-weekly.timer":
+      status: started
       enable: true
 
 docker::docker_users:
