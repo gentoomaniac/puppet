@@ -1,5 +1,6 @@
 class hostbase::puppet (
   $version = latest,
+  $release = 'puppet7-release',
 ) {
 
   $content = join(lookup('classes', Array[String], 'unique', []).sort, "\n")
@@ -11,14 +12,14 @@ class hostbase::puppet (
     ensure => absent,
   }
 
-  package { 'puppet7-release':
+  package { $release:
     ensure => present,
   }
 
   package { 'puppet-agent':
     ensure  => $version,
     mark    => hold,
-    require => [Package['puppet7-release'], Package['puppet'], Class['Apt::Update']],
+    require => [Package[$release], Package['puppet'], Class['Apt::Update']],
   }
 
   service { 'puppet':
