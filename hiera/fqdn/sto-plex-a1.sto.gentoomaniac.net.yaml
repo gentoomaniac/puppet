@@ -141,9 +141,6 @@ ressources:
     /srv/portainer:
       ensure: directory
       require: File[/srv]
-    /srv/quassel-core:
-      ensure: directory
-      require: File[/srv]
     /srv/radarr:
       ensure: directory
       require: File[/srv]
