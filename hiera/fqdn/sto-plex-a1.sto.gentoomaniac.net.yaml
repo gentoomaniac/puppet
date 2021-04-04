@@ -138,18 +138,6 @@ ressources:
       owner: 1000
       group: 1000
       ensure: directory
-    /srv/nzbget:
-      ensure: directory
-    /srv/nzbget/config:
-      ensure: directory
-      owner: 1000
-      group: 1000
-      require: File[/srv/nzbget]
-    /srv/nzbget/downloads:
-      ensure: directory
-      owner: 1000
-      group: 1000
-      require: File[/srv/nzbget]
     /srv/portainer:
       ensure: directory
       require: File[/srv]
