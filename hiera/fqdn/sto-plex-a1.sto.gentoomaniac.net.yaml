@@ -68,6 +68,7 @@ ressources:
         share  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tank5/share
         nzbget  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tmp/nzbget
         tftpboot  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tank1/tftpboot
+      notify: Service[autofs]
 
     /etc/auto.master.d/nfs.autofs:
       ensure: present
