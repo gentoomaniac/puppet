@@ -74,6 +74,7 @@ if [ -z "${VAULT_TOKEN}" ]; then
     exit 1
 fi
 
+git_start=$(date +%s)
 if [[ "${NO_CLONE}" == "" ]]; then
     if git clone --single-branch --branch "${PUPPET_GIT_BRANCH}" --depth 1 https://github.com/gentoomaniac/puppet.git "${temp_dir}" ; then
         rm -rf "${PUPPET_GIT_PATH}"
@@ -91,7 +92,7 @@ ${PUPPET} apply --config "${PUPPET_GIT_PATH}/puppet.conf" -vvvt ${NOOP} ${SYSLOG
 
 
 puppet_returncode=$?
-git_time=$((git_finished - start_time))
+git_time=$((git_finished - git_start))
 puppet_time=$(($(date +%s) - git_finished))
 puppet_branch=$(tr -d '\n' </etc/puppet_branch)
 
