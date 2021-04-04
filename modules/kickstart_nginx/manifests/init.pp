@@ -8,7 +8,7 @@ class kickstart_nginx (
     ensure  => directory,
     source  => 'puppet:///modules/kickstart_nginx/data',
     recurse => 'true',
-    require => File['/srv'],
+    require => Zfs['datapool/ksnginx'],
     notify  => Docker::Run['ksnginx'],
   }
 

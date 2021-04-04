@@ -3,11 +3,7 @@ classes:
   - docker::networks
   - docker::volumes
   - docker::run_instance
-  - kickstart_nginx
   - ioquake3
-
-traefik::ports:
-  - 9200:9200/tcp
 
 ressources:
   package:
@@ -52,9 +48,6 @@ ressources:
       ensure: directory
       require: File[/srv]
     /srv/radarr-kids:
-      ensure: directory
-      require: File[/srv]
-    /srv/registry:
       ensure: directory
       require: File[/srv]
     /srv/sonarr:
@@ -160,8 +153,6 @@ docker::run_instance::instance:
       --api.insecure=true
       --entrypoints.web.address=:80
       --entrypoints.websecure.address=:443
-      --providers.file.directory=/conf
-      --providers.file.watch=true
       --providers.docker
       --providers.docker.exposedbydefault=false
       --serverstransport.insecureskipverify=true
@@ -278,32 +269,6 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/radarr-kids]
-  registry:
-    image: registry:2
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    env:
-      - REGISTRY_HTTP_ADDR=0.0.0.0:80
-    expose:
-      - 80/tcp
-    extra_parameters:
-      - --restart=unless-stopped
-    labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.registry.rule=Host(`registry.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.registry.entrypoints=websecure'"
-      - "'traefik.http.routers.registry.tls=true'"
-      - "'traefik.http.middlewares.registry-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
-      - "'traefik.http.routers.registry.middlewares=registry-whitelist'"
-    net:
-      - web
-    pull_on_start: true
-    volumes:
-      - /srv/registry:/var/lib/registry
-    require:
-      - Class[docker]
-      - File[/srv/registry]
   sonarr:
     image: linuxserver/sonarr:latest
     dns:
@@ -401,11 +366,3 @@ docker::run_instance::instance:
       - Docker_volume[nfs_kids_shows_se]
       - Docker_volume[nfs_sd_old]
       - Service[avahi-daemon]
-
-kickstart_nginx::labels:
-  - "'traefik.enable=true'"
-  - "'traefik.http.routers.ksnginx.rule=Host(`ks.srv.gentoomaniac.net`)'"
-  - "'traefik.http.routers.ksnginx.entrypoints=websecure'"
-  - "'traefik.http.routers.ksnginx.tls=true'"
-  - "'traefik.http.middlewares.ksnginx-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
-  - "'traefik.http.routers.ksnginx.middlewares=ksnginx-whitelist'"
