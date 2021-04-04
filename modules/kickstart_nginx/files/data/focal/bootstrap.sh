@@ -58,7 +58,7 @@ if [ -f /etc/bootstrap ]; then
     export VAULT_TOKEN
     if [[ -z "${VAULT_TOKEN}" ]]; then
         echo "... Getting Vault credentials from BIOS" | tee -a /var/log/bootstrap.log
-        dmidecode | sed -n 's/\s\+Serial Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
+        dmidecode | sed -n 's/\s\+Serial Number: \(.*\)/\1/p' | head -1 > /etc/vault_role_id
         dmidecode | sed -n 's/\s\+SKU Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
     else
         echo "... Getting Vault credentials from preeseeded token" | tee -a /var/log/bootstrap.log
