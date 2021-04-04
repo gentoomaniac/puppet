@@ -20,14 +20,14 @@ hierarchy:
           - "role/%{facts.role}/"
           - "common"
 
-  - name: "MAC"
-    path: "mac/%{facts.networking.mac}.yaml"
-
-  - name: "Per-node data"
-    path: "fqdn/%{facts.fqdn}.yaml"
+  - name: "Generic host setup"
+    path: "hostbase.yaml"
 
   - name: "Per-role data"
     path: "roles/%{facts.role}.yaml"
 
-  - name: "Generic host setup"
-    path: "hostbase.yaml"
+  - name: "Per-node data"
+    path: "fqdn/%{facts.fqdn}.yaml"
+
+  - name: "MAC"
+    path: "mac/%{facts.networking.mac}.yaml"
