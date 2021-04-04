@@ -62,6 +62,7 @@ ressources:
         kids_shows  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows
         kids_shows_se  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows_se
         sd_old  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank3/sd_old
+        youtube-downloader  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/youtube-downloader
 
         docker  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/bak/docker
         share  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tank5/share
@@ -84,6 +85,21 @@ ressources:
     /srv/plex/transcode:
       ensure: directory
       require: File[/srv/plex]
+    "/srv/ytdl":
+      ensure: directory
+      require: File[/srv]
+    "/srv/ytdl/appdata":
+      ensure: directory
+      require: File[/srv/ytdl]
+    "/srv/ytdl/audio":
+      ensure: directory
+      require: File[/srv/ytdl]
+    "/srv/ytdl/subscriptions":
+      ensure: directory
+      require: File[/srv/ytdl]
+    "/srv/ytdl/users":
+      ensure: directory
+      require: File[/srv/ytdl]
   service:
     autofs:
       ensure: running
@@ -142,6 +158,13 @@ docker::volumes::volumes:
       - - type=nfs
         - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
         - device=:/mnt/tank3/sd_old
+  nfs_youtube_downloader:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank0/youtube-downloader
 
 docker::run_instance::instance:
   traefik:
@@ -337,3 +360,34 @@ docker::run_instance::instance:
       - Docker_volume[nfs_kids_shows_se]
       - Docker_volume[nfs_sd_old]
       - Service[avahi-daemon]
+  youtube-dl:
+    image: tzahi12345/youtubedl-material:latest
+    env:
+      - ALLOW_CONFIG_MUTATIONS: 'true'
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.ytdl.rule=Host(`youtube-dl.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.ytdl.entrypoints=websecure'"
+      - "'traefik.http.routers.ytdl.tls=true'"
+      - "'traefik.http.middlewares.ytdl-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.ytdl.middlewares=ytdl-whitelist'"
+    expose:
+      - 17442/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/ytdl/appdata:/app/appdata
+      - /srv/ytdl/audio:/app/audio
+      - nfs_youtube_downloader:/app/video
+      - /srv/ytdl/subscriptions:/app/subscriptions
+      - /srv/ytdl/users:/app/users
+    require:
+      - Class[docker]
+      - File[/srv/ytdl/appdata]
+      - File[/srv/ytdl/audio]
+      - Docker_volume[nfs_youtube_downloader]
+      - File[/srv/ytdl/subscriptions]
+      - File[/srv/ytdl/users]
