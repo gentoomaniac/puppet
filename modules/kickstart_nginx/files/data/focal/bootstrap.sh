@@ -36,7 +36,7 @@ if [ -f /etc/bootstrap ]; then
             parted -s -a optimal /dev/sdb mklabel gpt --  mkpart data zfs '0%' '100%' 2>&1 | tee -a /var/log/bootstrap.log
             sync 2>&1 | tee -a /var/log/bootstrap.log
             partprobe 2>&1 | tee -a /var/log/bootstrap.log
-            zpool create datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
+            zpool create -f datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
         else
             if zpool import | grep -q ^\s\+pool: datapool$; then
                 echo "*** found existing datapool. Importing ..." | tee -a /var/log/bootstrap.log
