@@ -207,7 +207,7 @@ ressources:
 
   exec:
     "systemctl daemon-reload":
-      #refreshonly: true
+      refreshonly: true
       path:
         - /bin
         - /usr/bin
