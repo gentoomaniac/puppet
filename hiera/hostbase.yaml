@@ -115,7 +115,13 @@ ressources:
         content: |
           #!/usr/bin/env bash
 
-          echo $(lsb_release -d | sed "s/^Description:\s\+//; s/ /\\\ /g; s/\(.*\)/lsb_release,hostname=$(hostname),release=\1 value=1,release=\1/")
+          OS_NAME="$(lsb_release -d | sed "s/^Description:\s\+\(.*\)/\1/")"
+          PENDING_UPDATES="$(apt-get -s dist-upgrade | grep "^Inst" | wc -l)"
+          PENDING_SEC_UPDATES="$(apt-get -s dist-upgrade | grep "^Inst" | grep -i security | wc -l)"
+
+          echo "lsb_release value=1,release=\"${OS_NAME}\""
+          echo "pending_updates,type=patch value=$((PENDING_UPDATES-PENDING_SEC_UPDATES))"
+          echo "pending_updates,type=security value=${PENDING_SEC_UPDATES}"
 
     "/etc/cron.weekly/regular-reboot":
       ensure: absent
