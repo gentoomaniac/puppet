@@ -41,9 +41,6 @@ ressources:
             certFile = "/ssl/cert.pem"
             keyFile = "/ssl/key.pem"
 
-    /srv/portainer:
-      ensure: directory
-      require: File[/srv]
     /srv/radarr:
       ensure: directory
       require: File[/srv]
@@ -183,31 +180,6 @@ docker::run_instance::instance:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/traefik/ssl:/ssl:ro
       - /srv/traefik/conf:/conf:ro
-  portainer:
-    image: portainer/portainer:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    expose:
-      - 9000/tcp
-    extra_parameters:
-      - --restart=unless-stopped
-    labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.portainer.rule=Host(`portainer.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.portainer.entrypoints=websecure'"
-      - "'traefik.http.routers.portainer.tls=true'"
-      - "'traefik.http.middlewares.portainer-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
-      - "'traefik.http.routers.portainer.middlewares=portainer-whitelist'"
-    net:
-      - web
-    pull_on_start: true
-    volumes:
-      - /srv/portainer:/data
-      - /var/run/docker.sock:/var/run/docker.sock
-    require:
-      - Class[docker]
-      - File[/srv/portainer]
   radarr:
     image: linuxserver/radarr:latest
     dns:
