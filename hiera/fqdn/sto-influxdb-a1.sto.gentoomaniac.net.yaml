@@ -13,6 +13,8 @@ ressources:
       ensure: present
     "datapool/varken":
       ensure: present
+    "datapool/grafana":
+      ensure: present
   file:
     "/srv/traefik/conf":
       ensure: directory

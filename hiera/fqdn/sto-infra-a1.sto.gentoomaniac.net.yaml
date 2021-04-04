@@ -6,6 +6,10 @@ ressources:
   zfs:
     "datapool/traefik":
       ensure: present
+    "datapool/registry":
+      ensure: present
+    "datapool/ksnginx":
+      ensure: present
   file:
     "/srv/traefik/conf":
       ensure: directory
