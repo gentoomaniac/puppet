@@ -177,7 +177,6 @@ docker::run_instance::instance:
       - Class[docker]
       - Docker_network[web]
       - File[/srv/traefik/conf/certs.toml]
-      - File[/srv/traefik/conf/static.toml]
       - File[/srv/traefik/ssl/cert.pem]
       - File[/srv/traefik/ssl/key.pem]
     volumes:
