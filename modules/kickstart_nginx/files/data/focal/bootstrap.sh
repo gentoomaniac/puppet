@@ -34,6 +34,8 @@ if [ -f /etc/bootstrap ]; then
         if parted /dev/sdb p 2>&1| grep "Partition Table: unknown" -q; then
             echo "*** Setting up ZFS data disk on /dev/sdb1" | tee -a /var/log/bootstrap.log
             parted -s -a optimal /dev/sdb mklabel gpt --  mkpart data zfs '0%' '100%' 2>&1 | tee -a /var/log/bootstrap.log
+            sync 2>&1 | tee -a /var/log/bootstrap.log
+            partprobe 2>&1 | tee -a /var/log/bootstrap.log
             zpool create datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
         else
             if zpool import | grep -q ^\s\+pool: datapool$; then
