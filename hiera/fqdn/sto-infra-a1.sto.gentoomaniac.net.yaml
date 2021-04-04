@@ -21,12 +21,12 @@ ressources:
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
       require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik-fa]
+      notify: Docker::Run[traefik]
     "/srv/traefik/ssl/cert.pem":
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
       require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik-fa]
+      notify: Docker::Run[traefik]
     "/srv/traefik/conf/certs.toml":
       ensure: present
       content: |
@@ -35,29 +35,108 @@ ressources:
           [tls.stores.default.defaultCertificate]
             certFile = "/ssl/cert.pem"
             keyFile = "/ssl/key.pem"
-      require: File[/srv/traefik/conf]
-      notify: Docker::Run[traefik-fa]
-    /srv/traefik/forward.ini:
+    "/srv/traefik/conf/static.toml":
       ensure: present
       content: |
-        secret = %{lookup('secret_sso_nonce')}
-        providers.google.client-id = %{lookup('secret_sso_client_id')}
-        providers.google.client-secret = %{lookup('secret_sso_client_secret')}
-        log-level = debug
-        cookie-domain = gentoomaniac.net
-        auth-host = auth.gentoomaniac.net
-        whitelist = marco@siebecke.se
-        # whitelist = user2@domain.com
-      require:
-        - Zfs[datapool/traefik]
+        [http.services]
+          [http.services.dummy.loadBalancer]
+            [[http.services.dummy.loadBalancer.servers]]
+                url = ""
+
+          [http.services.freenas.loadBalancer]
+            [[http.services.freenas.loadBalancer.servers]]
+              url = "https://10.1.1.5:443/"
+
+          [http.services.unifi.loadBalancer]
+            [[http.services.unifi.loadBalancer.servers]]
+              url = "https://10.1.1.2:8443/"
+
+          [http.services.protect.loadBalancer]
+            [[http.services.protect.loadBalancer.servers]]
+              url = "https://10.1.1.2:7443/"
+
+          [http.services.ck.loadBalancer]
+            [[http.services.ck.loadBalancer.servers]]
+              url = "https://10.1.1.2:443/"
+
+          [http.services.proxmox1.loadBalancer]
+            [[http.services.proxmox1.loadBalancer.servers]]
+              url = "https://sto-proxmox-a1.sto.gentoomaniac.net:8006/"
+
+          [http.services.proxmox2.loadBalancer]
+            [[http.services.proxmox2.loadBalancer.servers]]
+              url = "https://sto-proxmox-a2.sto.gentoomaniac.net:8006/"
+
+        [http.routers]
+          [http.routers.redirect-to-https]
+            rule = "hostregexp(`{host:.+}`)"
+            service = "dummy"
+            entryPoints = ["web"]
+            middlewares = ["redirect-to-https"]
+
+          [http.routers.freenas]
+            rule = "Host(`nas.srv.gentoomaniac.net`)"
+            service = "freenas"
+            entryPoints = ["websecure"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.freenas.tls]
+
+          [http.routers.unifi]
+            rule = "Host(`unifi.srv.gentoomaniac.net`)"
+            service = "unifi"
+            entryPoints = ["websecure"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.unifi.tls]
+
+          [http.routers.protect]
+            rule = "Host(`protect.srv.gentoomaniac.net`)"
+            service = "protect"
+            entryPoints = ["websecure"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.protect.tls]
+
+          [http.routers.ck]
+            rule = "Host(`ck.srv.gentoomaniac.net`)"
+            service = "ck"
+            entryPoints = ["websecure"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.ck.tls]
+
+          [http.routers.proxmox1]
+            rule = "Host(`proxmox1.srv.gentoomaniac.net`)"
+            service = "proxmox1"
+            entryPoints = ["websecure"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.proxmox1.tls]
+
+          [http.routers.proxmox2]
+            rule = "Host(`proxmox2.srv.gentoomaniac.net`)"
+            service = "proxmox2"
+            entryPoints = ["websecure"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.proxmox2.tls]
+
+        [http.middlewares]
+          [http.middlewares.redirect-to-https]
+            [http.middlewares.redirect-to-https.redirectscheme]
+              scheme = "https"
+
+          [http.middlewares.local-only-whitelist]
+            [http.middlewares.local-only-whitelist.ipwhitelist]
+              sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
 
 docker::run_instance::instance:
-  traefik-fa:
+  traefik:
     image: traefik:v2.2
     command: >
       --api.insecure=true
+      --entrypoints.web.address=:80
+      --entrypoints.websecure.address=:443
       --providers.file.directory=/conf
       --providers.file.watch=true
+      --providers.docker
+      --providers.docker.exposedbydefault=false
+      --serverstransport.insecureskipverify=true
     dns:
       - 10.1.1.52
       - 10.1.1.53
@@ -65,30 +144,23 @@ docker::run_instance::instance:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Berlin
-      - CONFIG=/forward.ini
     extra_parameters:
       - --restart=unless-stopped
-    labels:
-      - "'traefik.enable=true'"
-      - "'traefik.backend=traefik-fa'"
-      - "'traefik.http.services.traefik-fa.loadBalancer.server.port=4181'"
-      # SSL configuration
-      - "'traefik.http.routers.traefik-fa-ssl.entryPoints=https'"
-      - "'traefik.http.routers.traefik-fa-ssl.rule=host(`auth.gentoomaniac.net`)'"
-      - "'traefik.http.routers.traefik-fa-ssl.middlewares=sso@file'"
-      - "'traefik.http.routers.traefik-fa-ssl.tls=true'"
-      - "'traefik.http.routers.traefik-fa-ssl.tls.certResolver=le'"
+    net:
+      - web
     ports:
-      - 4181:4181/tcp
+      - 80:80/tcp
+      - 443:443/tcp
       - 8080:8080/tcp
     pull_on_start: true
     require:
       - Class[docker]
+      - Docker_network[web]
       - File[/srv/traefik/conf/certs.toml]
+      - File[/srv/traefik/conf/static.toml]
       - File[/srv/traefik/ssl/cert.pem]
       - File[/srv/traefik/ssl/key.pem]
-      - File[/srv/traefik/forward.ini]
     volumes:
-      - /srv/traefik/forward.ini:/forward.ini:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/traefik/ssl:/ssl:ro
       - /srv/traefik/conf:/conf:ro
