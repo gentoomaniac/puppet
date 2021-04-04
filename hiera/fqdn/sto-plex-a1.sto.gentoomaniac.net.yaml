@@ -253,7 +253,6 @@ docker::run_instance::instance:
       --api.insecure=true
       --entrypoints.web.address=:80
       --entrypoints.websecure.address=:443
-      --entrypoints.elasticsearch.address=:9200
       --providers.file.directory=/conf
       --providers.file.watch=true
       --providers.docker
