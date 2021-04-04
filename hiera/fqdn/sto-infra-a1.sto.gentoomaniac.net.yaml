@@ -1,5 +1,6 @@
 ---
 classes:
+  - docker::networks
   - docker::run_instance
   - kickstart_nginx
 
@@ -125,6 +126,10 @@ ressources:
           [http.middlewares.local-only-whitelist]
             [http.middlewares.local-only-whitelist.ipwhitelist]
               sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
+
+docker::networks::networks:
+  web:
+    ensure: "present"
 
 docker::run_instance::instance:
   traefik:
