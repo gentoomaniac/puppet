@@ -115,7 +115,7 @@ ressources:
         content: |
           #!/usr/bin/env bash
 
-          echo $(lsb_release -d | sed "s/^Description:\s\+//; s/ /\\\ /g; s/\(.*\)/lsb_release,hostname=$(hostname),release=\1 value=1/")
+          echo $(lsb_release -d | sed "s/^Description:\s\+//; s/ /\\\ /g; s/\(.*\)/lsb_release,hostname=$(hostname),release=\1 value=1,release=\1/")
 
     "/etc/cron.weekly/regular-reboot":
       ensure: absent
