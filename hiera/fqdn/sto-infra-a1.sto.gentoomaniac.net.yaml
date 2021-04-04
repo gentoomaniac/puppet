@@ -7,12 +7,12 @@ ressources:
     "datapool/traefik":
       ensure: present
   file:
-    /srv/traefik/conf:
+    "/srv/traefik/conf":
       ensure: directory
       require: Zfs[datapool/traefik]
     "/srv/traefik/ssl":
       ensure: directory
-      require: File[/srv/traefik]
+      require: Zfs[datapool/traefik]
     "/srv/traefik/ssl/key.pem":
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
@@ -45,7 +45,7 @@ ressources:
         whitelist = marco@siebecke.se
         # whitelist = user2@domain.com
       require:
-        - File[/srv/traefik]
+        - Zfs[datapool/traefik]
 
 docker::run_instance::instance:
   traefik-fa:
