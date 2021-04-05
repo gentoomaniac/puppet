@@ -365,6 +365,9 @@ docker::run_instance::instance:
       - Service[avahi-daemon]
   youtube-dl:
     image: tzahi12345/youtubedl-material:nightly
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
     env:
       - ALLOW_CONFIG_MUTATIONS: 'true'
     labels:
