@@ -273,15 +273,19 @@ ressources:
   service:
     "docker-system-prune-weekly.timer":
       ensure: running
+      enable: true
       require: Exec[systemctl daemon-reload]
     "unattended-reboot-weekly.timer":
       ensure: running
+      enable: true
       require: Exec[systemctl daemon-reload]
     "zfs-snapshots-daily.timer":
       ensure: running
+      enable: true
       require: Exec[systemctl daemon-reload]
     "zfs-snapshots-weekly.timer":
       ensure: running
+      enable: true
       require: Exec[systemctl daemon-reload]
 
 docker::docker_users:
