@@ -364,7 +364,7 @@ docker::run_instance::instance:
       - Docker_volume[nfs_sd_old]
       - Service[avahi-daemon]
   youtube-dl:
-    image: tzahi12345/youtubedl-material:nightly
+    image: tzahi12345/youtubedl-material:latest
     dns:
       - 10.1.1.52
       - 10.1.1.53
