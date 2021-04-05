@@ -299,7 +299,8 @@ telegraf::inputs:
   exec:
     - commands:
         - /usr/local/bin/custom-metrics
-      timeout: 5s
+      interval: 10m
+      timeout: 30s
       data_format: influx
   mem: [{}]
   processes: [{}]
