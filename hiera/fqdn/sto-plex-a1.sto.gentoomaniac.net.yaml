@@ -95,10 +95,10 @@ ressources:
     "/srv/ytdl/audio":
       ensure: directory
       require: File[/srv/ytdl]
-    "/srv/ytdl/subscriptions":
+    "/srv/ytdl/video":
       ensure: directory
       require: File[/srv/ytdl]
-    "/srv/ytdl/users":
+    "/srv/ytdl/subscriptions":
       ensure: directory
       require: File[/srv/ytdl]
   service:
@@ -387,13 +387,13 @@ docker::run_instance::instance:
     volumes:
       - /srv/ytdl/appdata:/app/appdata
       - /srv/ytdl/audio:/app/audio
-      - nfs_youtube_downloader:/app/video
+      - /srv/ytdl/video:/app/video
       - /srv/ytdl/subscriptions:/app/subscriptions
-      - /srv/ytdl/users:/app/users
+      - nfs_youtube_downloader:/app/users
     require:
       - Class[docker]
       - File[/srv/ytdl/appdata]
       - File[/srv/ytdl/audio]
-      - Docker_volume[nfs_youtube_downloader]
+      - File[/srv/ytdl/video]
       - File[/srv/ytdl/subscriptions]
-      - File[/srv/ytdl/users]
+      - Docker_volume[nfs_youtube_downloader]
