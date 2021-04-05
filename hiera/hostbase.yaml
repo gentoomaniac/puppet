@@ -211,6 +211,61 @@ ressources:
       target: /etc/systemd/system/docker-system-prune-weekly.timer
       require: File[/etc/systemd/system/docker-system-prune-weekly.timer]
 
+    "/usr/local/bin/zfs-create-snapshots":
+      ensure: present
+      mode: "0754"
+      content: |
+        #!/bin/env bash
+
+        LABEL=${1:-frequent}
+
+        POOL_NAME="$(zpool list| awk '/ONLINE/{print $1}')"
+        DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
+
+        for dataset in ${DATASETS}; do
+            zfs snapshot "${dataset}@${LABEL}-$(date +%Y%m%d-%H%M%S)"
+        done
+    "/etc/systemd/system/zfs-snapshots@.service":
+      ensure: present
+      content: |
+        [Unit]
+        Description=Create zfs %i snapshots
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/zfs-create-snapshot %i
+        User=root
+        Group=systemd-journal
+      require: File[/usr/local/bin/zfs-create-snapshots]
+    "/etc/systemd/system/zfs-snapshots-daily.timer":
+      ensure: present
+      content: |
+        [Unit]
+        Description=Timer for daily zfs snapshots
+
+        [Timer]
+        OnCalendar=daily
+        Persistent=true
+        Unit=zfs-snapshots@daily.service
+
+        [Install]
+        WantedBy=timers.target
+      require: File[/etc/systemd/system/zfs-snapshots@.service]
+    "/etc/systemd/system/zfs-snapshots-weekly.timer":
+      ensure: present
+      content: |
+        [Unit]
+        Description=Timer for weekly zfs snapshots
+
+        [Timer]
+        OnCalendar=weekly
+        Persistent=true
+        Unit=zfs-snapshots@daily.service
+
+        [Install]
+        WantedBy=timers.target
+      require: File[/etc/systemd/system/zfs-snapshots@.service]
+
   exec:
     "systemctl daemon-reload":
       refreshonly: true
@@ -220,6 +275,22 @@ ressources:
       subscribe:
         - File[/etc/systemd/system/timers.target.wants/docker-system-prune-weekly.timer]
         - File[/etc/systemd/system/timers.target.wants/unattended-reboot-weekly.timer]
+        - File[/etc/systemd/system/zfs-snapshots-daily.timer]
+        - File[/etc/systemd/system/zfs-snapshots-weekly.timer]
+
+  service:
+    "docker-system-prune-weekly.timer":
+      ensure: running
+      require: Exec[systemctl daemon-reload]
+    "unattended-reboot-weekly.timer":
+      ensure: running
+      require: Exec[systemctl daemon-reload]
+    "zfs-snapshots-daily.timer":
+      ensure: running
+      require: Exec[systemctl daemon-reload]
+    "zfs-snapshots-weekly.timer":
+      ensure: running
+      require: Exec[systemctl daemon-reload]
 
 docker::docker_users:
   - marco
