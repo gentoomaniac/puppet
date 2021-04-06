@@ -4,8 +4,6 @@ classes:
   - hostbase::hostname
 
 hostbase::hostname::hostname: sto-vault-a1.sto.gentoomaniac.net
-hostbase::puppet::version: 6.13.0-1bionic
-hostbase::puppet::release: puppet6-release
 
 netplan::version: 2
 netplan::renderer: networkd
