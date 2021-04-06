@@ -72,7 +72,6 @@ if [ -f /etc/bootstrap ]; then
     export VAULT_TOKEN
     if [[ -z "${VAULT_TOKEN}" ]]; then
         echo '!!! Could not get vault token from approle' | tee -a /var/log/bootstrap.log
-        exit 1
     else
         rm /etc/vault_token
     fi
