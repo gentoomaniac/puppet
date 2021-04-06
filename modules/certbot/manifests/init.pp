@@ -8,14 +8,13 @@ class certbot (
   $normalized = regsubst(regsubst($domain, '\*\.', '', 'G'), '\.', '_', 'G')
   $simpledomain = regsubst($domain, '\*\.', '', 'G')
 
-  file { "/srv/certbot-${normalized}":
-    ensure  => directory,
-    require => File['/srv'],
+  zfs { "/srv/certbot-${normalized}":
+    ensure  => present,
   }
 
   file { "/srv/certbot-${normalized}/data":
     ensure  => directory,
-    require => File["/srv/certbot-${normalized}"],
+    require => Zfs["/srv/certbot-${normalized}"],
   }
 
   $application_key = lookup('secret_ovh_application_key')
@@ -32,7 +31,7 @@ dns_ovh_consumer_key = ${consumer_key}
     ensure  => file,
     content => $conf,
     mode    => "0600",
-    require => File["/srv/certbot-${normalized}"],
+    require => Zfs["/srv/certbot-${normalized}"],
   }
 
   docker::image { $certbot_image:

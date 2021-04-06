@@ -3,6 +3,9 @@ classes:
   - docker::networks
   - docker::run_instance
   - kickstart_nginx
+  - certbot
+
+certbot::domain: "*.srv.gentoomaniac.net"
 
 ressources:
   zfs:
