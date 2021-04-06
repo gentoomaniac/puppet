@@ -1,9 +1,13 @@
 ---
 classes:
+  - docker
   - docker::networks
   - docker::volumes
   - docker::run_instance
   - ioquake3
+
+docker::docker_users:
+  - marco
 
 ressources:
   package:
