@@ -225,7 +225,7 @@ ressources:
 
         [Service]
         Type=oneshot
-        ExecStart=/usr/local/bin/zfs-create-snapshot %i
+        ExecStart=/usr/local/bin/zfs-create-snapshots %i
         User=root
         Group=systemd-journal
       require: File[/usr/local/bin/zfs-create-snapshots]
