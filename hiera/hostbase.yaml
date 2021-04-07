@@ -118,10 +118,12 @@ ressources:
           OS_NAME="$(lsb_release -d | sed "s/^Description:\s\+\(.*\)/\1/")"
           PENDING_UPDATES="$(apt-get -s dist-upgrade | grep "^Inst" | wc -l)"
           PENDING_SEC_UPDATES="$(apt-get -s dist-upgrade | grep "^Inst" | grep -i security | wc -l)"
+          REBOOT_REQUIRED_SINCE="$(( $(date +%s) - $(ls -l --time-style='+%s' /var/run/reboot-required 2>/dev/null | awk '{if ($6) print $6;}') ))"
 
           echo "lsb_release value=1,release=\"${OS_NAME}\""
           echo "pending_updates,type=patch value=$((PENDING_UPDATES-PENDING_SEC_UPDATES))"
           echo "pending_updates,type=security value=${PENDING_SEC_UPDATES}"
+          echo "reboot_required_since value=${REBOOT_REQUIRED_SINCE:-0}"
 
     "/etc/cron.weekly/regular-reboot":
       ensure: absent
