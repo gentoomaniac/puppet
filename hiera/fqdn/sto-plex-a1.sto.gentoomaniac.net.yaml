@@ -16,16 +16,28 @@ ressources:
   sysctl:
     vm.max_map_count:
       value: 262144
+  zfs:
+    "localpool/traefik":
+      ensure: present
+    "localpool/radarr":
+      ensure: present
+    "localpool/radarr-kids":
+      ensure: present
+    "localpool/sonarr":
+      ensure: present
+    "localpool/tautulli":
+      ensure: present
+    "localpool/plex":
+      ensure: present
+    "localpool/ytdl":
+      ensure: present
   file:
-    "/srv/traefik":
-      ensure: directory
-      require: File[/srv]
     "/srv/traefik/conf":
       ensure: directory
-      require: File[/srv/traefik]
+      require: Zfs[localpool/traefik]
     "/srv/traefik/ssl":
       ensure: directory
-      require: File[/srv/traefik]
+      require: Zfs[localpool/traefik]
     "/srv/traefik/ssl/key.pem":
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
@@ -44,19 +56,7 @@ ressources:
           [tls.stores.default.defaultCertificate]
             certFile = "/ssl/cert.pem"
             keyFile = "/ssl/key.pem"
-
-    /srv/radarr:
-      ensure: directory
-      require: File[/srv]
-    /srv/radarr-kids:
-      ensure: directory
-      require: File[/srv]
-    /srv/sonarr:
-      ensure: directory
-      require: File[/srv]
-    /srv/tautulli:
-      ensure: directory
-      require: File[/srv]
+      require: File[/srv/traefik/conf]
     /etc/auto.nfs:
       ensure: present
       content: |
@@ -65,6 +65,7 @@ ressources:
         shows  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank3/shows
         kids_shows  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows
         kids_shows_se  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows_se
+        kids_audio  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_audio
         sd_old  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank3/sd_old
         youtube-downloader  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/youtube-downloader
 
@@ -82,29 +83,24 @@ ressources:
       require:
         - File[/etc/auto.nfs]
         - Package[autofs]
-    /srv/plex:
-      ensure: directory
     /srv/plex/config:
       ensure: directory
-      require: File[/srv/plex]
+      require: Zfs[localpool/plex]
     /srv/plex/transcode:
       ensure: directory
-      require: File[/srv/plex]
-    "/srv/ytdl":
-      ensure: directory
-      require: File[/srv]
+      require: Zfs[localpool/plex]
     "/srv/ytdl/appdata":
       ensure: directory
-      require: File[/srv/ytdl]
+      require: Zfs[localpool/ytdl]
     "/srv/ytdl/audio":
       ensure: directory
-      require: File[/srv/ytdl]
+      require: Zfs[localpool/ytdl]
     "/srv/ytdl/video":
       ensure: directory
-      require: File[/srv/ytdl]
+      require: Zfs[localpool/ytdl]
     "/srv/ytdl/subscriptions":
       ensure: directory
-      require: File[/srv/ytdl]
+      require: Zfs[localpool/ytdl]
   service:
     autofs:
       ensure: running
@@ -239,7 +235,7 @@ docker::run_instance::instance:
       - nfs_movies:/movies
     require:
       - Class[docker]
-      - File[/srv/radarr]
+      - Zfs[localpool/radarr]
   radarr-kids:
     image: linuxserver/radarr:latest
     dns:
@@ -269,7 +265,7 @@ docker::run_instance::instance:
       - nfs_kids_movies:/kids_movies
     require:
       - Class[docker]
-      - File[/srv/radarr-kids]
+      - Zfs[locapool/radarr-kids]
   sonarr:
     image: linuxserver/sonarr:latest
     dns:
@@ -299,7 +295,7 @@ docker::run_instance::instance:
       - nfs_shows:/shows
     require:
       - Class[docker]
-      - File[/srv/sonarr]
+      - Zfs[localpool/sonarr]
   tautulli:
     image: linuxserver/tautulli:latest
     dns:
@@ -323,7 +319,7 @@ docker::run_instance::instance:
       - /srv/tautulli:/config
     require:
       - Class[docker]
-      - File[/srv/tautulli]
+      - Zfs[localpool/tautulli]
   plex:
     image: plexinc/pms-docker:latest
     dns:
