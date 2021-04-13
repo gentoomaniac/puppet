@@ -84,7 +84,7 @@ if [ -f /etc/bootstrap ]; then
 
 
     echo "*** Starting initial puppet run ..." | tee -a /var/log/bootstrap.log
-    systectl disable puppet
+    systemctl disable puppet
     systemctl stop puppet
     /opt/puppetlabs/puppet/bin/gem install vault debouncer toml-rb
     git clone --single-branch --branch master --depth 1 https://github.com/gentoomaniac/puppet.git /tmp/puppet 2>&1 | tee -a /var/log/bootstrap.log

@@ -264,7 +264,7 @@ docker::run_instance::instance:
       - nfs_kids_movies:/kids_movies
     require:
       - Class[docker]
-      - Zfs[locapool/radarr-kids]
+      - Zfs[localpool/radarr-kids]
   sonarr:
     image: linuxserver/sonarr:latest
     dns:
