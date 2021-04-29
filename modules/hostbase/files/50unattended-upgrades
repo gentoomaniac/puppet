@@ -14,6 +14,10 @@ Unattended-Upgrade::Allowed-Origins {
         "${distro_id}:${distro_codename}-updates";
         "${distro_id}:${distro_codename}-proposed";
         "${distro_id}:${distro_codename}-backports";
+        "Puppet:focal";
+        "InfluxDB:";
+        "Artifactory:focal";
+        "Docker:focal";
 };
 
 // List of packages to not update (regexp are supported)
