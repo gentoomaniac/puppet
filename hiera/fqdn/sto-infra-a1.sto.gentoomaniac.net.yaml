@@ -8,6 +8,9 @@ classes:
 certbot::domain: "*.srv.gentoomaniac.net"
 
 ressources:
+  package:
+    "default-jre":
+      ensure: latest
   zfs:
     "datapool/traefik":
       ensure: present
