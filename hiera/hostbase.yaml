@@ -254,7 +254,7 @@ ressources:
         [Timer]
         OnCalendar=weekly
         Persistent=true
-        Unit=zfs-snapshots@daily.service
+        Unit=zfs-snapshots@weekly.service
 
         [Install]
         WantedBy=timers.target
