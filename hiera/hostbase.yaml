@@ -259,6 +259,71 @@ ressources:
         [Install]
         WantedBy=timers.target
       require: File[/etc/systemd/system/zfs-snapshots@.service]
+    "/usr/local/bin/zfs-cleanup-snapshots":
+      ensure: present
+      mode: "0754"
+      content: |
+        #!/bin/env bash
+
+        LABEL=${1:-frequent}
+        if [ "${LABEL}" == "weekly" ]; then
+            MAXAGE=${2:-7257600} # 30 days in seconds
+        else
+            MAXAGE=${2:-2592000} # 90 days in seconds
+        fi
+
+        POOL_NAME="$(zpool list| awk '/ONLINE/{print $1}')"
+        DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
+
+        for dataset in ${DATASETS}; do
+            for snapshot in $(zfs list -t snapshot); do
+                created=$(date -d "$(sed -n "s|^"${dataset}"@"${LABEL}"-\(.\{4\}\)\(.\{2\}\)\(.\{2\}\)-\(.\{2\}\)\(.\{2\}\)\(.\{2\}\).*|\1-\2-\3 \4:\5:\6|p" <<<${snapshot})" "+%s")
+                if (( $[$(date '+%s')-${created}] > ${MAXAGE} )); then
+                    echo "deleting snapshot '${snapshot}' ..."
+                    zfs destroy "${snapshot}"
+                fi
+            done
+        done
+    "/etc/systemd/system/zfs-cleanup-snapshots@.service":
+      ensure: present
+      content: |
+        [Unit]
+        Description=Cleanup zfs %i snapshots
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/zfs-cleanup-snapshots %i
+        User=root
+        Group=systemd-journal
+      require: File[/usr/local/bin/zfs-cleanup-snapshots]
+    "/etc/systemd/system/zfs-cleanup-snapshots-daily.timer":
+      ensure: present
+      content: |
+        [Unit]
+        Description=Timer for cleaning up daily zfs snapshots
+
+        [Timer]
+        OnCalendar=daily
+        Persistent=true
+        Unit=zfs-cleanup-snapshots@daily.service
+
+        [Install]
+        WantedBy=timers.target
+      require: File[/etc/systemd/system/zfs-cleanup-snapshots@.service]
+    "/etc/systemd/system/zfs-cleanup-snapshots-weekly.timer":
+      ensure: present
+      content: |
+        [Unit]
+        Description=Timer for cleaning up weekly zfs snapshots
+
+        [Timer]
+        OnCalendar=weekly
+        Persistent=true
+        Unit=zfs-cleanup-snapshots@weekly.service
+
+        [Install]
+        WantedBy=timers.target
+      require: File[/etc/systemd/system/zfs-cleanup-snapshots@.service]
 
   exec:
     "systemctl daemon-reload":
@@ -271,6 +336,8 @@ ressources:
         - File[/etc/systemd/system/unattended-reboot-weekly.timer]
         - File[/etc/systemd/system/zfs-snapshots-daily.timer]
         - File[/etc/systemd/system/zfs-snapshots-weekly.timer]
+        - File[/etc/systemd/system/zfs-cleanup-snapshots-daily.timer]
+        - File[/etc/systemd/system/zfs-cleanup-snapshots-weekly.timer]
 
   service:
     "docker-system-prune-weekly.timer":
@@ -286,6 +353,14 @@ ressources:
       enable: true
       require: Exec[systemctl daemon-reload]
     "zfs-snapshots-weekly.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
+    "zfs-cleanup-snapshots-daily.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
+    "zfs-cleanup-snapshots-weekly.timer":
       ensure: running
       enable: true
       require: Exec[systemctl daemon-reload]
