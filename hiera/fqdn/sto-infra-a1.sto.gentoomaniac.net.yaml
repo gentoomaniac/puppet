@@ -14,6 +14,8 @@ ressources:
   zfs:
     "datapool/traefik":
       ensure: present
+    "datapool/traefik-fa":
+      ensure: present
     "datapool/registry":
       ensure: present
     "datapool/ksnginx":
@@ -133,6 +135,53 @@ ressources:
             [http.middlewares.local-only-whitelist.ipwhitelist]
               sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
 
+          [http.middlewares.sso.forwardAuth]
+            address = "https://auth.srv.gentoomaniac.net"
+            authResponseHeaders = ["X-Forwarded-User"]
+    "/srv/traefik-fa/conf":
+      ensure: directory
+      require: Zfs[datapool/traefik-fa]
+    "/srv/traefik-fa/ssl":
+      ensure: directory
+      require: Zfs[datapool/traefik-fa]
+    "/srv/traefik-fa/ssl/key.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
+      require: File[/srv/traefik-fa/ssl]
+      notify: Docker::Run[traefik]
+    "/srv/traefik-fa/ssl/cert.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
+      require: File[/srv/traefik-fa/ssl]
+      notify: Docker::Run[traefik-fa]
+    "/srv/traefik-fa/conf/certs.toml":
+      ensure: present
+      content: |
+        [tls.stores]
+          [tls.stores.default]
+          [tls.stores.default.defaultCertificate]
+            certFile = "/ssl/cert.pem"
+            keyFile = "/ssl/key.pem"
+      require: File[/srv/traefik-fa/conf]
+    "/srv/traefik-fa/forward.ini":
+      ensure: present
+      content: |
+        # Cookie signing nonce, replace this with something random
+        secret = %{lookup('secret_fa_cookie_nonce')}
+
+        # Google oAuth application values - you can follow https://rclone.org/drive/#making-your-own-client-id to make your own
+        providers.google.client-id = %{lookup('secret_google_client_id')}
+        providers.google.client-secret = %{lookup('secret_google_client_secret')}
+        log-level = debug
+
+        # Replace demo.carey.li with your own ${TRAEFIK_DOMAIN}
+        cookie-domain = srv.gentoomaniac.net
+        auth-host = auth.srv.gentoomaniac.net
+
+        # Add authorized users here
+        whitelist = marco@siebecke.se
+      require: Zfs[datapool/traefik-fa]
+
 docker::networks::networks:
   web:
     ensure: "present"
@@ -176,6 +225,39 @@ docker::run_instance::instance:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/traefik/ssl:/ssl:ro
       - /srv/traefik/conf:/conf:ro
+  traefik-fa:
+    image: thomseddon/traefik-forward-auth
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - CONFIG=/forward.ini
+    expose:
+      - 4181/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.traefik-fa.rule=Host(`auth.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.traefik-fa.entrypoints=ssl'"
+      - "'traefik.http.routers.traefik-fa.tls=true'"
+      - "'traefik.http.middlewares.traefik-fa-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.traefik-fa.middlewares=sso@file'"
+      - "'traefik.http.routers.traefik-fa.middlewares=traefik-fa-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/traefik/forward.ini:/forward.ini
+      - /srv/traefik/ssl:/ssl:ro
+      - /srv/traefik/conf:/conf:ro
+    require:
+      - Class[docker]
+      - Docker_network[web]
+      - File[/srv/traefik-fa/conf/certs.toml]
+      - File[/srv/traefik-fa/ssl/cert.pem]
+      - File[/srv/traefik-fa/ssl/key.pem]
+      - File[/srv/traefik-fa/forward.ini]
   registry:
     image: registry:2
     dns:
