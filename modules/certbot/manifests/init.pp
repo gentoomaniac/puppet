@@ -44,20 +44,34 @@ dns_ovh_consumer_key = ${consumer_key}
     source => 'puppet:///modules/certbot/renew-cert.sh',
   }
 
-  cron::job { "certbot-cron-${normalized}":
-    command     => "/usr/local/bin/renew-cert --domain='${domain}' --email='${email}' --image='${certbot_image}:${image_tag}'",
-    minute      => '0',
-    hour        => '3',
-    date        => '*',
-    month       => '*',
-    weekday     => '*',
-    user        => 'root',
-    environment => ['MAILTO=root', 'PATH="/usr/bin:/bin"'],
-    description => "Update ${domain} certificate if necessary",
-    require     => [
+  file { "systemd-service-${normalized}":
+    ensure   => file,
+    path     => "/etc/systemd/system/certbot-${normalized}.service",
+    content  => epp('certbot/service.epp', {
+      domain => $domain,
+      email  => $email,
+      image  => "${certbot_image}:${image_tag}",
+    }),
+    require  => [
       File["/srv/certbot-${normalized}/data"],
       File["/srv/certbot-${normalized}/ovh.ini"],
       File['/usr/local/bin/renew-cert'],
       Docker::Image[$certbot_image]],
+  }
+
+  file { "systemd-timer-${normalized}":
+    ensure   => file,
+    path     => "/etc/systemd/system/certbot-${normalized}.timer",
+    content  => epp('certbot/timer.epp', {
+      domain => $domain,
+      service => "certbot-${normalized}.service",
+    }),
+    require  => File["systemd-service-${normalized}"],
+  }
+
+  service { "certbot-${normalized}.timer":
+    ensure  => running,
+    enable  => true,
+    require => File["systemd-timer-${normalized}"],
   }
 }

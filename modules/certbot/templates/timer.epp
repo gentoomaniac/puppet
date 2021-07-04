@@ -1,0 +1,15 @@
+<%- |
+  String $domain,
+  String $service,
+| -%>
+
+[Unit]
+Description=Check certificates for <%= $domain %>
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+Unit=<%= $service %>
+
+[Install]
+WantedBy=timers.target

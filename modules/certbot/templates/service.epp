@@ -1,0 +1,14 @@
+<%- |
+  String $domain,
+  String $email,
+  String $image,
+| -%>
+
+[Unit]
+Description=Run certbot container for <%= $domain %>
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/renew-cert --domain='<%= $domain %>' --email='<%= $email %>' --image='<%= $image %>'
+User=root
+Group=systemd-journal
