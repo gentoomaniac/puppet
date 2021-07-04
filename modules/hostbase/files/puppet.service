@@ -1,0 +1,8 @@
+[Unit]
+Description=Execute run-puppet
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/run-puppet
+User=root
+Group=systemd-journal

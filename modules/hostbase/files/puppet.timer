@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodically invoke run-puppet service
+
+[Timer]
+OnCalendar=*:0/30
+Persistent=true
+Unit=run-puppet.service
+
+[Install]
+WantedBy=timers.target
