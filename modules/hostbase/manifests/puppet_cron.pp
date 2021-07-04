@@ -9,14 +9,14 @@ class hostbase::puppet_cron {
 
   file { '/etc/systemd/system/run-puppet.service':
     ensure  => 'present',
-    mode    => '0744',
+    mode    => '0644',
     source  => 'puppet:///modules/hostbase/puppet.service',
     require => File['/usr/local/bin/run-puppet'],
   }
 
   file { '/etc/systemd/system/run-puppet.timer':
     ensure  => 'present',
-    mode    => '0744',
+    mode    => '0644',
     source  => 'puppet:///modules/hostbase/puppet.timer',
     require => File['/etc/systemd/system/run-puppet.service'],
   }
