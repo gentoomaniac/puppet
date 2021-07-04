@@ -164,7 +164,7 @@ telegraf::inputs:
     delete_counters: true
     delete_sets: true
     delete_timings: true
-    percentiles: [90]
+    percentiles: [90.0]
     metric_separator: "_"
     parse_data_dog_tags: true
     allowed_pending_messages: 10000
