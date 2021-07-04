@@ -124,6 +124,7 @@ ressources:
           echo "pending_updates,type=patch value=$((PENDING_UPDATES-PENDING_SEC_UPDATES))"
           echo "pending_updates,type=security value=${PENDING_SEC_UPDATES}"
           echo "reboot_required_since value=${REBOOT_REQUIRED_SINCE:-0}"
+          echo "puppet_branch value=1,branch=\"$(head -1 /etc/puppet_branch)\""
 
     "/etc/cron.weekly/regular-reboot":
       ensure: absent
