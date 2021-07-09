@@ -51,6 +51,16 @@ ressources:
           disable_hostname = true
         }
 
+
+    "/srv/vault/secret.json":
+      ensure: file
+      owner: 0
+      mode: "0600"
+      content: |
+        {
+          "key": "%{lookup('secret_unseal_token')}"
+        }
+      require: Zfs[datapool/vault]
     "/srv/traefik/conf":
       ensure: directory
       require: Zfs[datapool/traefik]
@@ -78,7 +88,46 @@ ressources:
       require:
         - File[/srv/traefik/ssl/cert.pem]
         - File[/srv/traefik/ssl/key.pem]
+    "/etc/systemd/system/vault-unseal.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=unseal vault if sealed
 
+        [Service]
+        Type=oneshot
+        ExecStart=/bin/bash -c 'if curl https://vault.srv.gentoomaniac.net/v1/sys/health 2>/dev/null | jq .sealed | grep -q true; then curl -X PUT -d @/srv/vault/secret.json https://vault.srv.gentoomaniac.net/v1/sys/unseal; else exit 0; fi'
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/srv/vault/secret.json]
+        - Package[jq]
+    "/etc/systemd/system/vault-unseal.timer":
+      ensure: present
+      content: |
+        [Unit]
+        Description=Check sealed state of vault and unseal if necessary
+
+        [Timer]
+        OnCalendar=*:0/5
+        Persistent=true
+        Unit=vault-unseal.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/vault-unseal.service]
+  service:
+    "vault-unseal.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
+  package:
+    "jq":
+      ensure: latest
+    "curl":
+      ensure: latest
 docker::docker_users:
   - marco
 
