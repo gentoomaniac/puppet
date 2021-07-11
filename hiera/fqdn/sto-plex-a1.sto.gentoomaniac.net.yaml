@@ -22,6 +22,8 @@ ressources:
       ensure: present
     "localpool/radarr-kids":
       ensure: present
+    "localpool/lidarr":
+      ensure: present
     "localpool/sonarr":
       ensure: present
     "localpool/tautulli":
@@ -65,6 +67,7 @@ ressources:
         kids_shows  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows
         kids_shows_se  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows_se
         kids_audio  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_audio
+        music  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/music
         sd_old  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank3/sd_old
         youtube-downloader  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/youtube-downloader
 
@@ -165,6 +168,13 @@ docker::volumes::volumes:
       - - type=nfs
         - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
         - device=:/mnt/tank0/youtube-downloader
+  nfs_music:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank0/music
 
 docker::run_instance::instance:
   traefik:
@@ -295,6 +305,36 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Zfs[localpool/sonarr]
+  lidarr:
+    image: linuxserver/lidarr:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - UMASK_SET=022
+    expose:
+      - 8686/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.lidarr.rule=Host(`lidarr.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.lidarr.entrypoints=websecure'"
+      - "'traefik.http.routers.lidarr.tls=true'"
+      - "'traefik.http.middlewares.lidarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.lidarr.middlewares=lidarr-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/lidarr:/config
+      - nfs_music:/music
+    require:
+      - Class[docker]
+      - Zfs[localpool/lidarr]
   tautulli:
     image: linuxserver/tautulli:latest
     dns:
