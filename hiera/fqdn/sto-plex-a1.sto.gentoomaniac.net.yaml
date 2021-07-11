@@ -395,6 +395,7 @@ docker::run_instance::instance:
       - nfs_kids_shows:/data/kids_shows:ro
       - nfs_kids_shows_se:/data/kids_shows_se:ro
       - nfs_sd_old:/data/sd_old:ro
+      - nfs_music:/data/music:ro
     require:
       - Class[docker]
       - File[/srv/plex/config]
@@ -405,6 +406,7 @@ docker::run_instance::instance:
       - Docker_volume[nfs_kids_shows]
       - Docker_volume[nfs_kids_shows_se]
       - Docker_volume[nfs_sd_old]
+      - Docker_volume[nfs_music]
       - Service[avahi-daemon]
   youtube-dl:
     image: tzahi12345/youtubedl-material:latest
