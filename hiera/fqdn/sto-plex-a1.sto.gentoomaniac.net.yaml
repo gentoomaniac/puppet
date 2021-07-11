@@ -245,6 +245,7 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Zfs[localpool/radarr]
+      - Docker_volume[nfs_movies]
   radarr-kids:
     image: linuxserver/radarr:latest
     dns:
@@ -275,6 +276,7 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Zfs[localpool/radarr-kids]
+      - Docker_volume[nfs_kids_movies]
   sonarr:
     image: linuxserver/sonarr:latest
     dns:
@@ -305,6 +307,7 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Zfs[localpool/sonarr]
+      - Docker_volume[nfs_shows]
   lidarr:
     image: linuxserver/lidarr:latest
     dns:
@@ -335,6 +338,7 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Zfs[localpool/lidarr]
+      - Docker_volume[nfs_music]
   tautulli:
     image: linuxserver/tautulli:latest
     dns:
