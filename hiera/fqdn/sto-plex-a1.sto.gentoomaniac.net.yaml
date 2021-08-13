@@ -22,9 +22,11 @@ ressources:
       ensure: present
     "localpool/radarr-kids":
       ensure: present
-    "localpool/lidarr":
-      ensure: present
     "localpool/sonarr":
+      ensure: present
+    "localpool/sonarr-kids":
+      ensure: present
+    "localpool/lidarr":
       ensure: present
     "localpool/tautulli":
       ensure: present
@@ -308,6 +310,37 @@ docker::run_instance::instance:
       - Class[docker]
       - Zfs[localpool/sonarr]
       - Docker_volume[nfs_shows]
+  sonarr-kids:
+    image: linuxserver/sonarr:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - UMASK_SET=022
+    expose:
+      - 8989/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.sonarr-kids.rule=Host(`sonarr-kids.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.sonarr-kids.entrypoints=websecure'"
+      - "'traefik.http.routers.sonarr-kids.tls=true'"
+      - "'traefik.http.middlewares.sonarr-kids-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.sonarr-kids.middlewares=sonarr-kids-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/sonarr-kids:/config
+      - nfs_kids_shows:/shows
+    require:
+      - Class[docker]
+      - Zfs[localpool/sonarr-kids]
+      - Docker_volume[nfs_kids_shows]
   lidarr:
     image: linuxserver/lidarr:latest
     dns:
