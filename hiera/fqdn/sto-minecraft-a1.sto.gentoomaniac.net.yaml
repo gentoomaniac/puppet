@@ -1,0 +1,42 @@
+---
+classes:
+  - docker
+  - docker::run_instance
+
+ressources:
+  zfs:
+    "datapool/minecraft":
+      ensure: present
+  package:
+    "jq":
+      ensure: latest
+    "curl":
+      ensure: latest
+docker::docker_users:
+  - marco
+
+docker::networks::networks:
+  web:
+    ensure: "present"
+
+docker::run_instance::instance:
+  minecraft:
+    image: itzg/minecraft-server
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - EULA=TRUE
+      - TYPE=FORGE
+    expose:
+      - 8200/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    ports:
+      - 25565/tcp
+      - 25575/tcp
+    pull_on_start: true
+    require:
+      - Zfs[datapool/minecraft]
+    volumes:
+      - /srv/minecraft:/data
