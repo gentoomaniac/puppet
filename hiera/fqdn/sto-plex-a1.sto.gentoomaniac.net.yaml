@@ -34,6 +34,8 @@ ressources:
       ensure: present
     "localpool/ytdl":
       ensure: present
+    "localpool/jellyfin":
+      ensure: present
   file:
     "/srv/traefik/conf":
       ensure: directory
@@ -105,6 +107,12 @@ ressources:
     "/srv/ytdl/subscriptions":
       ensure: directory
       require: Zfs[localpool/ytdl]
+    "/srv/jellyfin/conf":
+      ensure: directory
+      require: Zfs[localpool/jellyfin]
+    "/srv/jellyfin/cache":
+      ensure: directory
+      require: Zfs[localpool/jellyfin]
   service:
     autofs:
       ensure: running
@@ -475,3 +483,44 @@ docker::run_instance::instance:
       - File[/srv/ytdl/video]
       - File[/srv/ytdl/subscriptions]
       - Docker_volume[nfs_youtube_downloader]
+
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - TZ="Europe/Berlin"
+    labels:
+      - "'traefik.enable=false'"
+    ports:
+      - 8096:8096
+      - 8920:8920 #optional
+      - 7359:7359/udp #optional
+      - 1900:1900/udp #optional
+    extra_parameters:
+      - --restart=unless-stopped
+      - --device /dev/dri:/dev/dri
+    pull_on_start: true
+    volumes:
+      - /srv/jellyfin/conf:/config
+      - /srv/jellyfin/cache:/cache
+      - nfs_movies:/data/movies:ro
+      - nfs_shows:/data/shows:ro
+      - nfs_kids_movies:/data/kids_movies:ro
+      - nfs_kids_shows:/data/kids_shows:ro
+      - nfs_kids_shows_se:/data/kids_shows_se:ro
+      - nfs_sd_old:/data/sd_old:ro
+      - nfs_music:/data/music:ro
+    require:
+      - Class[docker]
+      - File[/srv/jellyfin/conf]
+      - File[/srv/jellyfin/cache]
+      - Docker_volume[nfs_movies]
+      - Docker_volume[nfs_shows]
+      - Docker_volume[nfs_kids_movies]
+      - Docker_volume[nfs_kids_shows]
+      - Docker_volume[nfs_kids_shows_se]
+      - Docker_volume[nfs_sd_old]
+      - Docker_volume[nfs_music]
+      - Service[avahi-daemon]
