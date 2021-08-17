@@ -33,8 +33,8 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     ports:
-      - 25565/tcp
-      - 25575/tcp
+      - 25565:25565/tcp
+      - 25575:25575/tcp
     pull_on_start: true
     require:
       - Zfs[datapool/minecraft]
