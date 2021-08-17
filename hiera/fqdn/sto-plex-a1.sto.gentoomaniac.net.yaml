@@ -492,11 +492,18 @@ docker::run_instance::instance:
     env:
       - TZ="Europe/Berlin"
     labels:
-      - "'traefik.enable=false'"
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.jellyfin.rule=Host(`jellyfin.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.jellyfin.entrypoints=websecure'"
+      - "'traefik.http.routers.jellyfin.tls=true'"
+      - "'traefik.http.middlewares.jellyfin-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.jellyfin.middlewares=ytdl-whitelist'"
+    net:
+      - web
     ports:
-      - 8096:8096
-      - 8920:8920 #optional
       - 7359:7359/udp #optional
+    expose:
+      - 8096/tcp
     extra_parameters:
       - --restart=unless-stopped
       - --device /dev/dri:/dev/dri
