@@ -333,6 +333,44 @@ ressources:
         WantedBy=timers.target
       require: File[/etc/systemd/system/zfs-cleanup-snapshots@.service]
 
+    "/usr/local/bin/zfs-scrub-all-pools":
+      ensure: present
+      mode: "0744"
+      content: |
+        #!/bin/env bash
+
+        for pool in $(zpool list -H -o name); do sudo zpool scrub ${pool}; done
+
+    "/etc/systemd/system/zfs-scrub-weekly.timer":
+      content: |
+        [Unit]
+        Description=Run zfs scrub weekly
+
+        [Timer]
+        OnCalendar=weekly
+        Persistent=true
+        Unit=zfs-scrub.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/zfs-scrub.service]
+    "/etc/systemd/system/zfs-scrub.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=Run a zfs scrub
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/zfs-scrub-all-pools
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/usr/local/bin/zfs-scrub-all-pools]
+
+
   exec:
     "systemctl daemon-reload":
       refreshonly: true
@@ -346,6 +384,7 @@ ressources:
         - File[/etc/systemd/system/zfs-snapshots-weekly.timer]
         - File[/etc/systemd/system/zfs-cleanup-snapshots-daily.timer]
         - File[/etc/systemd/system/zfs-cleanup-snapshots-weekly.timer]
+        - File[/etc/systemd/system/zfs-scrub-weekly.timer]
 
   service:
     "docker-system-prune-weekly.timer":
@@ -369,6 +408,10 @@ ressources:
       enable: true
       require: Exec[systemctl daemon-reload]
     "zfs-cleanup-snapshots-weekly.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
+    "zfs-scrub-weekly.timer":
       ensure: running
       enable: true
       require: Exec[systemctl daemon-reload]
