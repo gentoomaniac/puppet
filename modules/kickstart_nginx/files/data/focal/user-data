@@ -34,7 +34,7 @@ autoinstall:
       id: root-partition
       device: root-dev
       number: 3
-      size: 9G
+      size: 19G
     - type: partition
       id: local-partition
       device: root-dev
