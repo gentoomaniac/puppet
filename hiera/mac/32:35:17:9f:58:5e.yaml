@@ -11,7 +11,7 @@ netplan::ethernets:
   ens18:
     dhcp4: no
     addresses:
-      - 10.1.1.131/24
+      - 10.1.1.61/24
     nameservers:
       search: [gentoomaniac.net]
       addresses: [10.1.1.52, 10.1.1.53]
