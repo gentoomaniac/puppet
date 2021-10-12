@@ -38,7 +38,7 @@ if [ -f /etc/bootstrap ]; then
             partprobe 2>&1 | tee -a /var/log/bootstrap.log
             zpool create -f datapool /dev/sdb1 -m /srv 2>&1 | tee -a /var/log/bootstrap.log
         else
-            if zpool import | grep -q ^\s\+pool: datapool$; then
+            if zpool import | grep -q "^\s\+pool: datapool$"; then
                 echo "*** found existing datapool. Importing ..." | tee -a /var/log/bootstrap.log
                 zpool import -f datapool 2>&1 | tee -a /var/log/bootstrap.log
             else
