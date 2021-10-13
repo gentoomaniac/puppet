@@ -1,0 +1,78 @@
+---
+classes:
+  - docker::networks
+  - docker::run_instance
+
+ressources:
+  zfs:
+    "datapool/traefik":
+      ensure: present
+  file:
+    "/srv/traefik/conf":
+      ensure: directory
+      require: Zfs[datapool/traefik]
+    "/srv/traefik/ssl":
+      ensure: directory
+      require: Zfs[datapool/traefik]
+    "/srv/traefik/ssl/key.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
+      require: File[/srv/traefik/ssl]
+      notify: Docker::Run[traefik]
+    "/srv/traefik/ssl/cert.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
+      require: File[/srv/traefik/ssl]
+      notify: Docker::Run[traefik]
+    "/srv/traefik/conf/certs.toml":
+      ensure: present
+      content: |
+        [tls.stores]
+          [tls.stores.default]
+          [tls.stores.default.defaultCertificate]
+            certFile = "/ssl/cert.pem"
+            keyFile = "/ssl/key.pem"
+      require:
+        - File[/srv/traefik/ssl/cert.pem]
+        - File[/srv/traefik/ssl/key.pem]
+
+docker::networks::networks:
+  web:
+    ensure: "present"
+
+docker::run_instance::instance:
+  traefik:
+    image: traefik:v2.2
+    command: >
+      --api.insecure=true
+      --entrypoints.influxdb.address=:8086
+      --entrypoints.ssl.address=:443
+      --serverstransport.insecureskipverify=true
+      --providers.docker
+      --providers.docker.exposedbydefault=false
+      --providers.file.directory=/conf
+      --providers.file.watch=true
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - web
+    ports:
+      - 8086:8086/tcp
+      - 8080:8080/tcp
+      - 443:443/tcp
+    pull_on_start: true
+    require:
+      - Class[docker]
+      - Docker_network[web]
+      - File[/srv/traefik/conf/certs.toml]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /srv/traefik/ssl:/ssl:ro
+      - /srv/traefik/conf:/conf:ro
