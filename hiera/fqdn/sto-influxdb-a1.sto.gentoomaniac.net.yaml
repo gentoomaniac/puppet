@@ -218,6 +218,7 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Zfs[datapool/influxdb]
+      - File[/srv/influxdb/conf/influxdb.conf]
   chronograf:
     image: chronograf:1.7-alpine
     dns:
