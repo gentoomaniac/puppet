@@ -175,6 +175,13 @@ ressources:
             #"servers.*.rrdcached.* .host.measurement.type",
           ]
 
+        [[udp]]
+          enabled = true
+          bind-address = "0.0.0.0:8089"
+          database = "proxmox"
+          batch-size = 1000
+          batch-timeout = "1s"
+
 docker::networks::networks:
   web:
     ensure: "present"
