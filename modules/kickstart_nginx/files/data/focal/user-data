@@ -122,12 +122,6 @@ autoinstall:
     username: ubuntu
     password: $6$rounds=4096$8dkK1P/oE$2DGKKt0wLlTVJ7USY.0jN9du8FetmEr51yjPyeiR.zKE3DGFcitNL/nF1l62BLJNR87lQZixObuXYny.Mf17K1
 
-  apt:
-    sources:
-      hashicorp.list:
-        source: "deb [arch=amd64] https://apt.releases.hashicorp.com $RELEASE main"
-        keyid: E8A0 32E0 94D8 EB4E A189  D270 DA41 8C88 A321 9F7B
-
   packages:
   - curl
   - dmidecode

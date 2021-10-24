@@ -20,6 +20,9 @@ if [ -f /etc/bootstrap ]; then
     curl https://apt.puppet.com/puppet7-release-focal.deb -o /tmp/puppet7-release-focal.deb
     dpkg -i /tmp/puppet7-release-focal.deb
     rm /tmp/puppet7-release-focal.deb
+    curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+    apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+
     apt update 2>&1 | tee -a /var/log/bootstrap.log
     apt install --assume-yes puppet-agent vault 2>&1 | tee -a /var/log/bootstrap.log
 
