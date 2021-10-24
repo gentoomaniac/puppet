@@ -2,13 +2,13 @@
 #
 #
 class coredns {
-  zfs { 'localpool/coredns':
+  zfs { 'datapool/coredns':
     ensure => present,
   }
   file { '/srv/coredns/Corefile':
     ensure  => file,
     source  => 'puppet:///modules/coredns/Corefile',
-    require => Zfs['localpool/coredns'],
+    require => Zfs['datapool/coredns'],
     notify  => Docker::Run['coredns'],
   }
 
@@ -17,7 +17,7 @@ class coredns {
     provider => git,
     source   => 'https://github.com/gentoomaniac/dnsdata.git',
     revision => 'master',
-    require => Zfs['localpool/coredns'],
+    require => Zfs['datapool/coredns'],
     notify   => Docker::Run['coredns'],
   }
 
