@@ -182,6 +182,66 @@ ressources:
         whitelist = marco@siebecke.se
       require: Zfs[datapool/traefik-fa]
 
+    "/etc/clouddns-updater-key.json":
+      ensure: present
+      mode: "0750"
+      content: "%{lookup('secret_cloud_dns')}"
+    "/usr/local/bin/clouddns-update":
+      ensure: present
+      mode: "0750"
+      content: |
+        #! /bin/env bash
+
+        DNS_NAME="vpn.gentoomaniac.net"
+        PROJECT="gentoomaniac-net"
+        SERVICE_ACCOUNT_NAME="dns-updates@gentoomaniac-net.iam.gserviceaccount.com"
+        ZONE="gentoomaniac-net"
+        IMAGE_NAME="google/cloud-sdk:latest"
+
+        OLD_IP="$(dig +short "${DNS_NAME}")"
+        CURRENT_IP="$(curl https://europe-west1-gentoomaniac-net.cloudfunctions.net/whatismyip)"
+
+        if [ "${OLD_IP}" != "${CURRENT_IP}" ]; then
+            docker pull "${IMAGE_NAME}"
+            docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/key.json -v /etc/clouddns-updater-key.json:/key.json:ro "${IMAGE_NAME}" gcloud auth activate-service-account "${SERVICE_ACCOUNT_NAME}" --key-file=/key.json --project="${PROJECT}"
+            docker run -it "${IMAGE_NAME}" gcloud dns record-sets update "${DNS_NAME}" --rrdatas="${CURRENT_IP}" --type=A --zone="${ZONE}" --account="${PROJECT}"
+        fi
+    "/etc/systemd/system/clouddns-update.timer":
+      content: |
+        [Unit]
+        Description=Update clouddns entries
+
+        [Timer]
+        OnCalendar=hourly
+        Persistent=true
+        Unit=clouddns-update.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/clouddns-updater.service]
+    "/etc/systemd/system/clouddns-updater.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=docker system prune after a random delay
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/docker-system-prune
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/etc/clouddns-updater-key.json]
+        - File[/usr/local/bin/clouddns-update]
+
+  service:
+    "clouddns-updater.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
+
 docker::networks::networks:
   web:
     ensure: "present"
