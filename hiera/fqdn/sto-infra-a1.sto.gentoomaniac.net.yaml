@@ -211,7 +211,7 @@ ressources:
       - Docker_volume[clouddns-config]
       - Docker_volume[clouddns-kube]
 
-    "/etc/systemd/system/clouddns-update.timer":
+    "/etc/systemd/system/clouddns-updater.timer":
       content: |
         [Unit]
         Description=Update clouddns entries hourly if necessary
