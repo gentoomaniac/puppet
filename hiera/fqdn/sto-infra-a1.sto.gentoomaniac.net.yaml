@@ -2,6 +2,7 @@
 classes:
   - docker::networks
   - docker::run_instance
+  - docker::volumes
   - kickstart_nginx
   - certbot
 
@@ -203,9 +204,13 @@ ressources:
 
         if [ "${OLD_IP}" != "${CURRENT_IP}" ]; then
             docker pull "${IMAGE_NAME}"
-            docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/key.json -v /etc/clouddns-updater-key.json:/key.json:ro "${IMAGE_NAME}" gcloud auth activate-service-account "${SERVICE_ACCOUNT_NAME}" --key-file=/key.json --project="${PROJECT}"
-            docker run -it "${IMAGE_NAME}" gcloud dns record-sets update "${DNS_NAME}" --rrdatas="${CURRENT_IP}" --type=A --zone="${ZONE}" --account="${PROJECT}"
+            docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/key.json -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" -v /etc/clouddns-updater-key.json:/key.json:ro "${IMAGE_NAME}" gcloud auth activate-service-account "${SERVICE_ACCOUNT_NAME}" --key-file=/key.json --project="${PROJECT}"
+            docker run -it -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" "${IMAGE_NAME}" gcloud dns record-sets update "${DNS_NAME}" --rrdatas="${CURRENT_IP}" --type=A --zone="${ZONE}" --account="${PROJECT}"
         fi
+      require:
+      - Docker_volume[clouddns-config]
+      - Docker_volume[clouddns-kube]
+
     "/etc/systemd/system/clouddns-update.timer":
       content: |
         [Unit]
@@ -241,6 +246,12 @@ ressources:
       ensure: running
       enable: true
       require: Exec[systemctl daemon-reload]
+
+docker::volumes::volumes:
+  "clouddns-config":
+    ensure: present
+  "clouddns-kube":
+    ensure: present
 
 docker::networks::networks:
   web:
