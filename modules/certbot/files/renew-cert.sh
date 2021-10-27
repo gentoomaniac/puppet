@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+certbot_image="certbot/certbot:latest"
+
 for param in $*; do
     arg=${param/=*}
     value=${param##*=}
@@ -45,7 +47,7 @@ cert_path="/srv/certbot-${normalized}/data/live/${simpledomain}"
 cert_date=$(keytool -printcert -file "${cert_path}/fullchain.pem" | sed -n '1,10 s/.*until: \(.*\)/\1/p')
 cert_timestamp=$(date -d "${cert_date}" "+%s")
 
-certbot_parameters="certonly --dns-ovh --dns-ovh-credentials /ovh.ini --email ${email} --agree-tos --no-eff-email -d ${domain}"
+certbot_parameters="certonly --dns-google --dns-google-credentials \"/srv/certbot-${normalized}/sa.json\" --email ${email} --agree-tos --no-eff-email -d ${domain}"
 
 # cert valid less than 30 days
 if (( $(( ${cert_timestamp} - ${now} )) < 2592000 )); then

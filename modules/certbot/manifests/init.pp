@@ -1,7 +1,7 @@
 class certbot (
   String $domain,
   Integer $interval = 80,
-  String $certbot_image = 'registry.srv.gentoomaniac.net/certbot-ovh',
+  String $certbot_image = 'certbot/certbot',
   String $image_tag = 'latest',
   String $email = 'marco@siebecke.se',
 ) {
@@ -17,19 +17,9 @@ class certbot (
     require => Zfs["datapool/certbot-${normalized}"],
   }
 
-  $application_key = lookup('secret_ovh_application_key')
-  $application_secret = lookup('secret_ovh_application_secret')
-  $consumer_key = lookup('secret_ovh_consumer_key')
-  $conf = "## MANAGED BY PUPPET ##
-# OVH API credentials used by Certbot
-dns_ovh_endpoint = ovh-eu
-dns_ovh_application_key = ${application_key}
-dns_ovh_application_secret = ${application_secret}
-dns_ovh_consumer_key = ${consumer_key}
-"
-  file  { "/srv/certbot-${normalized}/ovh.ini":
+  file  { "/srv/certbot-${normalized}/sa.json":
     ensure  => file,
-    content => $conf,
+    content => lookup('secret_cloud_dns'),
     mode    => "0600",
     require => Zfs["datapool/certbot-${normalized}"],
   }
@@ -54,7 +44,7 @@ dns_ovh_consumer_key = ${consumer_key}
     }),
     require  => [
       File["/srv/certbot-${normalized}/data"],
-      File["/srv/certbot-${normalized}/ovh.ini"],
+      File["/srv/certbot-${normalized}/sa.json"],
       File['/usr/local/bin/renew-cert'],
       Docker::Image[$certbot_image]],
   }
