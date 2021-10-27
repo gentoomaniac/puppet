@@ -214,12 +214,12 @@ ressources:
     "/etc/systemd/system/clouddns-update.timer":
       content: |
         [Unit]
-        Description=Update clouddns entries
+        Description=Update clouddns entries hourly if necessary
 
         [Timer]
         OnCalendar=hourly
         Persistent=true
-        Unit=clouddns-update.service
+        Unit=clouddns-updater.service
 
         [Install]
         WantedBy=timers.target
@@ -230,11 +230,11 @@ ressources:
       mode: "0644"
       content: |
         [Unit]
-        Description=docker system prune after a random delay
+        Description=update vpn dns alias
 
         [Service]
         Type=oneshot
-        ExecStart=/usr/local/bin/docker-system-prune
+        ExecStart=/usr/local/bin/clouddns-update
         User=root
         Group=systemd-journal
       require:
