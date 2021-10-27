@@ -1,7 +1,7 @@
 class certbot (
   String $domain,
   Integer $interval = 80,
-  String $certbot_image = 'certbot/certbot',
+  String $certbot_image = 'certbot/dns-google',
   String $image_tag = 'latest',
   String $email = 'marco@siebecke.se',
 ) {

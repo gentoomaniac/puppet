@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-certbot_image="certbot/certbot:latest"
-
 for param in $*; do
     arg=${param/=*}
     value=${param##*=}
