@@ -200,7 +200,7 @@ ressources:
         IMAGE_NAME="google/cloud-sdk:latest"
 
         OLD_IP="$(dig +short "${DNS_NAME}")"
-        CURRENT_IP="$(curl https://europe-west1-gentoomaniac-net.cloudfunctions.net/whatismyip)"
+        CURRENT_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 
         if [ "${OLD_IP}" != "${CURRENT_IP}" ]; then
             docker pull "${IMAGE_NAME}"
