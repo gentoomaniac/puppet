@@ -2,6 +2,7 @@
     forward . 8.8.8.8:53 8.8.4.4:53
     file /data/dnsdata/zones/srv.gentoomaniac.net.db srv.gentoomaniac.net
     file /data/dnsdata/zones/sto.gentoomaniac.net.db sto.gentoomaniac.net
+    file /data/dnsdata/zones/gentoomaniac.net.db gentoomaniac.net
     file /data/dnsdata/zones/10.1.1.db 1.1.10.in-addr.arpa
     cache 60
     log
