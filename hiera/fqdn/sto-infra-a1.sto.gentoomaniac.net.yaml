@@ -176,8 +176,8 @@ ressources:
         log-level = debug
 
         # Replace demo.carey.li with your own ${TRAEFIK_DOMAIN}
-        cookie-domain = srv.gentoomaniac.net
-        auth-host = auth.srv.gentoomaniac.net
+        cookie-domain = gentoomaniac.net
+        auth-host = auth.gentoomaniac.net
 
         # Add authorized users here
         whitelist = marco@siebecke.se
