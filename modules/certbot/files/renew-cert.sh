@@ -49,7 +49,7 @@ certbot_parameters="certonly --dns-google --dns-google-credentials /sa.json --em
 
 # cert valid less than 30 days
 if (( $(( ${cert_timestamp} - ${now} )) < 2592000 )); then
-    docker run -v "/srv/certbot-${normalized}/sa.json:/sa.json:ro" -v "/srv/certbot-${normalized}/data:/etc/letsencrypt" ${certbot_image} ${certbot_parameters} && {
+    docker run -n certbot --rm -v "/srv/certbot-${normalized}/sa.json:/sa.json:ro" -v "/srv/certbot-${normalized}/data:/etc/letsencrypt" ${certbot_image} ${certbot_parameters} && {
         /usr/local/bin/mvault kv put puppet/common/secret_${normalized}_cert value="$(cat ${cert_path}/fullchain.pem)"
         /usr/local/bin/mvault kv put puppet/common/secret_${normalized}_key value="$(cat ${cert_path}/privkey.pem)"
     }
