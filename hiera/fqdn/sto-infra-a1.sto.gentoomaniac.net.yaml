@@ -310,8 +310,8 @@ docker::run_instance::instance:
     labels:
       - "'traefik.enable=true'"
       - "'traefik.http.routers.traefik-fa.rule=Host(`auth.gentoomaniac.net`)'"
-      - "'traefik.http.routers.registry.entrypoints=ssl'"
-      - "'traefik.http.routers.registry.tls=true'"
+      - "'traefik.http.routers.traefik-fa.entrypoints=ssl'"
+      - "'traefik.http.routers.traefik-fa.tls=true'"
       - "'traefik.http.middlewares.registry-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
       - "'traefik.http.routers.registry.middlewares=registry-whitelist'"
       - "'traefik.http.middlewares.traefik-fa.forwardauth.address=https://traefik-fa:4181'"
