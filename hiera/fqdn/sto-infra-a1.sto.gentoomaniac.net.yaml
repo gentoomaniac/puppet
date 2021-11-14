@@ -303,6 +303,8 @@ docker::run_instance::instance:
       - 10.1.1.53
     env:
       - CONFIG=/forward.ini
+    ports:
+      - 8081:8080/tcp
     expose:
       - 4181/tcp
     extra_parameters:
