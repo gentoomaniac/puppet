@@ -333,12 +333,16 @@ docker::run_instance::instance:
     dns:
       - 10.1.1.52
       - 10.1.1.53
+    expose:
+      - 80/tcp
     labels:
       - "'traefik.enable=true'"
       - "'traefik.http.routers.whoami.rule=Host(`whoami.gentoomaniac.net`)'"
       - "'traefik.http.routers.whoami.entrypoints=ssl'"
       - "'traefik.http.routers.whoami.tls=true'"
-      - "'traefik.http.routers.whoami.middlewares=sso@file'"
+      - "'traefik.http.routers.whoami.middlewares=sso'"
+    net:
+      - web
   registry:
     image: registry:2
     dns:
