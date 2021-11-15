@@ -313,8 +313,6 @@ docker::run_instance::instance:
       - "'traefik.http.routers.traefik-fa.rule=Host(`auth.srv.gentoomaniac.net`)'"
       - "'traefik.http.routers.traefik-fa.entrypoints=ssl'"
       - "'traefik.http.routers.traefik-fa.tls=true'"
-      - "'traefik.http.middlewares.traefik-fa-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
-      - "'traefik.http.routers.traefik-fa.middlewares=traefik-fa-whitelist'"
     net:
       - web
     pull_on_start: true
