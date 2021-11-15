@@ -303,8 +303,8 @@ docker::run_instance::instance:
       - 10.1.1.53
     env:
       - CONFIG=/forward.ini
-    expose:
-      - 4181/tcp
+    ports:
+      - 4181:4181/tcp
     extra_parameters:
       - --restart=unless-stopped
     labels:
