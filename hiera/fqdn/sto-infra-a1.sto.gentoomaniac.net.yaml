@@ -54,8 +54,8 @@ ressources:
             [[http.services.dummy.loadBalancer.servers]]
                 url = ""
 
-          [http.services.freenas.loadBalancer]
-            [[http.services.freenas.loadBalancer.servers]]
+          [http.services.nas.loadBalancer]
+            [[http.services.nas.loadBalancer.servers]]
               url = "https://10.1.1.5:443/"
 
           [http.services.unifi.loadBalancer]
@@ -85,12 +85,12 @@ ressources:
             entryPoints = ["web"]
             middlewares = ["redirect-to-https"]
 
-          [http.routers.freenas]
+          [http.routers.nas]
             rule = "Host(`nas.srv.gentoomaniac.net`)"
-            service = "freenas"
+            service = "nas"
             entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist"]
-            [http.routers.freenas.tls]
+            middlewares = ["local-only-whitelist", "sso@file"]
+            [http.routers.nas.tls]
 
           [http.routers.unifi]
             rule = "Host(`unifi.srv.gentoomaniac.net`)"
@@ -117,7 +117,7 @@ ressources:
             rule = "Host(`proxmox1.srv.gentoomaniac.net`)"
             service = "proxmox1"
             entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist"]
+            middlewares = ["local-only-whitelist", "sso@file"]
             [http.routers.proxmox1.tls]
 
           [http.routers.proxmox2]
