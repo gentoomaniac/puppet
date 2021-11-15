@@ -89,7 +89,7 @@ ressources:
             rule = "Host(`nas.srv.gentoomaniac.net`)"
             service = "freenas"
             entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist", "sso@file"]
+            middlewares = ["local-only-whitelist"]
             [http.routers.freenas.tls]
 
           [http.routers.unifi]
@@ -117,7 +117,7 @@ ressources:
             rule = "Host(`proxmox1.srv.gentoomaniac.net`)"
             service = "proxmox1"
             entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist", "sso@file"]
+            middlewares = ["local-only-whitelist"]
             [http.routers.proxmox1.tls]
 
           [http.routers.proxmox2]
