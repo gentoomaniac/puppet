@@ -241,8 +241,83 @@ ressources:
         - File[/etc/clouddns-updater-key.json]
         - File[/usr/local/bin/clouddns-update]
 
+
+    "/usr/local/bin/crypto2influx":
+      ensure: present
+      source: https://github.com/gentoomaniac/crypto2influx/releases/download/v0.1.0/crypto2influx_0.1.0_linux-amd64
+      mode: "0700"
+    "/etc/crypto2influx.json":
+      ensure: present
+      content: |
+        {
+            "coinmarketcap": {
+                "token": "%{lookup('secret_coinmarketcap_token')}"
+            },
+            "influxcloud": {
+                "token":"%{lookup('secret_influxcloud_token')}",
+                "org":"marco@siebecke.se",
+                "bucket": "crypto",
+                "base_url": "https://eu-central-1-1.aws.cloud2.influxdata.com"
+            },
+            "coins":{
+                "BTC":{
+                    "slug": "bitcoin"
+                },
+                "ETH":{
+                    "slug": "ethereum"
+                },
+                "CRO":{
+                    "slug": "crypto-com-coin"
+                },
+                "LRC":{
+                    "slug": "loopring"
+                },
+                "ENJ":{
+                    "slug": "enjin-coin"
+                },
+                "CURE":{
+                    "slug": "curecoin"
+                }
+            }
+        }
+
+      mode: "0600"
+    "/etc/systemd/system/crypto2influx.timer":
+      content: |
+        [Unit]
+        Description=update crypto data in influxcloud
+
+        [Timer]
+        OnCalendar=*:0/5
+        Persistent=true
+        Unit=crypto2influx.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/crypto2influx.service]
+    "/etc/systemd/system/crypto2influx.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=run crypto to influx once
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/crypto2influx --config-file=/etc/crypto2influx.json
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/etc/crypto2influx.json]
+        - File[/usr/local/bin/crypto2influx]
+
   service:
     "clouddns-updater.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
+    "crypto2influx.timer":
       ensure: running
       enable: true
       require: Exec[systemctl daemon-reload]
