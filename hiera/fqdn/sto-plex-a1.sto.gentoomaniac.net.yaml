@@ -4,6 +4,10 @@ classes:
   - docker::networks
   - docker::volumes
   - docker::run_instance
+  - kickstart_nginx
+  - certbot
+
+certbot::domain: "*.srv.gentoomaniac.net"
 
 docker::docker_users:
   - marco
@@ -12,6 +16,10 @@ ressources:
   package:
     autofs:
       ensure: installed
+    "jq":
+      ensure: latest
+    "curl":
+      ensure: latest
   sysctl:
     vm.max_map_count:
       value: 262144
@@ -37,6 +45,8 @@ ressources:
     "localpool/jellyfin":
       ensure: present
     "localpool/nzbget":
+      ensure: present
+    "localpool/vault":
       ensure: present
   file:
     "/srv/traefik/conf":
@@ -64,6 +74,99 @@ ressources:
             certFile = "/ssl/cert.pem"
             keyFile = "/ssl/key.pem"
       require: File[/srv/traefik/conf]
+    "/srv/traefik/conf/static.toml":
+      ensure: present
+      content: |
+        [http.services]
+          [http.services.dummy.loadBalancer]
+            [[http.services.dummy.loadBalancer.servers]]
+                url = ""
+
+          [http.services.nas.loadBalancer]
+            [[http.services.nas.loadBalancer.servers]]
+              url = "https://10.1.1.5:443/"
+
+          [http.services.unifi.loadBalancer]
+            [[http.services.unifi.loadBalancer.servers]]
+              url = "https://10.1.1.2:8443/"
+
+          [http.services.protect.loadBalancer]
+            [[http.services.protect.loadBalancer.servers]]
+              url = "https://10.1.1.2:7443/"
+
+          [http.services.ck.loadBalancer]
+            [[http.services.ck.loadBalancer.servers]]
+              url = "https://10.1.1.2:443/"
+
+          [http.services.proxmox1.loadBalancer]
+            [[http.services.proxmox1.loadBalancer.servers]]
+              url = "https://sto-proxmox-a1.sto.gentoomaniac.net:8006/"
+
+          [http.services.proxmox2.loadBalancer]
+            [[http.services.proxmox2.loadBalancer.servers]]
+              url = "https://sto-proxmox-a2.sto.gentoomaniac.net:8006/"
+
+        [http.routers]
+          [http.routers.redirect-to-https]
+            rule = "hostregexp(`{host:.+}`)"
+            service = "dummy"
+            entryPoints = ["web"]
+            middlewares = ["redirect-to-https"]
+
+          [http.routers.nas]
+            rule = "Host(`nas.srv.gentoomaniac.net`)"
+            service = "nas"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist", "sso@file"]
+            [http.routers.nas.tls]
+
+          [http.routers.unifi]
+            rule = "Host(`unifi.srv.gentoomaniac.net`)"
+            service = "unifi"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.unifi.tls]
+
+          [http.routers.protect]
+            rule = "Host(`protect.srv.gentoomaniac.net`)"
+            service = "protect"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.protect.tls]
+
+          [http.routers.ck]
+            rule = "Host(`ck.srv.gentoomaniac.net`)"
+            service = "ck"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.ck.tls]
+
+          [http.routers.proxmox1]
+            rule = "Host(`proxmox1.srv.gentoomaniac.net`)"
+            service = "proxmox1"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist", "sso@file"]
+            [http.routers.proxmox1.tls]
+
+          [http.routers.proxmox2]
+            rule = "Host(`proxmox2.srv.gentoomaniac.net`)"
+            service = "proxmox2"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.proxmox2.tls]
+
+        [http.middlewares]
+          [http.middlewares.redirect-to-https]
+            [http.middlewares.redirect-to-https.redirectscheme]
+              scheme = "https"
+
+          [http.middlewares.local-only-whitelist]
+            [http.middlewares.local-only-whitelist.ipwhitelist]
+              sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
+
+          [http.middlewares.sso.forwardAuth]
+            address = "https://auth.srv.gentoomaniac.net"
+            authResponseHeaders = ["X-Forwarded-User"]
     /etc/auto.nfs:
       ensure: present
       content: |
@@ -115,11 +218,148 @@ ressources:
     "/srv/jellyfin/cache":
       ensure: directory
       require: Zfs[localpool/jellyfin]
-    /srv/nzbget/config:
+    "/srv/nzbget/config":
       ensure: directory
       owner: 1000
       group: 1000
       require: Zfs[localpool/nzbget]
+    "/srv/vault/data":
+      ensure: directory
+      owner: 100
+      group: 1000
+      mode: "0770"
+      require: Zfs[localpool/vault]
+    "/srv/vault/conf":
+      ensure: directory
+      require: Zfs[localpool/vault]
+    "/srv/vault/file":
+      ensure: directory
+      owner: 100
+      group: 1000
+      require: Zfs[localpool/vault]
+    "/srv/vault/logs":
+      ensure: directory
+      owner: 100
+      group: 1000
+      require: Zfs[localpool/vault]
+    "/srv/vault/conf/config.hcl":
+      ensure: present
+      content: |
+        ui = true
+
+        listener "tcp" {
+          address = "0.0.0.0:8200"
+          tls_disable = 1
+        }
+
+        storage "file" {
+          path = "/data"
+        }
+
+        default_lease_ttl = "720h"
+
+        telemetry {
+          dogstatsd_addr = "172.17.0.1:8125"
+          disable_hostname = true
+        }
+      require: File[/srv/vault/conf]
+    "/srv/vault/secret.json":
+      ensure: file
+      owner: 0
+      mode: "0600"
+      content: |
+        {
+          "key": "%{lookup('secret_unseal_token')}"
+        }
+      require: Zfs[localpool/vault]
+    "/etc/systemd/system/vault-unseal.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=unseal vault if sealed
+
+        [Service]
+        Type=oneshot
+        ExecStart=/bin/bash -c 'if curl https://vault.srv.gentoomaniac.net/v1/sys/health 2>/dev/null | jq .sealed | grep -q true; then curl -X PUT -d @/srv/vault/secret.json https://vault.srv.gentoomaniac.net/v1/sys/unseal; else exit 0; fi'
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/srv/vault/secret.json]
+        - Package[jq]
+    "/etc/systemd/system/vault-unseal.timer":
+      ensure: present
+      content: |
+        [Unit]
+        Description=Check sealed state of vault and unseal if necessary
+
+        [Timer]
+        OnCalendar=*:0/5
+        Persistent=true
+        Unit=vault-unseal.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/vault-unseal.service]
+    "/etc/clouddns-updater-key.json":
+      ensure: present
+      mode: "0750"
+      content: "%{lookup('secret_cloud_dns')}"
+    "/usr/local/bin/clouddns-update":
+      ensure: present
+      mode: "0750"
+      content: |
+        #! /bin/env bash
+
+        DNS_NAME="vpn.gentoomaniac.net"
+        PROJECT="gentoomaniac-net"
+        SERVICE_ACCOUNT_NAME="dns-updates@gentoomaniac-net.iam.gserviceaccount.com"
+        ZONE="gentoomaniac-net"
+        IMAGE_NAME="google/cloud-sdk:latest"
+
+        OLD_IP="$(dig +short "${DNS_NAME}")"
+        CURRENT_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+
+        if [ "${OLD_IP}" != "${CURRENT_IP}" ]; then
+            docker pull "${IMAGE_NAME}"
+            docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/key.json -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" -v /etc/clouddns-updater-key.json:/key.json:ro "${IMAGE_NAME}" gcloud auth activate-service-account "${SERVICE_ACCOUNT_NAME}" --key-file=/key.json --project="${PROJECT}"
+            docker run -it -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" "${IMAGE_NAME}" gcloud dns record-sets update "${DNS_NAME}" --rrdatas="${CURRENT_IP}" --type=A --zone="${ZONE}" --account="${SERVICE_ACCOUNT_NAME}"
+        fi
+      require:
+      - Docker_volume[clouddns-config]
+      - Docker_volume[clouddns-kube]
+
+    "/etc/systemd/system/clouddns-updater.timer":
+      content: |
+        [Unit]
+        Description=Update clouddns entries hourly if necessary
+
+        [Timer]
+        OnCalendar=hourly
+        Persistent=true
+        Unit=clouddns-updater.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/clouddns-updater.service]
+    "/etc/systemd/system/clouddns-updater.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=update vpn dns alias
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/clouddns-update
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/etc/clouddns-updater-key.json]
+        - File[/usr/local/bin/clouddns-update]
+
   service:
     autofs:
       ensure: running
@@ -130,6 +370,14 @@ ressources:
     avahi-daemon:
       ensure: stopped
       enable: false
+    "vault-unseal.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
+    "clouddns-updater.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
 
 docker::networks::networks:
   web:
@@ -233,6 +481,7 @@ docker::run_instance::instance:
       - Class[docker]
       - Docker_network[web]
       - File[/srv/traefik/conf/certs.toml]
+      - File[/srv/traefik/conf/static.toml]
       - File[/srv/traefik/ssl/cert.pem]
       - File[/srv/traefik/ssl/key.pem]
     volumes:
@@ -544,7 +793,7 @@ docker::run_instance::instance:
       - Docker_volume[nfs_sd_old]
       - Docker_volume[nfs_music]
       - Service[avahi-daemon]
-nzbget:
+  nzbget:
     image: linuxserver/nzbget:latest
     dns:
       - 10.1.1.52
@@ -584,3 +833,38 @@ nzbget:
       - Docker_volume[nfs_nzbget]
       - Docker_volume[nfs_music]
       - File[/srv/nzbget/config]
+  vault:
+    image: vault:latest
+    command: >
+      vault server
+      -config /vault/config/config.hcl
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    expose:
+      - 8200/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+      - --cap-add=IPC_LOCK
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.vault.rule=Host(`vault.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.vault.entrypoints=websecure'"
+      - "'traefik.http.routers.vault.tls=true'"
+      - "'traefik.http.middlewares.vault-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.vault.middlewares=vault-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    require:
+      - Class[docker]
+      - Docker_network[web]
+      - File[/srv/vault/conf/config.hcl]
+      - File[/srv/vault/data]
+      - File[/srv/vault/file]
+      - File[/srv/vault/logs]
+    volumes:
+      - /srv/vault/conf:/vault/config
+      - /srv/vault/data:/data
+      - /srv/vault/logs:/vault/logs
+      - /srv/vault/file:/vault/file

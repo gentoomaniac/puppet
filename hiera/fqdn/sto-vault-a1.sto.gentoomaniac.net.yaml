@@ -50,8 +50,7 @@ ressources:
           dogstatsd_addr = "172.17.0.1:8125"
           disable_hostname = true
         }
-
-
+      require: File[/srv/vault/conf]
     "/srv/vault/secret.json":
       ensure: file
       owner: 0
