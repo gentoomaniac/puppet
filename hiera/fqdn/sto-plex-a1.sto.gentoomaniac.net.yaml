@@ -36,6 +36,8 @@ ressources:
       ensure: present
     "localpool/jellyfin":
       ensure: present
+    "localpool/nzbget":
+      ensure: present
   file:
     "/srv/traefik/conf":
       ensure: directory
@@ -113,6 +115,11 @@ ressources:
     "/srv/jellyfin/cache":
       ensure: directory
       require: Zfs[localpool/jellyfin]
+    /srv/nzbget/config:
+      ensure: directory
+      owner: 1000
+      group: 1000
+      require: Zfs[localpool/nzbget]
   service:
     autofs:
       ensure: running
@@ -185,6 +192,13 @@ docker::volumes::volumes:
       - - type=nfs
         - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
         - device=:/mnt/tank0/music
+  nfs_nzbget:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
+        - device=:/mnt/tmp/nzbget
 
 docker::run_instance::instance:
   traefik:
@@ -530,3 +544,43 @@ docker::run_instance::instance:
       - Docker_volume[nfs_sd_old]
       - Docker_volume[nfs_music]
       - Service[avahi-daemon]
+nzbget:
+    image: linuxserver/nzbget:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    expose:
+      - 6789/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - "'traefik.enable=true'"
+      - "'traefik.http.routers.nzbget.rule=Host(`nzbget.srv.gentoomaniac.net`)'"
+      - "'traefik.http.routers.nzbget.entrypoints=websecure'"
+      - "'traefik.http.routers.nzbget.tls=true'"
+      - "'traefik.http.middlewares.nzbget-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
+      - "'traefik.http.routers.nzbget.middlewares=nzbget-whitelist'"
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/nzbget/config:/config
+      - nfs_nzbget:/downloads
+      - nfs_movies:/movies
+      - nfs_shows:/shows
+      - nfs_kids_movies:/kids_movies
+      - nfs_kids_shows:/kids_shows
+      - nfs_music:/music
+    require:
+      - Class[docker]
+      - Docker_volume[nfs_movies]
+      - Docker_volume[nfs_shows]
+      - Docker_volume[nfs_kids_movies]
+      - Docker_volume[nfs_kids_shows]
+      - Docker_volume[nfs_nzbget]
+      - Docker_volume[nfs_music]
+      - File[/srv/nzbget/config]
