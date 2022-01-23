@@ -729,7 +729,7 @@ docker::run_instance::instance:
       - "'traefik.http.middlewares.ytdl-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
       - "'traefik.http.routers.ytdl.middlewares=ytdl-whitelist'"
     expose:
-      - 17442/tcp
+      - 443/tcp
     extra_parameters:
       - --restart=unless-stopped
     net:
