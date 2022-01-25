@@ -66,7 +66,7 @@ influxdb_host="https://influxdb.srv.gentoomaniac.net:8086"
 
 export VAULT_SKIP_VERIFY=True
 
-if [ -n ] ; then
+if [ -z "${IGNORE_VAULT}" ] ; then
     # get vault token:
     if [ -n "${VAULT_BIN}" ]; then
         VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
