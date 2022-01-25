@@ -6,19 +6,19 @@ defaults:
   data_hash: yaml_data
 
 hierarchy:
-  - name: "Hiera-vault lookup"
-    lookup_key: hiera_vault
-    options:
-      confine_to_keys:
-        - "^secret_.*"
-      ssl_verify: false
-      address: https://vault.srv.gentoomaniac.net
-      default_field: value
-      mounts:
-        puppet:
-          - "fqdn/%{facts.fqdn}/"
-          - "role/%{facts.role}/"
-          - "common"
+#  - name: "Hiera-vault lookup"
+#    lookup_key: hiera_vault
+#    options:
+#      confine_to_keys:
+#        - "^secret_.*"
+#      ssl_verify: false
+#      address: https://vault.srv.gentoomaniac.net
+#      default_field: value
+#      mounts:
+#        puppet:
+#          - "fqdn/%{facts.fqdn}/"
+#          - "role/%{facts.role}/"
+#          - "common"
 
   - name: "MAC"
     path: "mac/%{facts.networking.mac}.yaml"
