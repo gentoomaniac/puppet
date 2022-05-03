@@ -7,12 +7,6 @@ for param in $*; do
 
     case ${arg} in
 
-
-    --ignore-vault)
-        IGNORE_VAULT=true
-        shift
-        ;;
-
     --no-clone)
         NO_CLONE=true
         shift
@@ -66,25 +60,18 @@ influxdb_host="https://influxdb.srv.gentoomaniac.net:8086"
 
 export VAULT_SKIP_VERIFY=True
 
-if [ -z "${IGNORE_VAULT}" ] ; then
-    # get vault token:
-    if [ -n "${VAULT_BIN}" ]; then
-        VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
-        export VAULT_TOKEN
-    else
-        echo "Vault binary not found"
-        exit 1
-    fi
-
-    if [ -z "${VAULT_TOKEN}" ]; then
-        echo 'Oops! no vault token! Skipping puppet run to not break stuff!'
-        exit 1
-    fi
-else
-    VAULT_TOKEN="skipped"
+# renew vault token:
+if [ -n "${VAULT_BIN}" ]; then
+    VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
     export VAULT_TOKEN
-    echo "Skipped vault authentication."
-    echo "Attn: This will cause puppet to overwrite existing secrets!"
+else
+    echo "Vault binary not found"
+    exit 1
+fi
+
+if [ -z "${VAULT_TOKEN}" ]; then
+    echo 'Oops! no vault token! Skipping puppet run to not break stuff!'
+    exit 1
 fi
 
 git_start=$(date +%s)

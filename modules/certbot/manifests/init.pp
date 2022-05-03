@@ -8,20 +8,20 @@ class certbot (
   $normalized = regsubst(regsubst($domain, '\*\.', '', 'G'), '\.', '_', 'G')
   $simpledomain = regsubst($domain, '\*\.', '', 'G')
 
-  zfs { "localpool/certbot-${normalized}":
+  zfs { "datapool/certbot-${normalized}":
     ensure  => present,
   }
 
   file { "/srv/certbot-${normalized}/data":
     ensure  => directory,
-    require => Zfs["localpool/certbot-${normalized}"],
+    require => Zfs["datapool/certbot-${normalized}"],
   }
 
   file  { "/srv/certbot-${normalized}/sa.json":
     ensure  => file,
     content => lookup('secret_cloud_dns'),
     mode    => "0600",
-    require => Zfs["localpool/certbot-${normalized}"],
+    require => Zfs["datapool/certbot-${normalized}"],
   }
 
   docker::image { $certbot_image:
