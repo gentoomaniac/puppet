@@ -66,7 +66,7 @@ docker::volumes::volumes:
     options:
       - - type=nfs
         - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
-        - device=:/mnt/tank3/shows
+        - device=:/mnt/shows/shows
   nfs_kids_shows:
     ensure: present
     driver: local
