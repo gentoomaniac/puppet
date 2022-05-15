@@ -118,7 +118,7 @@ autoinstall:
     #  volume: /docker
 
   identity:
-    hostname: focal-template
+    hostname: jammy-template
     username: ubuntu
     password: $6$rounds=4096$8dkK1P/oE$2DGKKt0wLlTVJ7USY.0jN9du8FetmEr51yjPyeiR.zKE3DGFcitNL/nF1l62BLJNR87lQZixObuXYny.Mf17K1
 
@@ -148,9 +148,9 @@ autoinstall:
   - chown 600 /target/etc/vault_token
   - PUPPET_BRANCH=$(sed 's/.*PUPPET_BRANCH=\([a-zA-Z0-9\._-/]\+\).*/\1/' /proc/cmdline); echo ${PUPPET_BRANCH:-master} > /target/etc/puppet_branch
   - touch /target/etc/bootstrap
-  - curl https://ks.srv.gentoomaniac.net/focal/bootstrap.sh -o /target/usr/local/bin/bootstrap.sh
+  - curl https://ks.srv.gentoomaniac.net/jammy/bootstrap.sh -o /target/usr/local/bin/bootstrap.sh
   - chmod +x /target/usr/local/bin/bootstrap.sh
-  - curl https://ks.srv.gentoomaniac.net/focal/bootstrap.service -o /target/etc/systemd/system/bootstrap.service
+  - curl https://ks.srv.gentoomaniac.net/jammy/bootstrap.service -o /target/etc/systemd/system/bootstrap.service
   - ln -s /etc/systemd/system/bootstrap.service /target/etc/systemd/system/multi-user.target.wants/bootstrap.service
   error-commands:
   - cat /var/crash/* | nc -w 5 10.1.1.3 1234
