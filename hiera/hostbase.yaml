@@ -280,16 +280,17 @@ ressources:
             MAXAGE=${2:-2592000} # 90 days in seconds
         fi
 
-        POOL_NAME="$(zpool list| awk '/ONLINE/{print $1}')"
-        DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
-
-        for dataset in ${DATASETS}; do
-            for snapshot in $(zfs list -t snapshot "${dataset}"); do
-                created=$(date -d "$(sed -n "s|^"${dataset}"@"${LABEL}"-\(.\{4\}\)\(.\{2\}\)\(.\{2\}\)-\(.\{2\}\)\(.\{2\}\)\(.\{2\}\).*|\1-\2-\3 \4:\5:\6|p" <<<${snapshot})" "+%s")
-                if (( $[$(date '+%s')-${created}] > ${MAXAGE} )); then
-                    echo "deleting snapshot '${snapshot}' ..."
-                    zfs destroy "${snapshot}"
-                fi
+        POOL="$(zpool list| awk '/ONLINE/{print $1}')"
+        for POOL_NAME in ${POOLS}; do
+            DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
+            for dataset in ${DATASETS}; do
+                for snapshot in $(zfs list -t snapshot "${dataset}"); do
+                    created=$(date -d "$(sed -n "s|^"${dataset}"@"${LABEL}"-\(.\{4\}\)\(.\{2\}\)\(.\{2\}\)-\(.\{2\}\)\(.\{2\}\)\(.\{2\}\).*|\1-\2-\3 \4:\5:\6|p" <<<${snapshot})" "+%s")
+                    if (( $[$(date '+%s')-${created}] > ${MAXAGE} )); then
+                        echo "deleting snapshot '${snapshot}' ..."
+                        zfs destroy -r "${snapshot}"
+                    fi
+                done
             done
         done
     "/etc/systemd/system/zfs-cleanup-snapshots@.service":
