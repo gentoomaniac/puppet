@@ -280,7 +280,7 @@ ressources:
             MAXAGE=${2:-2592000} # 90 days in seconds
         fi
 
-        POOL="$(zpool list| awk '/ONLINE/{print $1}')"
+        POOLS="$(zpool list| awk '/ONLINE/{print $1}')"
         for POOL_NAME in ${POOLS}; do
             DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
             for dataset in ${DATASETS}; do
