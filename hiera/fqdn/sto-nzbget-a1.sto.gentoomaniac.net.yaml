@@ -123,14 +123,14 @@ docker::run_instance::instance:
     volumes:
       - /srv/nzbget/config:/config
       - nfs_nzbget:/downloads
-      - nfs_movies:/movies
+      #- nfs_movies:/movies
       - nfs_shows:/shows
       - nfs_kids_movies:/kids_movies
       - nfs_kids_shows:/kids_shows
       - nfs_music:/music
     require:
       - Class[docker]
-      - Docker_volume[nfs_movies]
+      #- Docker_volume[nfs_movies]
       - Docker_volume[nfs_shows]
       - Docker_volume[nfs_kids_movies]
       - Docker_volume[nfs_kids_shows]
