@@ -243,11 +243,11 @@ ressources:
 
 
     "/usr/local/bin/crypto2influx":
-      ensure: present
+      ensure: absent
       source: https://github.com/gentoomaniac/crypto2influx/releases/download/v0.1.0/crypto2influx_0.1.0_linux-amd64
       mode: "0700"
     "/etc/crypto2influx.json":
-      ensure: present
+      ensure: absent
       content: |
         {
             "coinmarketcap": {
@@ -283,6 +283,7 @@ ressources:
 
       mode: "0600"
     "/etc/systemd/system/crypto2influx.timer":
+      ensure: absent
       content: |
         [Unit]
         Description=update crypto data in influxcloud
@@ -297,7 +298,7 @@ ressources:
       require:
         - File[/etc/systemd/system/crypto2influx.service]
     "/etc/systemd/system/crypto2influx.service":
-      ensure: present
+      ensure: absent
       mode: "0644"
       content: |
         [Unit]
@@ -318,8 +319,8 @@ ressources:
       enable: true
       require: Exec[systemctl daemon-reload]
     "crypto2influx.timer":
-      ensure: running
-      enable: true
+      ensure: stopped
+      enable: false
       require: Exec[systemctl daemon-reload]
 
 docker::volumes::volumes:
