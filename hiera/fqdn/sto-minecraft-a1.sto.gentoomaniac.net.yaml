@@ -28,6 +28,7 @@ docker::run_instance::instance:
     env:
       - EULA=TRUE
       - TYPE=FORGE
+      - VERSION=1.20.4
     expose:
       - 8200/tcp
     extra_parameters:
