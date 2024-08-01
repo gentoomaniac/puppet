@@ -438,7 +438,7 @@ telegraf::inputs:
       data_format: influx
   mem: [{}]
   processes: [{}]
-  io: [{}]
+  diskio: [{}]
   net:
     interfaces:
       - "eth*"
