@@ -15,7 +15,7 @@ classes:
   - docker
   - telegraf
 
-hostbase::puppet::version: 8.8.1-1noble
+hostbase::puppet::version: 7.5.0-1focal
 
 hostbase::packages::base_packages:
   - mailutils

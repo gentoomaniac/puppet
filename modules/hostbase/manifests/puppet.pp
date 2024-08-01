@@ -1,6 +1,6 @@
 class hostbase::puppet (
   $version = latest,
-  $release = 'puppet8-release',
+  $release = 'puppet7-release',
 ) {
 
   $content = join(lookup('classes', Array[String], 'unique', []).sort, "\n")

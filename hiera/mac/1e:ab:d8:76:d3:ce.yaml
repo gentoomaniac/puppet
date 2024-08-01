@@ -3,6 +3,9 @@ classes:
   - netplan
   - hostbase::hostname
 
+hostbase::puppet::release: puppet8-release
+hostbase::puppet::version: 8.8.1-1noble
+
 hostbase::hostname::hostname: sto-azeroth-a1.sto.gentoomaniac.net
 
 netplan::version: 2
