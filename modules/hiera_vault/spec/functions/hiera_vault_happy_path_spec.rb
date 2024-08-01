@@ -45,11 +45,11 @@ describe FakeFunction do
   end
 
   describe '#lookup_key' do
-    context 'accessing vault' do
+    context 'accessing vault with v1 path' do
 
       context 'when vault is unsealed' do
         before(:context) do
-          vault_test_client.sys.mount('puppet', 'kv', 'puppet secrets')
+          vault_test_client.sys.mount('puppet', 'kv', 'puppet secrets v1', { "options" => {"version": "1" }})
           vault_test_client.logical.write('puppet/common/test_key', value: 'default')
           vault_test_client.logical.write('puppet/common/array_key', value: '["a", "b", "c"]')
           vault_test_client.logical.write('puppet/common/hash_key', value: '{"a": 1, "b": 2, "c": 3}')
@@ -88,6 +88,14 @@ describe FakeFunction do
               to output(/token set to IGNORE-VAULT - Quitting early/).to_stdout
           end
 
+          it 'should exit early if token is set to IGNORE-VAULT in a file' do
+            vault_token_tmpfile = Tempfile.open('w')
+            vault_token_tmpfile.puts('IGNORE-VAULT')
+            vault_token_tmpfile.close
+            expect { function.lookup_key('test_key', vault_options.merge({'token' => vault_token_tmpfile.path}), context) }.
+              to output(/token set to IGNORE-VAULT - Quitting early/).to_stdout
+          end
+
           it 'should allow the configuring of a vault token from a file' do
             vault_token_tmpfile = Tempfile.open('w')
             vault_token_tmpfile.puts(RSpec::VaultServer.token)
@@ -96,13 +104,6 @@ describe FakeFunction do
               to output(/Read secret: test_key/).to_stdout
           end
 
-          it 'should show error when file token is not valid' do
-            vault_token_tmpfile = Tempfile.open('w')
-            vault_token_tmpfile.puts('not-valid-token')
-            vault_token_tmpfile.close
-            expect { function.lookup_key('test_key', vault_options.merge({'token' => vault_token_tmpfile.path}), context) }.
-              to output(/Could not read secret puppet\/common\/test_key: permission denied/).to_stdout
-          end
         end
 
         context 'reading secrets' do

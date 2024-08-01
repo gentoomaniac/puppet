@@ -1,3 +1,7 @@
+#### 2021-06-30 - 1.0.7
+* Add missing owner/group to 99-sysctl.conf that could get inherited.
+* Fix 99-sysctl.conf being removed on RHEL8+.
+
 #### 2016-02-05 - 1.0.6
 * Revert previous incorrect change, more work is needed to cover all cases.
 

@@ -1,11 +1,13 @@
 # telegraf puppet module
 
-[![License](https://img.shields.io/github/license/voxpupuli/puppet-telegraf.svg)](https://github.com/voxpupuli/puppet-telegraf/blob/master/LICENSE)
-[![Build Status](https://travis-ci.org/voxpupuli/puppet-telegraf.svg?branch=master)](https://travis-ci.org/voxpupuli/puppet-telegraf)
+[![Build Status](https://github.com/voxpupuli/puppet-telegraf/workflows/CI/badge.svg)](https://github.com/voxpupuli/puppet-telegraf/actions?query=workflow%3ACI)
+[![Release](https://github.com/voxpupuli/puppet-telegraf/actions/workflows/release.yml/badge.svg)](https://github.com/voxpupuli/puppet-telegraf/actions/workflows/release.yml)
 [![Puppet Forge](https://img.shields.io/puppetforge/v/puppet/telegraf.svg)](https://forge.puppetlabs.com/puppet/telegraf)
 [![Puppet Forge - downloads](https://img.shields.io/puppetforge/dt/puppet/telegraf.svg)](https://forge.puppetlabs.com/puppet/telegraf)
 [![Puppet Forge - endorsement](https://img.shields.io/puppetforge/e/puppet/telegraf.svg)](https://forge.puppetlabs.com/puppet/telegraf)
 [![Puppet Forge - scores](https://img.shields.io/puppetforge/f/puppet/telegraf.svg)](https://forge.puppetlabs.com/puppet/telegraf)
+[![puppetmodule.info docs](http://www.puppetmodule.info/images/badge.png)](http://www.puppetmodule.info/m/puppet-telegraf)
+[![GPL v3 License](https://img.shields.io/github/license/voxpupuli/puppet-telegraf.svg)](LICENSE)
 
 #### Table of Contents
 
@@ -31,7 +33,7 @@ This module has the following dependencies:
 for TLS-enabled repos in place.  This can be achieved by installing the
 `apt-transport-https` package.
 
-This module **requires** the [toml-rb](https://github.com/eMancu/toml-rb) gem. Either install the gem using puppet's native gem provider, [puppetserver_gem](https://forge.puppetlabs.com/puppetlabs/puppetserver_gem), [pe_gem](https://forge.puppetlabs.com/puppetlabs/pe_gem), [pe_puppetserver_gem](https://forge.puppetlabs.com/puppetlabs/pe_puppetserver_gem), or manually using one of the following methods:
+**Up to version v4.3.1** this module **requires** the [toml-rb](https://github.com/eMancu/toml-rb) gem. Either install the gem using puppet's native gem provider, [puppetserver_gem](https://forge.puppetlabs.com/puppetlabs/puppetserver_gem), [pe_gem](https://forge.puppetlabs.com/puppetlabs/pe_gem), [pe_puppetserver_gem](https://forge.puppetlabs.com/puppetlabs/pe_puppetserver_gem), or manually using one of the following methods:
 ```
   # apply or puppet-master
   gem install toml-rb
@@ -40,6 +42,8 @@ This module **requires** the [toml-rb](https://github.com/eMancu/toml-rb) gem. E
   # AIO or PE puppetserver
   /opt/puppet/bin/puppetserver gem install toml-rb
 ```
+
+The toml-rb gem got replaced with `stdlib::to_toml`. This requires puppetlabs/stdlib 9.
 
 In addition, for Windows, the following dependencies must be met:
 
@@ -119,6 +123,16 @@ telegraf::outputs:
       database: 'influxdb'
       username: 'telegraf'
       password: 'telegraf'
+telegraf::processors:
+  replace_disk_type:
+    plugin_type: regex
+    options:
+      - namepass: ['diskio']
+        order: 1
+        tags:
+          - key: 'disk_type'
+            pattern: '^dos$'
+            replacement: 'FAT'
 ```
 
 `telegraf::inputs` accepts a hash of any inputs that you'd like to configure. However, you can also optionally define individual inputs using the `telegraf::input` type - this suits installations where, for example, a core module sets the defaults and other modules import it.
@@ -128,11 +142,13 @@ Example 1:
 ```puppet
 telegraf::input { 'my_exec':
   plugin_type => 'exec',
-  options     => [{
-    'commands'    => ['/usr/local/bin/my_input.py',],
-    'name_suffix' => '_my_input',
-    'data_format' => 'json',
-  }],
+  options     => [
+    {
+      'commands'    => ['/usr/local/bin/my_input.py',],
+      'name_suffix' => '_my_input',
+      'data_format' => 'json',
+    }
+  ],
   require     => File['/usr/local/bin/my_input.py'],
 }
 ```
@@ -140,9 +156,9 @@ telegraf::input { 'my_exec':
 Will create the file `/etc/telegraf/telegraf.d/my_exec.conf`:
 
     [[inputs.exec]]
-      commands = ['/usr/local/bin/my_input.py']
-      name_suffix = '_my_input'
-      data_format = 'json'
+    commands = ["/usr/local/bin/my_input.py"]
+    data_format = "json"
+    name_suffix = "_my_input"
 
 Example 2:
 
@@ -150,7 +166,9 @@ Example 2:
 telegraf::input { 'influxdb-dc':
   plugin_type => 'influxdb',
   options     => [
-    {'urls' => ['http://remote-dc:8086',],},
+    {
+      'urls' => ['http://remote-dc:8086',],
+    }
   ],
 }
 ```
@@ -159,7 +177,7 @@ Will create the file `/etc/telegraf/telegraf.d/influxdb-dc.conf`:
 
 ```
 [[inputs.influxdb]]
-  urls = ["http://remote-dc:8086"]
+urls = ["http://remote-dc:8086"]
 ```
 
 Example 3:
@@ -167,36 +185,36 @@ Example 3:
 ```puppet
 telegraf::input { 'my_snmp':
   plugin_type    => 'snmp',
-  options        => {
-    'interval' => '60s',
-    'host' => [
-      {
-        'address'   => 'snmp_host1:161',
-        'community' => 'read_only',
-        'version'   => 2,
-        'get_oids'  => ['1.3.6.1.2.1.1.5',],
-      }
-    ],
-    'tags' => {
-      'environment' => 'development',
-    },
-  },
+  options        => [
+    {
+      'interval' => '60s',
+      'host' => [
+        {
+          'address'   => 'snmp_host1:161',
+          'community' => 'read_only',
+          'version'   => 2,
+          'get_oids'  => ['1.3.6.1.2.1.1.5',],
+        }
+      ],
+      'tags' => {
+        'environment' => 'development',
+      },
+    }
+  ],
 }
 ```
 
 Will create the file `/etc/telegraf/telegraf.d/snmp.conf`:
 
     [[inputs.snmp]]
-      interval = "60s"
-
-    [[inputs.snmp.host]]
-      address = "snmp_host1:161"
-      community = "read_only"
-      version = 2
-      get_oids = ["1.3.6.1.2.1.1.5"]
-
+    interval = "60s"
     [inputs.snmp.tags]
-      environment = "development"
+    environment = "development"
+    [[inputs.snmp.host]]
+    address = "snmp_host1:161"
+    community = "read_only"
+    get_oids = ["1.3.6.1.2.1.1.5"]
+    version = 2
 
 Example 4:
 
@@ -212,7 +230,7 @@ telegraf::output { 'my_influxdb':
       'username' => 'telegraf',
       'password' => 'metricsmetricsmetrics',
     }
-  ]
+  ],
 }
 
 telegraf::processor { 'my_regex':
@@ -225,9 +243,9 @@ telegraf::processor { 'my_regex':
           pattern     => String(/^a*b+\d$/),
           replacement => 'c${1}d',
         }
-      ]
+      ],
     }
-  ]
+  ],
 }
 
 telegraf::aggregator { 'my_basicstats':
@@ -236,7 +254,7 @@ telegraf::aggregator { 'my_basicstats':
     {
       period        => '30s',
       drop_original => false,
-    },
+    }
   ],
 }
 
@@ -248,7 +266,7 @@ Example 5:
 class { 'telegraf':
     ensure              => '1.0.1',
     hostname            => $facts['hostname'],
-    windows_package_url => http://internal_repo:8080/chocolatey,
+    windows_package_url => 'http://internal_repo:8080/chocolatey',
 }
 ```
 
@@ -304,14 +322,7 @@ The latest version (2.0) of this module requires Puppet 4 or newer.  If you're l
 
 Furthermore, the introduction of toml-rb means that Ruby 1.9 or newer is also a requirement.
 
-This module has been developed and tested against:
-
- * Ubuntu 14.04
- * Ubuntu 16.04
- * Debian 8
- * CentOS / RHEL 6
- * CentOS / RHEL 7
- * Windows 2008, 2008 R2, 2012, 2012 R2
+This module has been developed and tested against the operating systems and their version in [metadata.json](metadata.json)
 
 Support for other distributions / operating systems is planned.  Feel free to assist with development in this regard!
 
@@ -322,7 +333,7 @@ The configuration generated with this module is only compatible with newer relea
 Please fork this repository, hack away on your branch, run the tests:
 
 ```shell
-$ bundle exec rake test acceptance
+$ bundle exec rake beaker
 ```
 
 And then submit a pull request.  [Succinct, well-described and atomic commits preferred](http://chris.beams.io/posts/git-commit/).

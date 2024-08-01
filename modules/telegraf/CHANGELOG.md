@@ -4,6 +4,180 @@ All notable changes to this project will be documented in this file.
 Each new release typically also includes the latest modulesync defaults.
 These should not affect the functionality of the module.
 
+## [v5.4.0](https://github.com/voxpupuli/puppet-telegraf/tree/v5.4.0) (2024-02-28)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v5.3.0...v5.4.0)
+
+**Implemented enhancements:**
+
+- Bump default version to 1.29.4 [\#227](https://github.com/voxpupuli/puppet-telegraf/pull/227) ([bastelfreak](https://github.com/bastelfreak))
+
+**Merged pull requests:**
+
+- Remove legacy top-scope syntax [\#224](https://github.com/voxpupuli/puppet-telegraf/pull/224) ([smortex](https://github.com/smortex))
+
+## [v5.3.0](https://github.com/voxpupuli/puppet-telegraf/tree/v5.3.0) (2023-10-31)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v5.2.0...v5.3.0)
+
+**Implemented enhancements:**
+
+- Add OracleLinux 9 support [\#222](https://github.com/voxpupuli/puppet-telegraf/pull/222) ([bastelfreak](https://github.com/bastelfreak))
+- Add Debian 12 support [\#221](https://github.com/voxpupuli/puppet-telegraf/pull/221) ([bastelfreak](https://github.com/bastelfreak))
+
+## [v5.2.0](https://github.com/voxpupuli/puppet-telegraf/tree/v5.2.0) (2023-09-19)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v5.1.0...v5.2.0)
+
+**Implemented enhancements:**
+
+- Add Puppet 8 support [\#214](https://github.com/voxpupuli/puppet-telegraf/pull/214) ([bastelfreak](https://github.com/bastelfreak))
+
+**Closed issues:**
+
+- Installs from influxdata repo can use stable repos [\#198](https://github.com/voxpupuli/puppet-telegraf/issues/198)
+
+**Merged pull requests:**
+
+- Always install from the stable release class on Debian and Ubuntu [\#217](https://github.com/voxpupuli/puppet-telegraf/pull/217) ([mj](https://github.com/mj))
+
+## [v5.1.0](https://github.com/voxpupuli/puppet-telegraf/tree/v5.1.0) (2023-07-03)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v5.0.0...v5.1.0)
+
+**Implemented enhancements:**
+
+- Make log rotation configurable [\#211](https://github.com/voxpupuli/puppet-telegraf/pull/211) ([AndrewLest](https://github.com/AndrewLest))
+
+## [v5.0.0](https://github.com/voxpupuli/puppet-telegraf/tree/v5.0.0) (2023-06-14)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v4.3.1...v5.0.0)
+
+**Breaking changes:**
+
+- use stdlib::to\_toml instead of toml gem [\#207](https://github.com/voxpupuli/puppet-telegraf/pull/207) ([bastelfreak](https://github.com/bastelfreak))
+- Drop Puppet 6, Debian 9, Ubuntu 16.04 support [\#203](https://github.com/voxpupuli/puppet-telegraf/pull/203) ([bastelfreak](https://github.com/bastelfreak))
+
+**Implemented enhancements:**
+
+- Add Ubuntu 20.04/22.04 support [\#209](https://github.com/voxpupuli/puppet-telegraf/pull/209) ([bastelfreak](https://github.com/bastelfreak))
+- Add Rocky/AlmaLinux/EL9 support [\#208](https://github.com/voxpupuli/puppet-telegraf/pull/208) ([bastelfreak](https://github.com/bastelfreak))
+
+**Fixed bugs:**
+
+- Add creates param to all archive resources [\#206](https://github.com/voxpupuli/puppet-telegraf/pull/206) ([m0dular](https://github.com/m0dular))
+
+**Closed issues:**
+
+- Add creates parameter to all archive resources [\#205](https://github.com/voxpupuli/puppet-telegraf/issues/205)
+
+## [v4.3.1](https://github.com/voxpupuli/puppet-telegraf/tree/v4.3.1) (2023-01-27)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v4.3.0...v4.3.1)
+
+**Merged pull requests:**
+
+- chore: update influxdata repo gpg key [\#197](https://github.com/voxpupuli/puppet-telegraf/pull/197) ([powersj](https://github.com/powersj))
+- Update APT dependancy [\#194](https://github.com/voxpupuli/puppet-telegraf/pull/194) ([MartyEwings](https://github.com/MartyEwings))
+
+## [v4.3.0](https://github.com/voxpupuli/puppet-telegraf/tree/v4.3.0) (2022-10-02)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v4.2.0...v4.3.0)
+
+**Implemented enhancements:**
+
+- Add support for archive install on EL [\#190](https://github.com/voxpupuli/puppet-telegraf/pull/190) ([m0dular](https://github.com/m0dular))
+- Configure processors via Hiera [\#183](https://github.com/voxpupuli/puppet-telegraf/pull/183) ([deric](https://github.com/deric))
+
+**Merged pull requests:**
+
+- install apt-transport-https in acceptance tests [\#191](https://github.com/voxpupuli/puppet-telegraf/pull/191) ([bastelfreak](https://github.com/bastelfreak))
+
+## [v4.2.0](https://github.com/voxpupuli/puppet-telegraf/tree/v4.2.0) (2022-05-13)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v4.1.0...v4.2.0)
+
+**Implemented enhancements:**
+
+- Add FreeBSD support, using telegraf as installed by pkg\(8\) [\#185](https://github.com/voxpupuli/puppet-telegraf/pull/185) ([rvstaveren](https://github.com/rvstaveren))
+- Add support for Debian 11 [\#181](https://github.com/voxpupuli/puppet-telegraf/pull/181) ([ZloeSabo](https://github.com/ZloeSabo))
+- Allow recent dependencies [\#178](https://github.com/voxpupuli/puppet-telegraf/pull/178) ([smortex](https://github.com/smortex))
+
+**Merged pull requests:**
+
+- Remove nodesets [\#187](https://github.com/voxpupuli/puppet-telegraf/pull/187) ([ekohl](https://github.com/ekohl))
+- cleanup .fixtures.yml [\#182](https://github.com/voxpupuli/puppet-telegraf/pull/182) ([bastelfreak](https://github.com/bastelfreak))
+
+## [v4.1.0](https://github.com/voxpupuli/puppet-telegraf/tree/v4.1.0) (2021-07-15)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v4.0.0...v4.1.0)
+
+**Implemented enhancements:**
+
+- allow latest stdlib/apt modules [\#175](https://github.com/voxpupuli/puppet-telegraf/pull/175) ([bastelfreak](https://github.com/bastelfreak))
+- puppet/archive: allow 5.x [\#166](https://github.com/voxpupuli/puppet-telegraf/pull/166) ([bastelfreak](https://github.com/bastelfreak))
+
+**Fixed bugs:**
+
+- make sure the ensure absent works with package install [\#169](https://github.com/voxpupuli/puppet-telegraf/pull/169) ([fe80](https://github.com/fe80))
+- move relationship between package and repo into code block where repo is managed [\#160](https://github.com/voxpupuli/puppet-telegraf/pull/160) ([lukebigum](https://github.com/lukebigum))
+
+**Closed issues:**
+
+- No longer possible to configure tagpass and tagdrop [\#170](https://github.com/voxpupuli/puppet-telegraf/issues/170)
+
+**Merged pull requests:**
+
+- Fix README example 3 + cosmetic updates [\#171](https://github.com/voxpupuli/puppet-telegraf/pull/171) ([thias](https://github.com/thias))
+- Refactor manage\_repo install tests for consistency. [\#165](https://github.com/voxpupuli/puppet-telegraf/pull/165) ([gcoxmoz](https://github.com/gcoxmoz))
+
+## [v4.0.0](https://github.com/voxpupuli/puppet-telegraf/tree/v4.0.0) (2021-02-18)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v3.1.0...v4.0.0)
+
+**Breaking changes:**
+
+- Drop EoL windows server 2008, drop EoL Puppet 5, add Puppet 7 [\#162](https://github.com/voxpupuli/puppet-telegraf/pull/162) ([genebean](https://github.com/genebean))
+- Drop EOL EL6 support [\#159](https://github.com/voxpupuli/puppet-telegraf/pull/159) ([ekohl](https://github.com/ekohl))
+- modulesync 3.0.0 & puppet-lint updates / Drop Debian/Raspbian 8 [\#147](https://github.com/voxpupuli/puppet-telegraf/pull/147) ([bastelfreak](https://github.com/bastelfreak))
+
+**Implemented enhancements:**
+
+- Add support for Darwin [\#161](https://github.com/voxpupuli/puppet-telegraf/pull/161) ([yachub](https://github.com/yachub))
+
+**Fixed bugs:**
+
+- Changed Assign repo-\>package even when manage\_repo=false on Debian+Re… [\#148](https://github.com/voxpupuli/puppet-telegraf/pull/148) ([danielsreichenbach](https://github.com/danielsreichenbach))
+
+**Closed issues:**
+
+- Cannot install telegraf on Windows server because config\_file\_mode and config\_folder\_mode is undefined [\#155](https://github.com/voxpupuli/puppet-telegraf/issues/155)
+- Minor: Please fix the \(\>=5.0.0 \< 7.0.0\) to \(\>= 5.0.0 \< 7.0.0\) in the metadata for dependencies [\#153](https://github.com/voxpupuli/puppet-telegraf/issues/153)
+
+**Merged pull requests:**
+
+- Add Optional to config\_file\_mode and config\_folder\_mode params on windows [\#156](https://github.com/voxpupuli/puppet-telegraf/pull/156) ([jkkitakita](https://github.com/jkkitakita))
+- identical syntax of version range [\#154](https://github.com/voxpupuli/puppet-telegraf/pull/154) ([tuxmea](https://github.com/tuxmea))
+
+## [v3.1.0](https://github.com/voxpupuli/puppet-telegraf/tree/v3.1.0) (2020-08-22)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v3.0.0...v3.1.0)
+
+**Implemented enhancements:**
+
+- SLES support [\#150](https://github.com/voxpupuli/puppet-telegraf/pull/150) ([tuxmea](https://github.com/tuxmea))
+- Added support for Raspbian [\#145](https://github.com/voxpupuli/puppet-telegraf/pull/145) ([mattqm](https://github.com/mattqm))
+- Add support for Debian 9/10, Ubuntu 18.04, CentOS 8 [\#144](https://github.com/voxpupuli/puppet-telegraf/pull/144) ([dhoppe](https://github.com/dhoppe))
+
+**Closed issues:**
+
+- Re-enable acceptance tests [\#112](https://github.com/voxpupuli/puppet-telegraf/issues/112)
+
+**Merged pull requests:**
+
+- Fixing support for 5.5 agents on Debian [\#146](https://github.com/voxpupuli/puppet-telegraf/pull/146) ([mattqm](https://github.com/mattqm))
+- Use voxpupuli-acceptance [\#142](https://github.com/voxpupuli/puppet-telegraf/pull/142) ([ekohl](https://github.com/ekohl))
+
 ## [v3.0.0](https://github.com/voxpupuli/puppet-telegraf/tree/v3.0.0) (2020-01-02)
 
 [Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v2.1.0...v3.0.0)
@@ -24,6 +198,7 @@ These should not affect the functionality of the module.
 
 - Is there a way to set up multiple discreet influxdb outputs? [\#129](https://github.com/voxpupuli/puppet-telegraf/issues/129)
 - Please update package dependencies [\#118](https://github.com/voxpupuli/puppet-telegraf/issues/118)
+- Merge problem: "^telegraf::outputs\(.\*\)$": merge: strategy: first [\#106](https://github.com/voxpupuli/puppet-telegraf/issues/106)
 
 **Merged pull requests:**
 
@@ -41,6 +216,7 @@ These should not affect the functionality of the module.
 - New array format for input/output definition in hiera requires polluting configs [\#94](https://github.com/voxpupuli/puppet-telegraf/issues/94)
 - Dependency on toml-rb bumps ruby version requirement [\#91](https://github.com/voxpupuli/puppet-telegraf/issues/91)
 - Telegraf installation not going through. [\#72](https://github.com/voxpupuli/puppet-telegraf/issues/72)
+- First voxpopuli release, deprecate yankcrime module on the forge [\#107](https://github.com/voxpupuli/puppet-telegraf/issues/107)
 
 **Merged pull requests:**
 
@@ -50,8 +226,8 @@ These should not affect the functionality of the module.
 - Modulesync, use rspec-puppet-facts and fix tests [\#111](https://github.com/voxpupuli/puppet-telegraf/pull/111) ([alexjfisher](https://github.com/alexjfisher))
 - Rubocop autofixes [\#110](https://github.com/voxpupuli/puppet-telegraf/pull/110) ([alexjfisher](https://github.com/alexjfisher))
 - Some basic Vox Pupuli migration changes [\#109](https://github.com/voxpupuli/puppet-telegraf/pull/109) ([alexjfisher](https://github.com/alexjfisher))
-- Use Ruby 2.4 [\#102](https://github.com/voxpupuli/puppet-telegraf/pull/102) ([ouroboros8](https://github.com/ouroboros8))
-- Add workaround for Amazon Linux repo location issue [\#101](https://github.com/voxpupuli/puppet-telegraf/pull/101) ([ouroboros8](https://github.com/ouroboros8))
+- Use Ruby 2.4 [\#102](https://github.com/voxpupuli/puppet-telegraf/pull/102) ([strongoose](https://github.com/strongoose))
+- Add workaround for Amazon Linux repo location issue [\#101](https://github.com/voxpupuli/puppet-telegraf/pull/101) ([strongoose](https://github.com/strongoose))
 - remove plugin\_type [\#93](https://github.com/voxpupuli/puppet-telegraf/pull/93) ([nrdmn](https://github.com/nrdmn))
 
 ## [2.0.0](https://github.com/voxpupuli/puppet-telegraf/tree/2.0.0) (2018-01-19)
@@ -77,7 +253,7 @@ These should not affect the functionality of the module.
 - Updates for version 2.0 of this module [\#92](https://github.com/voxpupuli/puppet-telegraf/pull/92) ([yankcrime](https://github.com/yankcrime))
 - migrate from stdlib validation to puppet datatypes [\#90](https://github.com/voxpupuli/puppet-telegraf/pull/90) ([lobeck](https://github.com/lobeck))
 - Adding support for custom repo location url. [\#89](https://github.com/voxpupuli/puppet-telegraf/pull/89) ([tardoe](https://github.com/tardoe))
-- Replace deprecated hiera\_hash function with lookup function [\#82](https://github.com/voxpupuli/puppet-telegraf/pull/82) ([rkcpi](https://github.com/rkcpi))
+- Replace deprecated hiera\_hash function with lookup function [\#82](https://github.com/voxpupuli/puppet-telegraf/pull/82) ([sandra-thieme](https://github.com/sandra-thieme))
 - replace toml templates with toml-rb gem [\#80](https://github.com/voxpupuli/puppet-telegraf/pull/80) ([nrdmn](https://github.com/nrdmn))
 
 ## [1.5.0](https://github.com/voxpupuli/puppet-telegraf/tree/1.5.0) (2017-08-04)
@@ -120,7 +296,7 @@ These should not affect the functionality of the module.
 - Provide the ability to change the package name. [\#51](https://github.com/voxpupuli/puppet-telegraf/pull/51) ([snahelou](https://github.com/snahelou))
 - Update repo url in install.pp for rhel machines. [\#50](https://github.com/voxpupuli/puppet-telegraf/pull/50) ([Joshua-Snapp](https://github.com/Joshua-Snapp))
 - Provide the ability to disable or stop the telegraf service. [\#49](https://github.com/voxpupuli/puppet-telegraf/pull/49) ([Joshua-Snapp](https://github.com/Joshua-Snapp))
-- add repo name for el systems [\#48](https://github.com/voxpupuli/puppet-telegraf/pull/48) ([nexecook](https://github.com/nexecook))
+- add repo name for el systems [\#48](https://github.com/voxpupuli/puppet-telegraf/pull/48) ([ghost](https://github.com/ghost))
 - Normalize Repository file for RHEL and CentOS [\#45](https://github.com/voxpupuli/puppet-telegraf/pull/45) ([doomnuggets](https://github.com/doomnuggets))
 - Fix failing specs [\#44](https://github.com/voxpupuli/puppet-telegraf/pull/44) ([cosmopetrich](https://github.com/cosmopetrich))
 - Add support for purging unmanaged config fragments [\#43](https://github.com/voxpupuli/puppet-telegraf/pull/43) ([cosmopetrich](https://github.com/cosmopetrich))

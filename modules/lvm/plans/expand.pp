@@ -1,8 +1,6 @@
-# lvm::expand
-#
-# This plan implements an opinionated method for expanding storage on servers
-# that use LVM. If this doesn't fit your needs, simply tie the tasks together
-# in some way that does.
+# @summary An opinionated method for expanding storage on machines that use LVM.
+#   If this doesn't fit your needs, simply tie the tasks together in
+#   some way that does.
 #
 # @param server The target for the plan
 # @param volume_group The volume group to which the logical volume belongs
@@ -24,7 +22,7 @@ plan lvm::expand (
 
   # Fail if we are trying to run on many servers
   if $targets.length > 1 {
-      fail('This plan should only be run against one server at a time')
+    fail('This plan should only be run against one server at a time')
   }
 
   # The target should be the first server
@@ -45,17 +43,17 @@ plan lvm::expand (
     # If we have passed disks then we want to create a PV for each of these
     # disks, then add them to the LV
     $disks.each |$disk| {
-        # Ensure that the PV exists
+      # Ensure that the PV exists
       run_task('lvm::ensure_pv', $target, {
-        'ensure' => 'present',
-        'name'   => $disk,
+          'ensure' => 'present',
+          'name'   => $disk,
       })
     }
 
     # Extend the volume group to also contain the new disks
     run_task('lvm::extend_vg', $target, {
-      'volume_group'     => $volume_group,
-      'physical_volumes' => $disks,
+        'volume_group'     => $volume_group,
+        'physical_volumes' => $disks,
     })
   }
 
@@ -70,11 +68,11 @@ plan lvm::expand (
   $new_size              = lvm::bytes_to_size($new_size_bytes)
 
   $expand_result = run_task('lvm::ensure_lv', $target, {
-    'ensure'       => 'present',
-    'name'         => $logical_volume,
-    'volume_group' => $volume_group,
-    'size'         => $new_size,
-    'resize_fs'    => true,
+      'ensure'       => 'present',
+      'name'         => $logical_volume,
+      'volume_group' => $volume_group,
+      'size'         => $new_size,
+      'resize_fs'    => true,
   })
 
   return $expand_result.first.message

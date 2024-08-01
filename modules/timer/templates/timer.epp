@@ -1,0 +1,17 @@
+<%- | String $description
+      String $special
+      String $unit
+| -%>
+[Unit]
+Description=<%= $description %>
+
+[Timer]
+<% if $keys_enable { -%>
+OnCalendar=weekly
+<% } else {-%>
+<% } -%>
+Persistent=true
+Unit=<%= $unit %>
+
+[Install]
+WantedBy=timers.target

@@ -1,9 +1,11 @@
 #!/opt/puppetlabs/puppet/bin/ruby
+# frozen_string_literal: true
+
 require 'json'
 require 'puppet'
 
 # Parse the parameters
-params = JSON.parse(STDIN.read)
+params = JSON.parse($stdin.read)
 
 # Load all of Puppet's settings
 Puppet.initialize_settings
@@ -14,7 +16,7 @@ Puppet.settings[:group] = '0'
 
 # Create an empty resource object
 filesystem = Puppet::Resource.new(
-  "Filesystem[#{params['name']}]"
+  "Filesystem[#{params['name']}]",
 )
 
 # Prune parameters that we don't need

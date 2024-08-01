@@ -1,20 +1,25 @@
-# == Define: telegraf::input
 #
-# A Puppet wrapper for discrete Telegraf input files
+# @summary A Puppet wrapper for discrete Telegraf input files
 #
-# === Parameters
+# @param options Plugin options for use in the input template.
+# @param plugin_type Define the telegraf plugin type to use (default is $name)
+# @param ensure Set if the ensure params of the config file. If telegraf::ensure is absent the value is automatically absent
 #
-# [*options*]
-#   List. Plugin options for use in the input template.
-
 define telegraf::input (
-  String $plugin_type = $name,
-  Array  $options     = [],
+  String $plugin_type               = $name,
+  Array  $options                   = [],
+  Enum['present', 'absent'] $ensure = 'present',
 ) {
   include telegraf
 
-  file {"${telegraf::config_folder}/${name}.conf":
-    content => inline_template("<%= require 'toml-rb'; TomlRB.dump({'inputs'=>{'${plugin_type}'=>@options}}) %>"),
+  $_ensure = $telegraf::ensure ? {
+    'absent' => 'absent',
+    default  => $ensure,
+  }
+
+  file { "${telegraf::config_folder}/${name}.conf":
+    ensure  => $_ensure,
+    content => stdlib::to_toml({ 'inputs'=> { $plugin_type=> $options } }),
     require => Class['telegraf::config'],
     notify  => Class['telegraf::service'],
   }

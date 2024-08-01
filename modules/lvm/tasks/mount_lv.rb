@@ -1,10 +1,12 @@
 #!/opt/puppetlabs/puppet/bin/ruby
+# frozen_string_literal: true
+
 require 'json'
 require 'puppet'
 
 # Parse the parameters
 # params = JSON.parse(STDIN.read)
-params = JSON.parse(STDIN.read)
+params = JSON.parse($stdin.read)
 
 # Set parameters to local variables and resolve defaults if required
 volume_group   = params['volume_group']
@@ -18,7 +20,7 @@ group          = params['group']
 mode           = params['mode']
 
 # Check if we are managing any permissions
-permissions_set = !(owner.nil? and group.nil? and mode.nil?)
+permissions_set = !(owner.nil? && group.nil? && mode.nil?)
 
 # Load all of Puppet's settings
 Puppet.initialize_settings
@@ -42,7 +44,7 @@ Puppet.settings[:group] = '0'
 if permissions_set
   # Set permissions
   mount_file_resource = Puppet::Resource.new(
-    "File[#{mountpoint}]"
+    "File[#{mountpoint}]",
   )
 
   mount_file_resource[:ensure] = :directory
@@ -64,7 +66,7 @@ end
 
 # Mount the logical volume
 mount_resource = Puppet::Resource.new(
-  "Mount[#{mountpoint}]"
+  "Mount[#{mountpoint}]",
 )
 
 mount_resource[:ensure]  = 'mounted'

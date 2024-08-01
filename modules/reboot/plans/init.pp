@@ -1,6 +1,6 @@
 # Reboots targets and waits for them to be available again.
 #
-# @param nodes Targets to reboot.
+# @param targets Targets to reboot.
 # @param message Message to log with the reboot (for platforms that support it).
 # @param reboot_delay How long (in seconds) to wait before rebooting. Defaults to 1.
 # @param disconnect_wait How long (in seconds) to wait before checking whether the server has rebooted. Defaults to 10.
@@ -8,7 +8,7 @@
 # @param retry_interval How long (in seconds) to wait between retries. Defaults to 1.
 # @param fail_plan_on_errors Raise an error if any targets do not successfully reboot. Defaults to true.
 plan reboot (
-  TargetSpec $nodes,
+  TargetSpec $targets,
   Optional[String] $message = undef,
   Integer[1] $reboot_delay = 1,
   Integer[0] $disconnect_wait = 10,
@@ -16,23 +16,22 @@ plan reboot (
   Integer[0] $retry_interval = 1,
   Boolean    $fail_plan_on_errors = true,
 ) {
-  $targets = get_targets($nodes)
+  $target_objects = get_targets($targets)
 
   # Short-circuit the plan if the TargetSpec given was empty
-  if $targets.empty { return ResultSet.new([]) }
+  if $target_objects.empty { return ResultSet.new([]) }
 
   # Get last boot time
   $begin_boot_time_results = without_default_logging() || {
-    run_task('reboot::last_boot_time', $targets)
+    run_task('reboot::last_boot_time', $target_objects)
   }
 
   # Reboot; catch errors here because the connection may get cut out from underneath
-  $reboot_result = run_task('reboot', $nodes, timeout => $reboot_delay, message => $message)
+  run_task('reboot', $targets, timeout => $reboot_delay, message => $message)
 
-  # Wait long enough for all targets to trigger reboot, plus disconnect_wait to allow for shutdown time.
-  $timeouts = $reboot_result.map |$result| { $result['timeout'] }
-  $wait = max($timeouts)
-  reboot::sleep($wait+$disconnect_wait)
+  # Use $reboot_delay as wait time, but at least 3s
+  $wait = max(3, $reboot_delay)
+  ctrl::sleep($wait+$disconnect_wait)
 
   $start_time = Timestamp()
   # Wait for reboot in a loop
@@ -40,13 +39,13 @@ plan reboot (
   ## Mark finished for targets with a new last boot time.
   ## If we still have targets check for timeout, sleep if not done.
   $wait_results = without_default_logging() || {
-    $reconnect_timeout.reduce({'pending' => $targets, 'ok' => []}) |$memo, $_| {
+    $reconnect_timeout.reduce({ 'pending' => $target_objects, 'ok' => [] }) |$memo, $_| {
       if ($memo['pending'].empty() or $memo['timed_out']) {
         break()
       }
 
       $plural = if $memo['pending'].size() > 1 { 's' }
-      notice("Waiting: ${$memo['pending'].size()} target${plural} rebooting")
+      out::message("Waiting: ${$memo['pending'].size()} target${plural} rebooting")
       $current_boot_time_results = run_task('reboot::last_boot_time', $memo['pending'], _catch_errors => true)
 
       # Compare boot times
@@ -76,7 +75,7 @@ plan reboot (
 
       if !$failed_targets.empty() and !$timed_out {
         # sleep for a small time before trying again
-        reboot::sleep($retry_interval)
+        ctrl::sleep($retry_interval)
 
         # wait for all targets to be available again
         $remaining_time = $reconnect_timeout - $elapsed_time_sec
@@ -85,9 +84,9 @@ plan reboot (
 
       # Build and return the memo for this iteration
       ({
-        'pending'   => $failed_targets,
-        'ok'        => $memo['ok'] + $ok_targets,
-        'timed_out' => $timed_out,
+          'pending'   => $failed_targets,
+          'ok'        => $memo['ok'] + $ok_targets,
+          'timed_out' => $timed_out,
       })
     }
   }
@@ -99,13 +98,13 @@ plan reboot (
 
   $error_set = $wait_results['pending'].map |$target| {
     Result.new($target, {
-      _output => 'failed to reboot',
-      _error  => $err,
+        _output => 'failed to reboot',
+        _error  => $err,
     })
   }
   $ok_set = $wait_results['ok'].map |$target| {
     Result.new($target, {
-      _output => 'rebooted',
+        _output => 'rebooted',
     })
   }
 

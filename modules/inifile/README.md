@@ -1,7 +1,5 @@
 # inifile
 
-[![Build Status](https://travis-ci.org/puppetlabs/puppetlabs-inifile.png?branch=master)](https://travis-ci.org/puppetlabs/puppetlabs-inifile)
-
 #### Table of Contents
 
 1. [Overview](#overview)
@@ -10,6 +8,7 @@
 1. [Usage - Configuration options and additional functionality](#usage)
 1. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
 1. [Limitations - OS compatibility, etc.](#limitations)
+1. [License](#license)
 1. [Development - Guide for contributing to the module](#development)
 
 <a id="overview"></a>
@@ -188,12 +187,12 @@ resources { 'glance_api_config':
 
 ### Manage multiple ini_settings
 
-To manage multiple `ini_settings`, use the [`create_ini_settings`](#function-create_ini_settings) function.
+To manage multiple `ini_settings`, use the [`inifile::create_ini_settings`](REFERENCE.md#inifilecreate_ini_settings) function.
 
 ~~~puppet
 $defaults = { 'path' => '/tmp/foo.ini' }
 $example = { 'section1' => { 'setting1' => 'value1' } }
-create_ini_settings($example, $defaults)
+inifile::create_ini_settings($example, $defaults)
 ~~~
 
 Results in:
@@ -220,7 +219,7 @@ $example = {
     }
   }
 }
-create_ini_settings($example, $defaults)
+inifile::create_ini_settings($example, $defaults)
 ~~~
 
 Results in:
@@ -243,17 +242,14 @@ ini_setting { '[section1] setting2':
 
 #### Manage multiple ini_settings with Hiera
 
-This example requires Puppet 3.x/4.x, as it uses automatic retrieval of Hiera data for class parameters and `puppetlabs/stdlib`.
-
 For the profile `example`:
 
 ~~~puppet
 class profile::example (
-  $settings,
+  Hash $settings,
 ) {
-  validate_hash($settings)
   $defaults = { 'path' => '/tmp/foo.ini' }
-  create_ini_settings($settings, $defaults)
+  inifile::create_ini_settings($settings, $defaults)
 }
 ~~~
 
@@ -295,14 +291,26 @@ ini_setting { '[section1] setting3':
 
 <a id="reference"></a> 
 ## Reference
-See [REFERENCE.md](https://github.com/puppetlabs/puppetlabs-inifile/blob/master/REFERENCE.md)
+See [REFERENCE.md](https://github.com/puppetlabs/puppetlabs-inifile/blob/main/REFERENCE.md)
 
 <a id="limitations"></a>
+
 ## Limitations
 
-Due to (PUP-4709) the create_ini_settings function will cause errors when attempting to create multiple ini_settings in one go when using Puppet 4.0.x or 4.1.x. If needed, the temporary fix for this can be found here: https://github.com/puppetlabs/puppetlabs-inifile/pull/196.
+### Supported operating systems
 
-For an extensive list of supported operating systems, see [metadata.json](https://github.com/puppetlabs/puppetlabs-inifile/blob/master/metadata.json)
+For an extensive list of supported operating systems, see [metadata.json](https://github.com/puppetlabs/puppetlabs-inifile/blob/main/metadata.json)
+
+### create_ini_settings
+
+When using inifile::create_ini_settings it’s worth noting that namespace tags will not be applied to the resource. If you need these namespace tags we advise using the standard ini_setting resource.
+
+For more information about resource tags, please see [this article](https://puppet.com/docs/puppet/7/lang_tags.html#lang_tags-assigning-tags-to-resources).
+
+<a id="license"></a> 
+## License
+
+This codebase is licensed under the Apache2.0 licensing, however due to the nature of the codebase the open source dependencies may also use a combination of [AGPL](https://opensource.org/license/agpl-v3/), [BSD-2](https://opensource.org/license/bsd-2-clause/), [BSD-3](https://opensource.org/license/bsd-3-clause/), [GPL2.0](https://opensource.org/license/gpl-2-0/), [LGPL](https://opensource.org/license/lgpl-3-0/), [MIT](https://opensource.org/license/mit/) and [MPL](https://opensource.org/license/mpl-2-0/) Licensing.
 
 <a id="development"></a> 
 ## Development

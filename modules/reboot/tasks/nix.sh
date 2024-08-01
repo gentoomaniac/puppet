@@ -18,18 +18,36 @@ if [ -n "$PT_message" ]; then
   message=$PT_message
 fi
 
+if [ -n "$PT_shutdown_only" ]; then
+  shutdown_only=$PT_shutdown_only
+fi
+
 # Force a minimum timeout of 3 second to allow the task response to be delivered.
 if [ $timeout -lt 3 ]; then
   timeout=3
 fi
 
 if [[ `uname -s` == 'SunOS' ]]; then
-  shutdown -y -i 6 -g $timeout $message </dev/null >/dev/null 2>&1 &
+  init_level=6
+  if [ "$shutdown_only" = true ]; then
+    init_level=5
+  fi
+  shutdown -y -i $init_level -g $timeout $message </dev/null >/dev/null 2>&1 &
 else
   # Linux only supports timeout in minutes. Handle the remainder with sleep.
   timeout_min=$(($timeout/60))
   timeout_sec=$(($timeout%60))
-  nohup bash -c "sleep $timeout_sec; shutdown -r +$timeout_min $message" </dev/null >/dev/null 2>&1 &
+  # When doing a shutdown -r +0 , the message is never displayed to the end user.
+  # Instead when timeout_min == 0 and we're using sleep to create our timeout
+  # simply use `wall` to broadcast our message.
+  if [ $timeout_min -lt 1 ]; then
+    nohup bash -c "wall \"$message\"" </dev/null >/dev/null 2>&1 &
+  fi
+  reboot_flag="-r"
+  if [ "$shutdown_only" = true ]; then
+    reboot_flag="-P"
+  fi
+  nohup bash -c "sleep $timeout_sec; shutdown $reboot_flag +$timeout_min $message" </dev/null >/dev/null 2>&1 &
   disown
 fi
 

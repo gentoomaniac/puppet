@@ -1,13 +1,15 @@
 #!/opt/puppetlabs/puppet/bin/ruby
+# frozen_string_literal: true
+
 require 'json'
 require 'yaml'
 require 'puppet'
 
 # Parse the parameters
-params = JSON.parse(STDIN.read)
+params = JSON.parse($stdin.read)
 
 defaults = {
-  'force' => false,
+  'force' => false
 }
 
 # Merge in the default values
@@ -29,7 +31,7 @@ Puppet.settings[:group] = '0'
 # This is exactly the same as the parameters you would pass to the
 # `puppet resource` command, except in Ruby.
 physical_volume = Puppet::Resource.indirection.find(
-  "physical_volume/#{params['name']}"
+  "physical_volume/#{params['name']}",
 )
 
 # Prune parameters that we don't need

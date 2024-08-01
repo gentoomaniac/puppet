@@ -19,10 +19,9 @@ define apt::conf (
   Variant[String, Integer] $priority = 50,
   Optional[Boolean] $notify_update   = undef,
 ) {
-
   unless $ensure == 'absent' {
     unless $content {
-      fail(translate('Need to pass in content parameter'))
+      fail('Need to pass in content parameter')
     }
   }
 

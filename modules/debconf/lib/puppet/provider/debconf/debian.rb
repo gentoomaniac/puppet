@@ -1,5 +1,4 @@
 # debian.rb --- Debian provider for debconf type
-
 Puppet::Type.type(:debconf).provide(:debian) do
   desc 'Manage debconf database entries on Debian based systems.'
 
@@ -13,7 +12,7 @@ Puppet::Type.type(:debconf).provide(:debian) do
       '^([0-9]+)' +             # error code
       '\s*' +                   # whitespace
       '(.*)' +                  # return value
-      '\s*$'                    # optional trailing spaces
+      '\s*$',                   # optional trailing spaces
     )
 
     def initialize(pipe)

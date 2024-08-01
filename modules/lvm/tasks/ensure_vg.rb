@@ -1,9 +1,11 @@
 #!/opt/puppetlabs/puppet/bin/ruby
+# frozen_string_literal: true
+
 require 'json'
 require 'puppet'
 
 # Parse the parameters
-params = JSON.parse(STDIN.read)
+params = JSON.parse($stdin.read)
 
 # Set parameters to local variables and resolve defaults if required
 name             = params['name']
@@ -28,7 +30,7 @@ Puppet.settings[:group] = '0'
 # This is exactly the same as the parameters you would pass to the
 # `puppet resource` command, except in Ruby.
 volume_group = Puppet::Resource.indirection.find(
-  "volume_group/#{name}"
+  "volume_group/#{name}",
 )
 
 # Prune parameters that we don't need

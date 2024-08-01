@@ -6,7 +6,8 @@ Puppet::Type.type(:docker_network).provide(:ruby) do
   desc 'Support for Docker Networking'
 
   mk_resource_methods
-  commands docker: 'docker'
+
+  has_command(:docker, 'docker')
 
   def network_conf
     flags = ['network', 'create']
@@ -28,12 +29,19 @@ Puppet::Type.type(:docker_network).provide(:ruby) do
       new_flags = multi_flags.call(values, format)
       flags.concat(new_flags)
     end
-    if resource[:additional_flags].is_a?(String)
-      additional_flags = resource[:additional_flags].split
+
+    if defined?(resource[:additional_flags])
+      additional_flags = []
+      if resource[:additional_flags].is_a?(String)
+        additional_flags = resource[:additional_flags].split
+      elsif resource[:additional_flags].is_a?(Array)
+        additional_flags = resource[:additional_flags]
+      end
       additional_flags.each do |additional_flag|
         flags << additional_flag
       end
     end
+
     flags << resource[:name]
   end
 
@@ -42,17 +50,11 @@ Puppet::Type.type(:docker_network).provide(:ruby) do
     lines = output.split("\n")
     lines.shift # remove header row
     lines.map do |line|
-      _, name, driver = line.split(' ')
+      _, name, driver = line.split
       inspect = docker(['network', 'inspect', name])
       obj = JSON.parse(inspect).first
-      ipam_driver = unless obj['IPAM']['Driver'].nil?
-                      obj['IPAM']['Driver']
-                    end
-      subnet = unless obj['IPAM']['Config'].nil? || obj['IPAM']['Config'].empty?
-                 if obj['IPAM']['Config'].first.key? 'Subnet'
-                   obj['IPAM']['Config'].first['Subnet']
-                 end
-               end
+      ipam_driver = (obj['IPAM']['Driver'] unless obj['IPAM']['Driver'].nil?)
+      subnet = (obj['IPAM']['Config'].first['Subnet'] if !(obj['IPAM']['Config'].nil? || obj['IPAM']['Config'].empty?) && (obj['IPAM']['Config'].first.key? 'Subnet'))
       new(
         name: name,
         id: obj['Id'],

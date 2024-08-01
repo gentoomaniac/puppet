@@ -1,6 +1,6 @@
 # file_capability
 
-[![Build Status](https://travis-ci.org/smoeding/puppet-file_capability.svg?branch=master)](https://travis-ci.org/smoeding/puppet-file_capability)
+[![Build Status](https://github.com/smoeding/puppet-file_capability/actions/workflows/CI.yaml/badge.svg)](https://github.com/smoeding/puppet-file_capability/actions/workflows/CI.yaml)
 [![Puppet Forge](http://img.shields.io/puppetforge/v/stm/file_capability.svg)](https://forge.puppetlabs.com/stm/file_capability)
 [![License](https://img.shields.io/github/license/smoeding/puppet-file_capability.svg)](https://raw.githubusercontent.com/smoeding/puppet-file_capability/master/LICENSE)
 
@@ -104,10 +104,8 @@ See [REFERENCE.md](https://github.com/smoeding/puppet-file_capability/blob/maste
 
 The type uses a regular expression to validate the `capability` parameter. Unfortunately some illegal specifications are not caught by this check.
 
-Capabilities are only available on more recent operating system releases like RedHat 7 and Debian 8. In addition the file system must support extended attributes to store the capabilities for the file.
-
 The module is currently developed and tested on:
-* Debian 9 (Stretch)
+* Debian 11 (Bullseye)
 
 ## Development
 

@@ -1,3 +1,55 @@
+## 2023-07-07 - Release 6.0.0
+
+### Features
+
+- Add support for Puppet 8
+
+### Breaking changes
+
+- Drop Support for Puppet 6
+
+## 2022-07-26 - Release 5.0.0
+
+### Features
+
+- Add support for Ubuntu 22.04 (Jammy Jellyfish)
+- Add support for RedHat 9
+- Add support for OracleLinux 9
+
+### Breaking changes
+
+- Remove support for Debian 9
+- Remove support for Ubuntu 16.04
+- Remove support for CentOS
+- Remove support for Puppet 5
+
+## 2022-04-05 - Release 4.0.0
+
+### Features
+
+- Add support for Debian 11 (Bullseye)
+
+### Breaking changes
+
+- Remove support for Debian 8
+- Remove support for Ubuntu 14.04
+
+## 2020-06-22 - Release 3.1.0
+
+### Features
+
+- Add Support for Debian 10 (Buster)
+- Add Support for Ubuntu 20.04 (Focal Fossa)
+- Add Support for RedHat-8
+- Add Support for CentOS-8
+- Add Support for OracleLinux-8
+
+## 2019-09-27 - Release 3.0.0
+
+### Breaking changes
+
+- Remove support for Puppet 4.
+
 ## 2019-03-31 - Release 2.0.0
 
 ### Features
