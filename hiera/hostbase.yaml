@@ -422,10 +422,10 @@ docker::docker_users:
   - marco
   - telegraf
 
-telegraf::hostname: "%{lookup('facts.networking.fqdn')}"
+telegraf::hostname: "%{facts.networking.fqdn}"
 telegraf::global_tags:
-  role: "%{lookup('role')}"
-  domain: "%{lookup('facts.networking.domain')"
+  role: "%{facts.role}"
+  domain: "%{facts.networking.domain}"
 telegraf::inputs:
   cpu:
     - percpu: true
