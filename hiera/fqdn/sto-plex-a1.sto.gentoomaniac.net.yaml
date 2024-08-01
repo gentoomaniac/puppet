@@ -181,7 +181,7 @@ docker::volumes::volumes:
 
 docker::run_instance::instance:
   traefik:
-    image: traefik:v2.2
+    image: traefik:v3.1
     command: >
       --api.insecure=true
       --entrypoints.web.address=:80
@@ -231,12 +231,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.radarr.rule=Host(`radarr.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.radarr.entrypoints=websecure'"
-      - "'traefik.http.routers.radarr.tls=true'"
-      - "'traefik.http.middlewares.radarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24'"
-      - "'traefik.http.routers.radarr.middlewares=radarr-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.radarr.rule=Host(`radarr.srv.gentoomaniac.net`)
+      - traefik.http.routers.radarr.entrypoints=websecure
+      - traefik.http.routers.radarr.tls=true
+      - traefik.http.middlewares.radarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24
+      - traefik.http.routers.radarr.middlewares=radarr-whitelist
     net:
       - web
     pull_on_start: true
@@ -261,12 +261,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.radarr-kids.rule=Host(`radarr-kids.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.radarr-kids.entrypoints=websecure'"
-      - "'traefik.http.routers.radarr-kids.tls=true'"
-      - "'traefik.http.middlewares.radarr-kids-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24'"
-      - "'traefik.http.routers.radarr-kids.middlewares=radarr-kids-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.radarr-kids.rule=Host(`radarr-kids.srv.gentoomaniac.net`)
+      - traefik.http.routers.radarr-kids.entrypoints=websecure
+      - traefik.http.routers.radarr-kids.tls=true
+      - traefik.http.middlewares.radarr-kids-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24
+      - traefik.http.routers.radarr-kids.middlewares=radarr-kids-whitelist
     net:
       - web
     pull_on_start: true
@@ -291,12 +291,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.sonarr.rule=Host(`sonarr.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.sonarr.entrypoints=websecure'"
-      - "'traefik.http.routers.sonarr.tls=true'"
-      - "'traefik.http.middlewares.sonarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24'"
-      - "'traefik.http.routers.sonarr.middlewares=sonarr-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.srv.gentoomaniac.net`)
+      - traefik.http.routers.sonarr.entrypoints=websecure
+      - traefik.http.routers.sonarr.tls=true
+      - traefik.http.middlewares.sonarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24
+      - traefik.http.routers.sonarr.middlewares=sonarr-whitelist
     net:
       - web
     pull_on_start: true
@@ -321,12 +321,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.sonarr-kids.rule=Host(`sonarr-kids.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.sonarr-kids.entrypoints=websecure'"
-      - "'traefik.http.routers.sonarr-kids.tls=true'"
-      - "'traefik.http.middlewares.sonarr-kids-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24'"
-      - "'traefik.http.routers.sonarr-kids.middlewares=sonarr-kids-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.sonarr-kids.rule=Host(`sonarr-kids.srv.gentoomaniac.net`)
+      - traefik.http.routers.sonarr-kids.entrypoints=websecure
+      - traefik.http.routers.sonarr-kids.tls=true
+      - traefik.http.middlewares.sonarr-kids-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24
+      - traefik.http.routers.sonarr-kids.middlewares=sonarr-kids-whitelist
     net:
       - web
     pull_on_start: true
@@ -351,12 +351,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.lidarr.rule=Host(`lidarr.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.lidarr.entrypoints=websecure'"
-      - "'traefik.http.routers.lidarr.tls=true'"
-      - "'traefik.http.middlewares.lidarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24'"
-      - "'traefik.http.routers.lidarr.middlewares=lidarr-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.lidarr.rule=Host(`lidarr.srv.gentoomaniac.net`)
+      - traefik.http.routers.lidarr.entrypoints=websecure
+      - traefik.http.routers.lidarr.tls=true
+      - traefik.http.middlewares.lidarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24
+      - traefik.http.routers.lidarr.middlewares=lidarr-whitelist
     net:
       - web
     pull_on_start: true
@@ -376,12 +376,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.tautulli.rule=Host(`tautulli.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.tautulli.entrypoints=websecure'"
-      - "'traefik.http.routers.tautulli.tls=true'"
-      - "'traefik.http.middlewares.tautulli-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24'"
-      - "'traefik.http.routers.tautulli.middlewares=tautulli-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.tautulli.rule=Host(`tautulli.srv.gentoomaniac.net`)
+      - traefik.http.routers.tautulli.entrypoints=websecure
+      - traefik.http.routers.tautulli.tls=true
+      - traefik.http.middlewares.tautulli-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24
+      - traefik.http.routers.tautulli.middlewares=tautulli-whitelist
     net:
       - web
     pull_on_start: true
@@ -400,7 +400,7 @@ docker::run_instance::instance:
       - TZ="Europe/Berlin"
       - PLEX_GID=44
     labels:
-      - "'traefik.enable=false'"
+      - traefik.enable=false
     ports:
       - 32400:32400/tcp
       - 1900:1900/udp
@@ -444,12 +444,12 @@ docker::run_instance::instance:
     env:
       - ALLOW_CONFIG_MUTATIONS: 'true'
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.ytdl.rule=Host(`youtube-dl.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.ytdl.entrypoints=websecure'"
-      - "'traefik.http.routers.ytdl.tls=true'"
-      - "'traefik.http.middlewares.ytdl-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24'"
-      - "'traefik.http.routers.ytdl.middlewares=ytdl-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.ytdl.rule=Host(`youtube-dl.srv.gentoomaniac.net`)
+      - traefik.http.routers.ytdl.entrypoints=websecure
+      - traefik.http.routers.ytdl.tls=true
+      - traefik.http.middlewares.ytdl-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,192.168.3.0/24
+      - traefik.http.routers.ytdl.middlewares=ytdl-whitelist
     expose:
       - 443/tcp
     extra_parameters:

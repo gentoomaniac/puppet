@@ -383,10 +383,10 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.traefik-fa.rule=Host(`auth.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.traefik-fa.entrypoints=ssl'"
-      - "'traefik.http.routers.traefik-fa.tls=true'"
+      - traefik.enable=true
+      - traefik.http.routers.traefik-fa.rule=Host(`auth.srv.gentoomaniac.net`)
+      - traefik.http.routers.traefik-fa.entrypoints=ssl
+      - traefik.http.routers.traefik-fa.tls=true
     net:
       - web
     pull_on_start: true
@@ -408,11 +408,11 @@ docker::run_instance::instance:
     expose:
       - 80/tcp
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.whoami.rule=Host(`whoami.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.whoami.entrypoints=ssl'"
-      - "'traefik.http.routers.whoami.tls=true'"
-      - "'traefik.http.routers.whoami.middlewares=sso@file'"
+      - traefik.enable=true
+      - traefik.http.routers.whoami.rule=Host(`whoami.srv.gentoomaniac.net`)
+      - traefik.http.routers.whoami.entrypoints=ssl
+      - traefik.http.routers.whoami.tls=true
+      - traefik.http.routers.whoami.middlewares=sso@file
     net:
       - web
   registry:
@@ -426,12 +426,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.registry.rule=Host(`registry.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.registry.entrypoints=ssl'"
-      - "'traefik.http.routers.registry.tls=true'"
-      - "'traefik.http.middlewares.registry-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24'"
-      - "'traefik.http.routers.registry.middlewares=registry-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.registry.rule=Host(`registry.srv.gentoomaniac.net`)
+      - traefik.http.routers.registry.entrypoints=ssl
+      - traefik.http.routers.registry.tls=true
+      - traefik.http.middlewares.registry-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24
+      - traefik.http.routers.registry.middlewares=registry-whitelist
     net:
       - web
     pull_on_start: true
@@ -442,9 +442,9 @@ docker::run_instance::instance:
       - Zfs[datapool/registry]
 
 kickstart_nginx::labels:
-  - "'traefik.enable=true'"
-  - "'traefik.http.routers.ksnginx.rule=Host(`ks.srv.gentoomaniac.net`)'"
-  - "'traefik.http.routers.ksnginx.entrypoints=ssl'"
-  - "'traefik.http.routers.ksnginx.tls=true'"
-  - "'traefik.http.middlewares.ksnginx-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24'"
-  - "'traefik.http.routers.ksnginx.middlewares=ksnginx-whitelist'"
+  - traefik.enable=true
+  - traefik.http.routers.ksnginx.rule=Host(`ks.srv.gentoomaniac.net`)
+  - traefik.http.routers.ksnginx.entrypoints=ssl
+  - traefik.http.routers.ksnginx.tls=true
+  - traefik.http.middlewares.ksnginx-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24
+  - traefik.http.routers.ksnginx.middlewares=ksnginx-whitelist

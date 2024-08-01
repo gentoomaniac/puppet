@@ -203,13 +203,13 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.services.influxdb.loadbalancer.server.port=8086'"
-      - "'traefik.http.routers.influxdb.rule=Host(`influxdb.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.influxdb.entrypoints=influxdb'"
-      - "'traefik.http.routers.influxdb.tls=true'"
-      - "'traefik.http.middlewares.influxdb-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24'"
-      - "'traefik.http.routers.influxdb.middlewares=influxdb-whitelist'"
+      - traefik.enable=true
+      - traefik.http.services.influxdb.loadbalancer.server.port=8086
+      - traefik.http.routers.influxdb.rule=Host(`influxdb.srv.gentoomaniac.net`)
+      - traefik.http.routers.influxdb.entrypoints=influxdb
+      - traefik.http.routers.influxdb.tls=true
+      - traefik.http.middlewares.influxdb-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24
+      - traefik.http.routers.influxdb.middlewares=influxdb-whitelist
     pull_on_start: true
     volumes:
       - /srv/influxdb/data:/var/lib/influxdb
@@ -227,12 +227,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.chronograf.rule=Host(`chronograf.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.chronograf.entrypoints=ssl'"
-      - "'traefik.http.routers.chronograf.tls=true'"
-      - "'traefik.http.middlewares.chronograf-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24'"
-      - "'traefik.http.routers.chronograf.middlewares=chronograf-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.chronograf.rule=Host(`chronograf.srv.gentoomaniac.net`)
+      - traefik.http.routers.chronograf.entrypoints=ssl
+      - traefik.http.routers.chronograf.tls=true
+      - traefik.http.middlewares.chronograf-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24
+      - traefik.http.routers.chronograf.middlewares=chronograf-whitelist
     pull_on_start: true
     volumes:
       - /srv/chronograf:/var/lib/chronograf
@@ -330,7 +330,7 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=false'"
+      - traefik.enable=false
     pull_on_start: true
     volumes:
       - /srv/varken:/config
@@ -354,12 +354,12 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     labels:
-      - "'traefik.enable=true'"
-      - "'traefik.http.routers.grafana.rule=Host(`grafana.srv.gentoomaniac.net`)'"
-      - "'traefik.http.routers.grafana.entrypoints=ssl'"
-      - "'traefik.http.routers.grafana.tls=true'"
-      - "'traefik.http.middlewares.grafana-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24'"
-      - "'traefik.http.routers.grafana.middlewares=grafana-whitelist'"
+      - traefik.enable=true
+      - traefik.http.routers.grafana.rule=Host(`grafana.srv.gentoomaniac.net`)
+      - traefik.http.routers.grafana.entrypoints=ssl
+      - traefik.http.routers.grafana.tls=true
+      - traefik.http.middlewares.grafana-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24
+      - traefik.http.routers.grafana.middlewares=grafana-whitelist
     net:
       - web
     pull_on_start: true
