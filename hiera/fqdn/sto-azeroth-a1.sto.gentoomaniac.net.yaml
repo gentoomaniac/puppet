@@ -1,7 +1,6 @@
 ---
 classes:
   - docker
-  - docker::run_instance
 
 ressources:
   zfs:
