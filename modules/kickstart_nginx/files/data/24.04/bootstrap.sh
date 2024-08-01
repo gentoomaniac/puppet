@@ -9,13 +9,6 @@ if [ -f /etc/bootstrap ]; then
     curl https://download.docker.com/linux/ubuntu/gpg 2>&1 | tee -a /var/log/bootstrap.log
 
 
-    echo "*** Disable cloud-init" | tee -a /var/log/bootstrap.log
-    apt purge --assume-yes cloud-init 2>&1 | tee -a /var/log/bootstrap.log
-    apt autoremove --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
-    rm -v /etc/netplan/50-cloud-init.yaml 2>&1 | tee -a /var/log/bootstrap.log
-    #rm -v /etc/netplan/00-installer-config.yaml 2>&1 | tee -a /var/log/bootstrap.log
-
-
     echo "*** Setting dependencies" | tee -a /var/log/bootstrap.log
     curl https://apt.puppet.com/puppet8-release-noble.deb -o /tmp/puppet8-release-noble.deb
     dpkg -i /tmp/puppet8-release-noble.deb
@@ -95,6 +88,12 @@ if [ -f /etc/bootstrap ]; then
 
     /opt/puppetlabs/puppet/bin/puppet apply --config /tmp/puppet/puppet.conf -vvvt --modulepath=/tmp/puppet/modules/ /tmp/puppet/manifests/site.pp 2>&1 | tee -a /var/log/bootstrap.log
 
+
+    echo "*** Disable cloud-init" | tee -a /var/log/bootstrap.log
+    apt purge --assume-yes cloud-init 2>&1 | tee -a /var/log/bootstrap.log
+    apt autoremove --assume-yes 2>&1 | tee -a /var/log/bootstrap.log
+    rm -v /etc/netplan/50-cloud-init.yaml 2>&1 | tee -a /var/log/bootstrap.log
+    #rm -v /etc/netplan/00-installer-config.yaml 2>&1 | tee -a /var/log/bootstrap.log
 
     echo "*** Init complete" | tee -a /var/log/bootstrap.log
     systemctl disable bootstrap
