@@ -347,7 +347,6 @@ docker::run_instance::instance:
       --serverstransport.insecureskipverify=true
     #  --log.level=DEBUG
     dns:
-      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -376,7 +375,6 @@ docker::run_instance::instance:
   traefik-fa:
     image: thomseddon/traefik-forward-auth
     dns:
-      - 10.1.1.52
       - 10.1.1.53
     env:
       - CONFIG=/forward.ini
@@ -406,7 +404,6 @@ docker::run_instance::instance:
   whoami:
     image: containous/whoami
     dns:
-      - 10.1.1.52
       - 10.1.1.53
     expose:
       - 80/tcp
@@ -421,7 +418,6 @@ docker::run_instance::instance:
   registry:
     image: registry:2
     dns:
-      - 10.1.1.52
       - 10.1.1.53
     env:
       - REGISTRY_HTTP_ADDR=0.0.0.0:80
