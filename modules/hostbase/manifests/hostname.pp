@@ -6,12 +6,12 @@ class hostbase::hostname(
       unless  => "/usr/bin/test $(hostname) = ${hostname}",
     }
 
-    if $::fqdn != $hostname {
-      host { $::hostname:
+    if $facts['networking']['fqdn'] != $hostname {
+      host { $facts['networking']['hostname']:
         ensure  => absent,
         require => Exec['set-hostname'],
       }
-      host { $::fqdn:
+      host { $facts['networking']['fqdn']:
         ensure  => absent,
         require => Exec['set-hostname'],
       }
