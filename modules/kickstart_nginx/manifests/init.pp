@@ -15,7 +15,7 @@ class kickstart_nginx (
   docker::run { 'ksnginx':
     image            => 'nginx',
     expose           => ['80/tcp'],
-    dns              => hiera('dns::servers'),
+    dns              => lookup('dns::servers'),
     net              => ['web'],
     labels           => $labels,
     pull_on_start    => true,

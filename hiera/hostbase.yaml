@@ -32,7 +32,6 @@ github_userkeys:
 timezone::timezone: Etc/UTC
 
 dns::servers:
-  - 10.1.1.52
   - 10.1.1.53
 
 apt::sources:

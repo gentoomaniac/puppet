@@ -16,7 +16,7 @@ class ioquake3 (
     image            => 'ioquake3',
     command          => '/ioquake3/start_server.sh +exec server.cfg +exec ctf.cfg',
     ports            => ['27960:27960/udp'],
-    dns              => hiera('dns::servers'),
+    dns              => lookup('dns::servers'),
     net              => ['web'],
     labels           => $labels,
     pull_on_start    => true,

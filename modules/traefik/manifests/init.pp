@@ -46,7 +46,7 @@ class traefik (
     ports            => lookup('traefik::ports', Array[String], 'unique'),
     labels           => $labels,
     net              =>  ['web'],
-    dns              => hiera('dns::servers'),
+    dns              => lookup('dns::servers'),
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => ['/var/run/docker.sock:/var/run/docker.sock', "${ssl_cert_location}:/ssl:ro", "${conf_dir}:/conf:ro"],
