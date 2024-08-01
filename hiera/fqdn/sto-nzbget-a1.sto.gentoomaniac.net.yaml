@@ -140,6 +140,7 @@ docker::run_instance::instance:
     image: traefik:v2.2
     command: >
       --api.insecure=true
+      --api.dashboard=true
       --entrypoints.websecure.address=:443
       --serverstransport.insecureskipverify=true
       --providers.docker

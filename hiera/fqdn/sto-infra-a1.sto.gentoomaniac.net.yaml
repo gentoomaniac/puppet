@@ -338,6 +338,7 @@ docker::run_instance::instance:
     image: traefik:v2.2
     command: >
       --api.insecure=true
+      --api.dashboard=true
       --entrypoints.web.address=:80
       --entrypoints.ssl.address=:443
       --providers.file.directory=/conf
