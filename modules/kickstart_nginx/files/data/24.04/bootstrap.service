@@ -1,0 +1,13 @@
+[Unit]
+ Description=Boostrap Service
+ ConditionPathExists=/etc/bootstrap
+[Service]
+ Type=forking
+ ExecStart=/usr/local/bin/bootstrap.sh
+ TimeoutSec=0
+ StandardOutput=tty
+ RemainAfterExit=yes
+ SysVStartPriority=99
+
+[Install]
+ WantedBy=multi-user.target
