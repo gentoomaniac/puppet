@@ -137,7 +137,7 @@ docker::run_instance::instance:
       - Docker_volume[nfs_music]
       - File[/srv/nzbget/config]
   traefik:
-    image: traefik:v2.2
+    image: traefik:v3.1
     command: >
       --api.insecure=true
       --api.dashboard=true

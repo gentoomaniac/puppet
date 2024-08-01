@@ -335,7 +335,7 @@ docker::networks::networks:
 
 docker::run_instance::instance:
   traefik:
-    image: traefik:v2.2
+    image: traefik:v3.1
     command: >
       --api.insecure=true
       --api.dashboard=true
