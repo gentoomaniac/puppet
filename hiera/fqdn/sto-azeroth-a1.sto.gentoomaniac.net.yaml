@@ -1,0 +1,43 @@
+---
+classes:
+  - docker
+  - docker::run_instance
+
+ressources:
+  zfs:
+    "datapool/azeroth":
+      ensure: present
+  package:
+    "jq":
+      ensure: latest
+    "curl":
+      ensure: latest
+    "git":
+      ensure: latest
+    "cmake":
+      ensure: latest
+    "make":
+      ensure: latest
+    "gcc":
+      ensure: latest
+    "g++":
+      ensure: latest
+    "clang":
+      ensure: latest
+    "libmysqlclient-dev":
+      ensure: latest
+    "libssl-dev":
+      ensure: latest
+    "libbz2-dev":
+      ensure: latest
+    "libreadline-dev":
+      ensure: latest
+    "libncurses-dev":
+      ensure: latest
+    "mysql-server":
+      ensure: latest
+    "libboost-all-dev":
+      ensure: latest
+docker::docker_users:
+  - marco
+
