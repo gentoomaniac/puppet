@@ -20,6 +20,7 @@ hostbase::puppet::version: 7.5.0-1focal
 hostbase::packages::base_packages:
   - mailutils
   - vim-nox
+  - neovim
   - git
   - python3-virtualenv
   - python3-pip
