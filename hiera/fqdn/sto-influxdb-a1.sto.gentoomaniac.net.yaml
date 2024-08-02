@@ -9,6 +9,8 @@ ressources:
       ensure: present
     "datapool/influxdb":
       ensure: present
+    "datapool/influxdb2":
+      ensure: present
     "datapool/chronograf":
       ensure: present
     "datapool/varken":
@@ -181,6 +183,12 @@ ressources:
           database = "proxmox"
           batch-size = 1000
           batch-timeout = "1s"
+    "/srv/influxdb2/conf":
+      ensure: directory
+      require: Zfs[datapool/influxdb2]
+    "/srv/influxdb2/data":
+      ensure: directory
+      require: Zfs[datapool/influxdb2]
 
 docker::networks::networks:
   web:
@@ -218,6 +226,36 @@ docker::run_instance::instance:
       - Class[docker]
       - Zfs[datapool/influxdb]
       - File[/srv/influxdb/conf/influxdb.conf]
+  influxdb2:
+    image: influxdb:2
+    dns:
+      - 10.1.1.53
+    env:
+      - INFLUXDB_ADMIN_USER='%{lookup('secret_influxdb_admin_user')}'
+      - INFLUXDB_ADMIN_PASSWORD='%{lookup('secret_influxdb_admin_password')}'
+      - INFLUXDB_USER='%{lookup('secret_influxdb_user')}'
+      - INFLUXDB_USER_PASSWORD='%{lookup('secret_influxdb_user_password')}'
+    expose:
+      - 8086/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.influxdb2.loadbalancer.server.port=8086
+      - traefik.http.routers.influxdb2.rule=Host(`influxdb2.srv.gentoomaniac.net`)
+      - traefik.http.routers.influxdb2.entrypoints=influxdb
+      - traefik.http.routers.influxdb2.tls=true
+      - traefik.http.middlewares.influxdb2-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24
+      - traefik.http.routers.influxdb2.middlewares=influxdb-whitelist
+    pull_on_start: true
+    volumes:
+      - /srv/influxdb2/data:/var/lib/influxdb2
+      - /srv/influxdb2/conf:/etc/influxdb2
+    require:
+      - Class[docker]
+      - Zfs[datapool/influxdb2]
+      - File[/srv/influxdb2/conf]
+      - File[/srv/influxdb2/data]
   chronograf:
     image: chronograf:1.7-alpine
     dns:
