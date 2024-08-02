@@ -4,6 +4,8 @@ classes:
   - hostbase::hostname
 
 hostbase::hostname::hostname: sto-influxdb-a1.sto.gentoomaniac.net
+hostbase::puppet::release: puppet8-release
+hostbase::puppet::version: 8.8.1-1noble
 
 netplan::version: 2
 netplan::renderer: networkd
