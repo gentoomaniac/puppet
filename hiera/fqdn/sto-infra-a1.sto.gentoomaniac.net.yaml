@@ -16,17 +16,17 @@ ressources:
       ensure: latest
     "x2goserver-xsession":
       ensure: latest
-    "xubuntu-core":
+    "xubuntu-desktop":
       ensure: latest
     "fail2ban":
       ensure: latest
-      
+
   service:
     "fail2ban":
       ensure: running
       enable: true
       require: Paackage[fail2ban]
-      
+
   zfs:
     "datapool/traefik":
       ensure: present
@@ -36,7 +36,7 @@ ressources:
       ensure: present
     "datapool/ksnginx":
       ensure: present
-      
+
   file:
     "/srv/traefik/conf":
       ensure: directory
