@@ -12,6 +12,12 @@ ressources:
   package:
     "default-jre":
       ensure: latest
+    "x2goserver":
+      ensure: latest
+    "x2goserver-xsession":
+      ensure: latest
+    "xubuntu-core":
+      ensure: latest
   zfs:
     "datapool/traefik":
       ensure: present
