@@ -21,13 +21,9 @@ class hostbase::puppet_cron {
     require => File['/etc/systemd/system/run-puppet.service'],
   }
 
- service { "run-puppet.timer":
+  service { 'run-puppet.timer':
     ensure  => running,
     enable  => true,
     require => File['/etc/systemd/system/run-puppet.timer'],
-  }
-
-  file { '/etc/cron.d/puppet-cron':
-    ensure => absent,
   }
 }

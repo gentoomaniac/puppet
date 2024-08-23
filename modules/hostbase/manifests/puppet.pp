@@ -17,7 +17,7 @@ class hostbase::puppet (
   }
 
   package { 'puppet-agent':
-    ensure  => $version,
+    ensure  => "${version}${facts['os']['distro']['codename']}",
     mark    => hold,
     require => [Package[$release], Package['puppet'], Class['Apt::Update']],
   }
