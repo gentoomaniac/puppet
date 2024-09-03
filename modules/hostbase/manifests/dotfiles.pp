@@ -63,4 +63,11 @@ class hostbase::dotfiles
     force   => true,
     require => File['/home/marco/.ssh'],
   }
+  file { '/home/marco/.gitconfig':
+    ensure  => link,
+    target  => '/home/marco/.dotfiles/.gitconfig',
+    owner   => 'marco',
+    group   => 'marco',
+    require => Vcsrepo['/home/marco/.dotfiles'],
+  }
 }
