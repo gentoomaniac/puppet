@@ -70,4 +70,16 @@ class hostbase::dotfiles
     group   => 'marco',
     require => Vcsrepo['/home/marco/.dotfiles'],
   }
+
+    vcsrepo { '/root/.dotfiles':
+    ensure   => latest,
+    provider => git,
+    source   => 'https://github.com/gentoomaniac/dotfiles.git',
+    revision => 'master',
+  }
+  file { '/root/.gitconfig':
+    ensure  => link,
+    target  => '/root/.dotfiles/.gitconfig',
+    require => Vcsrepo['/root/.dotfiles'],
+  }
 }
