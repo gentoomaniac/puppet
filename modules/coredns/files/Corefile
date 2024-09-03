@@ -1,5 +1,5 @@
 .:53 {
-    forward . 8.8.8.8:53 8.8.4.4:53
+    forward . 1.0.0.3:53 1.1.1.3:53
     file /data/dnsdata/zones/srv.gentoomaniac.net.db srv.gentoomaniac.net
     file /data/dnsdata/zones/sto.gentoomaniac.net.db sto.gentoomaniac.net
     file /data/dnsdata/zones/gentoomaniac.net.db gentoomaniac.net
