@@ -42,16 +42,9 @@ class hostbase::dotfiles
     group   => 'marco',
     require => Vcsrepo['/home/marco/.dotfiles'],
   }
-  file { '/home/marco/.bash_completion':
+  file { '/home/marco/.bashrc.d':
     ensure  => link,
-    target  => '/home/marco/.dotfiles/.bash_completion',
-    owner   => 'marco',
-    group   => 'marco',
-    require => Vcsrepo['/home/marco/.dotfiles'],
-  }
-  file { '/home/marco/.bash_completion.d':
-    ensure  => link,
-    target  => '/home/marco/.dotfiles/.bash_completion.d',
+    target  => '/home/marco/.dotfiles/.bashrc.d',
     owner   => 'marco',
     group   => 'marco',
     require => Vcsrepo['/home/marco/.dotfiles'],
