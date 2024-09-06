@@ -42,7 +42,7 @@ ressources:
     "/srv/tempo/data":
       ensure: directory
       require: Zfs[datapool/tempo]
-    "/srv/temp/tempo.yaml":
+    "/srv/tempo/tempo.yaml":
       ensure: present
       content: |
         stream_over_http_enabled: true
