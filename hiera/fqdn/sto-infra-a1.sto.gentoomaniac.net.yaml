@@ -13,11 +13,11 @@ ressources:
     "default-jre":
       ensure: latest
     "x2goserver":
-      ensure: latest
+      ensure: absent
     "x2goserver-xsession":
-      ensure: latest
+      ensure: absent
     "xubuntu-desktop":
-      ensure: latest
+      ensure: absent
     "fail2ban":
       ensure: latest
 
