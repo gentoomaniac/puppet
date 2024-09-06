@@ -152,8 +152,10 @@ docker::run_instance::instance:
       - traefik.http.routers.tempo.tls=true
       - traefik.http.middlewares.tempo-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24
       - traefik.http.routers.tempo.middlewares=grafana-whitelist
+    command: >
+      -config.file=/etc/tempo.yaml
     extra_parameters:
-      - "-config.file=/etc/tempo.yaml"
+      - --restart=unless-stopped
     volumes:
       - /srv/tempo/tempo.yaml:/etc/tempo.yaml
       - /srv/tempo/data:/var/tempo
