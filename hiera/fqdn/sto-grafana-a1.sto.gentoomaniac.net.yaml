@@ -132,6 +132,7 @@ docker::run_instance::instance:
       - 8086:8086/tcp
       - 8080:8080/tcp
       - 443:443/tcp
+      - 3200:3200/tcp
     pull_on_start: true
     require:
       - Class[docker]
