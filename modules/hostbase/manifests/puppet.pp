@@ -16,6 +16,13 @@ class hostbase::puppet (
     ensure => present,
   }
 
+  $rubydeps = ['vault', 'debouncer']
+  package {$rubydeps:
+    ensure   => present,
+    provider => 'puppet_gem',
+    require  => Package['puppet'],
+  }
+
   package { 'puppet-agent':
     ensure  => "${version}${facts['os']['distro']['codename']}",
     mark    => hold,
