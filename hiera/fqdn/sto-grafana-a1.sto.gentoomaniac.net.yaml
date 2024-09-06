@@ -5,9 +5,11 @@ classes:
 
 ressources:
   zfs:
-    "datapool/traefik":
-      ensure: present
     "datapool/grafana":
+      ensure: present
+    "datapool/tempo":
+      ensure: present
+    "datapool/traefik":
       ensure: present
   file:
     "/srv/traefik/conf":
@@ -37,6 +39,73 @@ ressources:
       require:
         - File[/srv/traefik/ssl/cert.pem]
         - File[/srv/traefik/ssl/key.pem]
+    "/srv/tempo/data":
+      ensure: directory
+      require: Zfs[datapool/tempo]
+    "/srv/temp/tempo.yaml":
+      ensure: present
+      content: |
+        stream_over_http_enabled: true
+        server:
+          http_listen_port: 3200
+          log_level: info
+
+        query_frontend:
+          search:
+            duration_slo: 5s
+            throughput_bytes_slo: 1.073741824e+09
+          trace_by_id:
+            duration_slo: 5s
+
+        distributor:
+          receivers:                           # this configuration will listen on all ports and protocols that tempo is capable of.
+            jaeger:                            # the receives all come from the OpenTelemetry collector.  more configuration information can
+              protocols:                       # be found there: https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver
+                thrift_http:                   #
+                grpc:                          # for a production deployment you should only enable the receivers you need!
+                thrift_binary:
+                thrift_compact:
+            zipkin:
+            otlp:
+              protocols:
+                http:
+                grpc:
+            opencensus:
+
+        ingester:
+          max_block_duration: 5m               # cut the headblock when this much time passes. this is being set for demo purposes and should probably be left alone normally
+
+        compactor:
+          compaction:
+            block_retention: 1h                # overall Tempo trace retention. set for demo purposes
+
+        metrics_generator:
+          registry:
+            external_labels:
+              source: tempo
+              cluster: docker-compose
+          storage:
+            path: /var/tempo/generator/wal
+            remote_write:
+              - url: http://prometheus:9090/api/v1/write
+                send_exemplars: true
+          traces_storage:
+            path: /var/tempo/generator/traces
+
+        storage:
+          trace:
+            backend: local                     # backend configuration to use
+            wal:
+              path: /var/tempo/wal             # where to store the wal locally
+            local:
+              path: /var/tempo/blocks
+
+        overrides:
+          defaults:
+            metrics_generator:
+              processors: [service-graphs, span-metrics, local-blocks] # enables metrics generator
+              generate_native_histograms: both
+      require: Zfs[datapool/tempo]
 
 docker::networks::networks:
   web:
@@ -79,6 +148,37 @@ docker::run_instance::instance:
       - /srv/traefik/ssl:/ssl:ro
       - /srv/traefik/conf:/conf:ro
 
+  tempo:
+    image: grafana/tempo:latest
+    dns:
+      - 10.1.1.53
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tempo.rule=Host(`tempo.srv.gentoomaniac.net`)
+      - traefik.http.services.tempo.loadbalancer.server.port=3200
+      - traefik.http.routers.tempo.entrypoints=tempo
+      - traefik.http.routers.tempo.tls=true
+      - traefik.http.middlewares.tempo-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24
+      - traefik.http.routers.tempo.middlewares=grafana-whitelist
+    command:
+      - "-config.file=/etc/tempo.yaml"
+    volumes:
+      - /srv/tempo/tempo.yaml:/etc/tempo.yaml
+      - /srv/tempo/data:/var/tempo
+    net:
+      - web
+    expose:
+      - 3200
+    ports:
+      - "14268:14268"  # jaeger ingest
+      - "9095:9095" # tempo grpc
+      - "4317:4317"  # otlp grpc
+      - "4318:4318"  # otlp http
+      - "9411:9411"   # zipkin
+    require:
+      - Class[docker]
+      - Zfs[datapool/grafana]
+
   grafana:
     image: grafana/grafana:latest
     dns:
@@ -110,6 +210,7 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Zfs[datapool/grafana]
+
   renderer:
     image: grafana/grafana-image-renderer:2.0.0
     env:
