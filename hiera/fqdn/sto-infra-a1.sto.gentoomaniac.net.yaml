@@ -15,12 +15,6 @@ ressources:
     "fail2ban":
       ensure: latest
 
-  service:
-    "fail2ban":
-      ensure: running
-      enable: true
-      require: Paackage[fail2ban]
-
   zfs:
     "datapool/traefik":
       ensure: present
@@ -332,6 +326,10 @@ ressources:
       ensure: stopped
       enable: false
       require: Exec[systemctl daemon-reload]
+    "fail2ban":
+      ensure: running
+      enable: true
+      require: Paackage[fail2ban]
 
 docker::volumes::volumes:
   "clouddns-config":
