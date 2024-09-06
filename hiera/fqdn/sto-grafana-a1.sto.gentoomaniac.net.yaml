@@ -111,7 +111,7 @@ docker::run_instance::instance:
     command: >
       --api.insecure=true
       --api.dashboard=true
-      --entrypoints.influxdb.address=:8086
+      --entrypoints.tempo.address=:3200
       --entrypoints.ssl.address=:443
       --serverstransport.insecureskipverify=true
       --providers.docker
