@@ -12,12 +12,6 @@ ressources:
   package:
     "default-jre":
       ensure: latest
-    "x2goserver":
-      ensure: absent
-    "x2goserver-xsession":
-      ensure: absent
-    "xubuntu-desktop":
-      ensure: absent
     "fail2ban":
       ensure: latest
 
