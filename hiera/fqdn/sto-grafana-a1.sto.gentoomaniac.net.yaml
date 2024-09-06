@@ -41,6 +41,8 @@ ressources:
         - File[/srv/traefik/ssl/key.pem]
     "/srv/tempo/data":
       ensure: directory
+      owner: 10001
+      group: 10001
       require: Zfs[datapool/tempo]
     "/srv/tempo/tempo.yaml":
       ensure: present
