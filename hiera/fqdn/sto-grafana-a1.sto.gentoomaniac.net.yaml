@@ -86,7 +86,7 @@ ressources:
           storage:
             path: /var/tempo/generator/wal
             remote_write:
-              - url: https://prometheus.srv.gentoomaniac.net:9090/api/v1/write
+              - url: http://prometheus.srv.gentoomaniac.net:9090/api/v1/write
                 send_exemplars: true
           traces_storage:
             path: /var/tempo/generator/traces
@@ -139,7 +139,6 @@ docker::run_instance::instance:
       - 8080:8080/tcp
       - 443:443/tcp
       - 3200:3200/tcp
-      - 9090:9090/tcp
     pull_on_start: true
     require:
       - Class[docker]
@@ -184,21 +183,15 @@ docker::run_instance::instance:
     dns:
       - 10.1.1.53
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.prometheus.rule=Host(`prometheus.srv.gentoomaniac.net`)
-      - traefik.http.services.prometheus.loadbalancer.server.port=9090
-      - traefik.http.routers.prometheus.entrypoints=prometheus
-      - traefik.http.routers.prometheus.tls=true
-      - traefik.http.middlewares.prometheus-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.0.0.0/8
-      - traefik.http.routers.prometheus.middlewares=prometheus-whitelist
+      - traefik.enable=false
     extra_parameters:
       - --restart=unless-stopped
     volumes:
       - /srv/prometheus/data:/prometheus
     net:
       - web
-    expose:
-      - 9090
+    ports:
+      - 9090:9090/tcp
     require:
       - Class[docker]
       - Zfs[datapool/prometheus]
