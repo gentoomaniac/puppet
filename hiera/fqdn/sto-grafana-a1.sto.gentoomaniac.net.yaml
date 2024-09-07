@@ -153,7 +153,7 @@ docker::run_instance::instance:
       - traefik.http.services.tempo.loadbalancer.server.port=3200
       - traefik.http.routers.tempo.entrypoints=tempo
       - traefik.http.routers.tempo.tls=true
-      - traefik.http.middlewares.tempo-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/24
+      - traefik.http.middlewares.tempo-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.17.0.0/16
       - traefik.http.routers.tempo.middlewares=grafana-whitelist
     command: >
       -config.file=/etc/tempo.yaml
