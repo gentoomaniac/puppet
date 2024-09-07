@@ -7,11 +7,16 @@ ressources:
   zfs:
     "datapool/grafana":
       ensure: present
+    "datapool/prometheus":
+      ensure: present
     "datapool/tempo":
       ensure: present
     "datapool/traefik":
       ensure: present
   file:
+    "/srv/prometheus/data":
+      ensure: directory
+      require: Zfs[datapool/prometheus]
     "/srv/traefik/conf":
       ensure: directory
       require: Zfs[datapool/traefik]
@@ -81,7 +86,7 @@ ressources:
           storage:
             path: /var/tempo/generator/wal
             remote_write:
-              - url: http://prometheus:9090/api/v1/write
+              - url: https://prometheus.srv.gentoomaniac.net:9090/api/v1/write
                 send_exemplars: true
           traces_storage:
             path: /var/tempo/generator/traces
@@ -114,6 +119,7 @@ docker::run_instance::instance:
       --entrypoints.tempo.address=:3200
       --entrypoints.otelhttp.address=:4318
       --entrypoints.ssl.address=:443
+      --entrypoints.prometheus.address=:9090
       --serverstransport.insecureskipverify=true
       --providers.docker
       --providers.docker.exposedbydefault=false
@@ -133,6 +139,7 @@ docker::run_instance::instance:
       - 8080:8080/tcp
       - 443:443/tcp
       - 3200:3200/tcp
+      - 9090:9090/tcp
     pull_on_start: true
     require:
       - Class[docker]
@@ -170,7 +177,31 @@ docker::run_instance::instance:
       - "4318:4318"  # otlp http
     require:
       - Class[docker]
-      - Zfs[datapool/grafana]
+      - Zfs[datapool/tempo]
+
+  prometheus:
+    image: prom/prometheus:latest
+    dns:
+      - 10.1.1.53
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prometheus.rule=Host(`prometheus.srv.gentoomaniac.net`)
+      - traefik.http.services.prometheus.loadbalancer.server.port=9090
+      - traefik.http.routers.prometheus.entrypoints=prometheus
+      - traefik.http.routers.prometheus.tls=true
+      - traefik.http.middlewares.prometheus-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.0.0.0/8
+      - traefik.http.routers.prometheus.middlewares=prometheus-whitelist
+    extra_parameters:
+      - --restart=unless-stopped
+    volumes:
+      - /srv/prometheus/data:/prometheus
+    net:
+      - web
+    expose:
+      - 9090
+    require:
+      - Class[docker]
+      - Zfs[datapool/prometheus]
 
   grafana:
     image: grafana/grafana:latest
