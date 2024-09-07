@@ -112,6 +112,7 @@ docker::run_instance::instance:
       --api.insecure=true
       --api.dashboard=true
       --entrypoints.tempo.address=:3200
+      --entrypoints.otelhttp.address=:4318
       --entrypoints.ssl.address=:443
       --serverstransport.insecureskipverify=true
       --providers.docker
@@ -129,10 +130,10 @@ docker::run_instance::instance:
     net:
       - web
     ports:
-      - 8086:8086/tcp
       - 8080:8080/tcp
       - 443:443/tcp
       - 3200:3200/tcp
+      - 4318:4318/tcp
     pull_on_start: true
     require:
       - Class[docker]
@@ -155,6 +156,12 @@ docker::run_instance::instance:
       - traefik.http.routers.tempo.tls=true
       - traefik.http.middlewares.tempo-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.0.0.0/8
       - traefik.http.routers.tempo.middlewares=tempo-whitelist
+      - traefik.http.routers.otelhttp.rule=Host(`trace-ingest.srv.gentoomaniac.net`)
+      - traefik.http.services.otelhttp.loadbalancer.server.port=4318
+      - traefik.http.routers.otelhttp.entrypoints=otelhttp
+      - traefik.http.routers.otelhttp.tls=true
+      - traefik.http.middlewares.otelhttp-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24,172.0.0.0/8
+      - traefik.http.routers.otelhttp.middlewares=otelhttp-whitelist
     command: >
       -config.file=/etc/tempo.yaml
     extra_parameters:
@@ -166,9 +173,7 @@ docker::run_instance::instance:
       - web
     expose:
       - 3200
-    ports:
-      - "4317:4317"  # otlp grpc
-      - "4318:4318"  # otlp http
+      - 4318  # otlp http
     require:
       - Class[docker]
       - Zfs[datapool/grafana]
