@@ -1,10 +1,24 @@
-class hostbase::puppet_cron {
+class hostbase::puppet_cron (
+  $runPuppetVersion = '0.1.0',
+) {
   require hostbase::puppet
 
   file { '/usr/local/bin/run-puppet':
     ensure => 'present',
     mode   => '0744',
     source => 'puppet:///modules/hostbase/run-puppet.sh',
+  }
+
+  $runPuppetDebPath = "https://github.com/gentoomaniac/run-puppet/releases/download/v${runPuppetVersion}"
+  $runPuppetDebName = "run-puppet_${runPuppetVersion}_linux_${facts['os']['architecture']}.deb"
+
+  file {"/root/${runPuppetDebName}":
+    ensure => 'present',
+    source => "${runPuppetDebPath}/${runPuppetDebName}",
+  }
+  package { 'run-puppet-install':
+    provider => dpkg,
+    source   => "/root/${runPuppetDebName}",
   }
 
   file { '/etc/systemd/system/run-puppet.service':
