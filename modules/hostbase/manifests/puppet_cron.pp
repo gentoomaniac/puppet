@@ -1,5 +1,5 @@
 class hostbase::puppet_cron (
-  $runPuppetVersion = '0.1.0',
+  $runPuppetVersion = '0.1.1',
 ) {
   require hostbase::puppet
 
