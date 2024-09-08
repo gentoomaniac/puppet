@@ -14,9 +14,6 @@ ressources:
     "datapool/traefik":
       ensure: present
   file:
-    "/srv/prometheus/data":
-      ensure: directory
-      require: Zfs[datapool/prometheus]
     "/srv/traefik/conf":
       ensure: directory
       require: Zfs[datapool/traefik]
@@ -105,6 +102,45 @@ ressources:
               processors: [service-graphs, span-metrics, local-blocks] # enables metrics generator
               generate_native_histograms: both
       require: Zfs[datapool/tempo]
+    "/srv/prometheus/data":
+      ensure: directory
+      owner: nobody
+      group: nogroup
+      require: Zfs[datapool/prometheus]
+    "/srv/prometheus/prometheus.yml":
+      ensure: present
+      content: |
+        # my global config
+        global:
+          scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+          evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+          # scrape_timeout is set to the global default (10s).
+
+        # Alertmanager configuration
+        alerting:
+          alertmanagers:
+            - static_configs:
+                - targets:
+                  # - alertmanager:9093
+
+        # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+        rule_files:
+          # - "first_rules.yml"
+          # - "second_rules.yml"
+
+        # A scrape configuration containing exactly one endpoint to scrape:
+        # Here it's Prometheus itself.
+        scrape_configs:
+          # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+          - job_name: "prometheus"
+
+            # metrics_path defaults to '/metrics'
+            # scheme defaults to 'http'.
+
+            static_configs:
+              - targets: ["localhost:9090"]
+      require: Zfs[datapool/prometheus]
+
 
 docker::networks::networks:
   web:
@@ -166,7 +202,7 @@ docker::run_instance::instance:
     extra_parameters:
       - --restart=unless-stopped
     volumes:
-      - /srv/tempo/tempo.yaml:/etc/tempo.yaml
+      - /srv/tempo/tempo.yaml:/etc/tempo.yaml:ro
       - /srv/tempo/data:/var/tempo
     net:
       - web
@@ -184,10 +220,15 @@ docker::run_instance::instance:
       - 10.1.1.53
     labels:
       - traefik.enable=false
+    command: >
+      --web.enable-remote-write-receiver
+      --config.file=/etc/prometheus/prometheus.yml
+      --enable-feature=native-histograms
     extra_parameters:
       - --restart=unless-stopped
     volumes:
       - /srv/prometheus/data:/prometheus
+      - /srv/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     net:
       - web
     ports:
@@ -195,6 +236,8 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Zfs[datapool/prometheus]
+      - File[/srv/prometheus/data]
+      - File[/srv/prometheus/prometheus.yml]
 
   grafana:
     image: grafana/grafana:latest
