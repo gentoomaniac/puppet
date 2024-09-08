@@ -253,7 +253,7 @@ ressources:
     "fail2ban":
       ensure: running
       enable: true
-      require: Paackage[fail2ban]
+      require: Package[fail2ban]
 
 docker::volumes::volumes:
   "clouddns-config":
