@@ -162,6 +162,7 @@ docker::run_instance::instance:
       --providers.file.directory=/conf
       --providers.file.watch=true
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -188,6 +189,7 @@ docker::run_instance::instance:
   tempo:
     image: grafana/tempo:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     labels:
       - traefik.enable=true
@@ -217,6 +219,7 @@ docker::run_instance::instance:
   prometheus:
     image: prom/prometheus:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     labels:
       - traefik.enable=false
@@ -242,6 +245,7 @@ docker::run_instance::instance:
   grafana:
     image: grafana/grafana:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - GF_SERVER_ROOT_URL=https://grafana.srv.gentoomaniac.net

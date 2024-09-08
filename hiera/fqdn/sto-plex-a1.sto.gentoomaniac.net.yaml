@@ -193,6 +193,7 @@ docker::run_instance::instance:
       --providers.docker.exposedbydefault=false
       --serverstransport.insecureskipverify=true
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -221,6 +222,7 @@ docker::run_instance::instance:
   radarr:
     image: linuxserver/radarr:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -251,6 +253,7 @@ docker::run_instance::instance:
   radarr-kids:
     image: linuxserver/radarr:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -281,6 +284,7 @@ docker::run_instance::instance:
   sonarr:
     image: linuxserver/sonarr:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -311,6 +315,7 @@ docker::run_instance::instance:
   sonarr-kids:
     image: linuxserver/sonarr:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -341,6 +346,7 @@ docker::run_instance::instance:
   lidarr:
     image: linuxserver/lidarr:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -371,6 +377,7 @@ docker::run_instance::instance:
   tautulli:
     image: linuxserver/tautulli:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     expose:
       - 8181/tcp
@@ -394,6 +401,7 @@ docker::run_instance::instance:
   plex:
     image: plexinc/pms-docker:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
       - 8.8.8.8
     env:
@@ -441,6 +449,7 @@ docker::run_instance::instance:
   youtube-dl:
     image: tzahi12345/youtubedl-material:nightly
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - ALLOW_CONFIG_MUTATIONS: 'true'

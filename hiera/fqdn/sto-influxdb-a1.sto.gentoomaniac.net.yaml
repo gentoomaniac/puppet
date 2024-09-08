@@ -198,6 +198,7 @@ docker::run_instance::instance:
   influxdb:
     image: influxdb:1.7-alpine
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - INFLUXDB_ADMIN_USER='%{lookup('secret_influxdb_admin_user')}'
@@ -229,6 +230,7 @@ docker::run_instance::instance:
   influxdb2:
     image: influxdb:2
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - INFLUXDB_ADMIN_USER='%{lookup('secret_influxdb_admin_user')}'
@@ -259,6 +261,7 @@ docker::run_instance::instance:
   chronograf:
     image: chronograf:1.7-alpine
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     expose:
       - 8888/tcp
@@ -290,6 +293,7 @@ docker::run_instance::instance:
       --providers.file.directory=/conf
       --providers.file.watch=true
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -315,6 +319,7 @@ docker::run_instance::instance:
   varken:
     image: boerderij/varken:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - TZ=Europe/Berlin
@@ -380,6 +385,7 @@ docker::run_instance::instance:
   grafana:
     image: grafana/grafana:latest
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - GF_SERVER_ROOT_URL=https://grafana.srv.gentoomaniac.net

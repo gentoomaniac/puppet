@@ -148,6 +148,7 @@ docker::run_instance::instance:
       --providers.file.directory=/conf
       --providers.file.watch=true
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     env:
       - PUID=1000
@@ -175,6 +176,7 @@ docker::run_instance::instance:
       vault server
       -config /vault/config/config.hcl
     dns:
+      - 10.1.1.52
       - 10.1.1.53
     expose:
       - 8200/tcp
