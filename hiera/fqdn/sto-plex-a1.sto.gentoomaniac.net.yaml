@@ -12,9 +12,9 @@ ressources:
   package:
     autofs:
       ensure: installed
-  sysctl:
-    vm.max_map_count:
-      value: 262144
+  # sysctl:
+  #   vm.max_map_count:
+  #     value: 262144
   zfs:
     "localpool/traefik":
       ensure: present
