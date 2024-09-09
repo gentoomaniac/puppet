@@ -20,8 +20,6 @@ ressources:
       ensure: present
     "datapool/traefik-fa":
       ensure: present
-    "datapool/registry":
-      ensure: present
     "datapool/ksnginx":
       ensure: present
 
@@ -351,32 +349,6 @@ docker::run_instance::instance:
       - traefik.http.routers.whoami.middlewares=sso@file
     net:
       - web
-  registry:
-    image: registry:2
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    env:
-      - REGISTRY_HTTP_ADDR=0.0.0.0:80
-    expose:
-      - 80/tcp
-    extra_parameters:
-      - --restart=unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.registry.rule=Host(`registry.srv.gentoomaniac.net`)
-      - traefik.http.routers.registry.entrypoints=ssl
-      - traefik.http.routers.registry.tls=true
-      - traefik.http.middlewares.registry-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
-      - traefik.http.routers.registry.middlewares=registry-whitelist
-    net:
-      - web
-    pull_on_start: true
-    volumes:
-      - /srv/registry:/var/lib/registry
-    require:
-      - Class[docker]
-      - Zfs[datapool/registry]
 
 kickstart_nginx::labels:
   - traefik.enable=true
