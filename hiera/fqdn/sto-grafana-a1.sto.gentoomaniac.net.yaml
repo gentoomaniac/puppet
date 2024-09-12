@@ -288,21 +288,3 @@ docker::run_instance::instance:
     pull_on_start: true
     require:
       - Class[docker]
-
-  nodexporter:
-    image: quay.io/prometheus/node-exporter:latest
-    command: >
-      --path.rootfs=/host
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    extra_parameters:
-      - --restart=unless-stopped
-      - --pid="host"
-    net:
-      - host
-    pull_on_start: true
-    require:
-      - Class[docker]
-    volumes:
-      - /:/host:ro,rslave
