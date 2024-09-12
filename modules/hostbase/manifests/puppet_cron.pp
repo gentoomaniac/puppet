@@ -4,9 +4,7 @@ class hostbase::puppet_cron (
   require hostbase::puppet
 
   file { '/usr/local/bin/run-puppet':
-    ensure => 'present',
-    mode   => '0744',
-    source => 'puppet:///modules/hostbase/run-puppet.sh',
+    ensure => 'absent',
   }
 
   $runPuppetDebPath = "https://github.com/gentoomaniac/run-puppet/releases/download/v${runPuppetVersion}"
