@@ -149,6 +149,10 @@ ressources:
               - targets:
                 - sto-coredns-a1.sto.gentoomaniac.net:9153
                 - sto-coredns-c1.sto.gentoomaniac.net:9153
+          - job_name: "freenas"
+            static_configs:
+              - targets:
+                - sto-grafana-a1.sto.gentoomaniac.net:9109
       require: Zfs[datapool/prometheus]
 
 docker::networks::networks:
@@ -294,6 +298,18 @@ docker::run_instance::instance:
       - --restart=unless-stopped
     net:
       - web
+    pull_on_start: true
+    require:
+      - Class[docker]
+
+  graphite-exporter:
+    image: prom/graphite-exporter
+    ports:
+      - 9108:9108/tcp
+      - 2003:9109/tcp
+      - 2003:9109/udp
+    extra_parameters:
+      - --restart=unless-stopped
     pull_on_start: true
     require:
       - Class[docker]
