@@ -4,6 +4,7 @@ classes:
   - cron
   - hostbase::autoupdate
   - hostbase::dotfiles
+  - hostbase::packages
   - hostbase::puppet
   - hostbase::puppet_cron
   - hostbase::resolved
