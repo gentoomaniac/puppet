@@ -9,6 +9,8 @@ ressources:
       ensure: present
     "datapool/graphite-exporter":
       ensure: present
+    "datapool/otelcol":
+      ensure: present
     "datapool/prometheus":
       ensure: present
     "datapool/tempo":
@@ -460,9 +462,30 @@ ressources:
             type: "${2}"
             fallback_match: "4"
       require: Zfs[datapool/graphite-exporter]
+    "/srv/otelcol/config.yaml":
+      ensure: present
+      content: |
+        receivers:
+          otlp:
+            protocols:
+              http:
+                endpoint: 0.0.0.0:4318
+
+        exporters:
+          otlphttp:
+            endpoint: https://tempo:4318
+
+        service:
+          pipelines:
+            traces:
+              receivers: [otlp]
+              exporters: [otlphttp]
+      require: Zfs[datapool/otelcol]
 
 docker::networks::networks:
   web:
+    ensure: "present"
+  backend:
     ensure: "present"
 
 docker::run_instance::instance:
@@ -520,13 +543,6 @@ docker::run_instance::instance:
       - traefik.http.middlewares.tempo-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
       - traefik.http.routers.tempo.middlewares=tempo-whitelist
       - traefik.http.routers.tempo.service=tempo@docker
-      - traefik.http.routers.otelcol.rule=Host(`otelcol.srv.gentoomaniac.net`)
-      - traefik.http.services.otelcol.loadbalancer.server.port=4318
-      - traefik.http.routers.otelcol.entrypoints=otel
-      - traefik.http.routers.otelcol.tls=true
-      - traefik.http.middlewares.otelcol-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
-      - traefik.http.routers.otelcol.middlewares=otelcol-whitelist
-      - traefik.http.routers.otelcol.service=otelcol@docker
     command: >
       --config.file=/etc/tempo.yaml
     extra_parameters:
@@ -536,6 +552,7 @@ docker::run_instance::instance:
       - /srv/tempo/data:/var/tempo
     net:
       - web
+      - backend
     expose:
       - 3200
       - 4318
@@ -633,3 +650,29 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/graphite-exporter/mappings.conf]
+
+
+  otelcol:
+    image: otel/opentelemetry-collector:0.109.0
+    expose:
+      - 4318
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - web
+      - backend
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.otelcol.rule=Host(`otelcol.srv.gentoomaniac.net`)
+      - traefik.http.services.otelcol.loadbalancer.server.port=4318
+      - traefik.http.routers.otelcol.entrypoints=otel
+      - traefik.http.routers.otelcol.tls=true
+      - traefik.http.middlewares.otelcol-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
+      - traefik.http.routers.otelcol.middlewares=otelcol-whitelist
+      - traefik.http.routers.otelcol.service=otelcol@docker
+    pull_on_start: true
+    volumes:
+      - /srv/otelcol/config.yaml:/etc/otelcol/config.yaml:ro
+    require:
+      - Class[docker]
+      - File[/srv/otelcol/config.yaml]
