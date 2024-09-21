@@ -48,13 +48,26 @@ ressources:
       owner: 10001
       group: 10001
       require: Zfs[datapool/tempo]
+    "/srv/tempo/tls":
+      ensure: directory
+      require: Zfs[datapool/tempo]
+    "/srv/tempo/tls/key.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
+      require: File[/srv/tempo/tls]
+      notify: Docker::Run[tempo]
+    "/srv/tempo/tls/cert.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
+      require: File[/srv/tempo/tls]
+      notify: Docker::Run[tempo]
     "/srv/tempo/tempo.yaml":
       ensure: present
       content: |
         stream_over_http_enabled: true
         server:
           http_listen_port: 3200
-          log_level: info
+          log_level: warn
 
         query_frontend:
           search:
@@ -459,7 +472,7 @@ docker::run_instance::instance:
       --api.insecure=true
       --api.dashboard=true
       --entrypoints.tempo.address=:3200
-      --entrypoints.otelhttp.address=:4318
+      --entrypoints.otel.address=:4318
       --entrypoints.ssl.address=:443
       --entrypoints.prometheus.address=:9090
       --serverstransport.insecureskipverify=true
@@ -479,9 +492,10 @@ docker::run_instance::instance:
     net:
       - web
     ports:
-      - 8080:8080/tcp
       - 443:443/tcp
       - 3200:3200/tcp
+      - 4318:4318/tcp
+      - 8080:8080/tcp
     pull_on_start: true
     require:
       - Class[docker]
@@ -503,10 +517,18 @@ docker::run_instance::instance:
       - traefik.http.services.tempo.loadbalancer.server.port=3200
       - traefik.http.routers.tempo.entrypoints=tempo
       - traefik.http.routers.tempo.tls=true
-      - traefik.http.middlewares.tempo-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
+      - traefik.http.middlewares.tempo-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
       - traefik.http.routers.tempo.middlewares=tempo-whitelist
+      - traefik.http.routers.tempo.service=tempo@docker
+      - traefik.http.routers.otelcol.rule=Host(`otelcol.srv.gentoomaniac.net`)
+      - traefik.http.services.otelcol.loadbalancer.server.port=4318
+      - traefik.http.routers.otelcol.entrypoints=otel
+      - traefik.http.routers.otelcol.tls=true
+      - traefik.http.middlewares.otelcol-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
+      - traefik.http.routers.otelcol.middlewares=otelcol-whitelist
+      - traefik.http.routers.otelcol.service=otelcol@docker
     command: >
-      -config.file=/etc/tempo.yaml
+      --config.file=/etc/tempo.yaml
     extra_parameters:
       - --restart=unless-stopped
     volumes:
@@ -516,8 +538,7 @@ docker::run_instance::instance:
       - web
     expose:
       - 3200
-    ports:
-      - "4318:4318"  # otlp http
+      - 4318
     require:
       - Class[docker]
       - Zfs[datapool/tempo]
@@ -569,7 +590,7 @@ docker::run_instance::instance:
       - traefik.http.routers.grafana.rule=Host(`grafana.srv.gentoomaniac.net`)
       - traefik.http.routers.grafana.entrypoints=ssl
       - traefik.http.routers.grafana.tls=true
-      - traefik.http.middlewares.grafana-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.0.0/16
+      - traefik.http.middlewares.grafana-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
       - traefik.http.routers.grafana.middlewares=grafana-whitelist
     net:
       - web
