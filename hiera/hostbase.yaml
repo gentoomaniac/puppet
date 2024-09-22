@@ -59,6 +59,9 @@ ressources:
         - adm
       purge_ssh_keys: true
   file:
+    "/var/lib/puppet/reports":
+      ensure: absent
+      force: true
     "/etc/userkeys":
       ensure: directory
     "/etc/userkeys/root":
