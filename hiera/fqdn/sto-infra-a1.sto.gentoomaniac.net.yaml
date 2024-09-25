@@ -8,6 +8,8 @@ classes:
 
 certbot::domain: "*.srv.gentoomaniac.net"
 
+hostbase::sshd::root_login_enable: false
+
 ressources:
   package:
     "default-jre":
