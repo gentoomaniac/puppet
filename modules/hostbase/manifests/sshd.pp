@@ -1,6 +1,6 @@
 class hostbase::sshd(
   $port = 22,
-  $root_login_enable = false
+  $root_login_enable = true
 ) {
 
   if $facts['os']['distro']['codename'] == 'noble' {
