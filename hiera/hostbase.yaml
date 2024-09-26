@@ -32,6 +32,10 @@ dns::servers:
 
 apt::sources:
 
+dotfiles:
+  "marco": {}
+  "root": {}
+
 ressources:
   group:
     "ubuntu":
