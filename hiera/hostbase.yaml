@@ -16,14 +16,18 @@ classes:
 
 hostbase::puppet::version: 8.8.1-1
 
-hostbase::packages::base_packages:
+hostbase::packages::present:
   - mailutils
-  - vim-nox
   - neovim
   - git
   - python3-virtualenv
   - python3-pip
   - hwinfo
+
+hostbase::packages::absent:
+  - vim
+  - vim-nox
+  - vim-tiny
 
 timezone::timezone: Etc/UTC
 
