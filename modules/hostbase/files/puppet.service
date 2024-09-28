@@ -3,6 +3,6 @@ Description=Execute run-puppet
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/run-puppet
+ExecStart=/usr/bin/run-puppet --otel-endpoint-url=https://otelcol.srv.gentoomaniac.net:4318
 User=root
 Group=systemd-journal
