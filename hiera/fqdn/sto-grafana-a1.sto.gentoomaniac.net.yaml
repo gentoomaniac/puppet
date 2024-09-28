@@ -474,8 +474,14 @@ ressources:
         exporters:
           otlphttp:
             endpoint: https://tempo:4318
+          debug:
 
         service:
+          telemetry:
+            logs:
+              level: "DEBUG"
+              development: true
+              encoding: "json"
           pipelines:
             traces:
               receivers: [otlp]
