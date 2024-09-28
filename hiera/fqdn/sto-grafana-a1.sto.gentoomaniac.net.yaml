@@ -670,6 +670,7 @@ docker::run_instance::instance:
       - traefik.http.middlewares.otelcol-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
       - traefik.http.routers.otelcol.middlewares=otelcol-whitelist
       - traefik.http.routers.otelcol.service=otelcol@docker
+      - traefik.docker.network=web
     pull_on_start: true
     volumes:
       - /srv/otelcol/config.yaml:/etc/otelcol/config.yaml:ro
