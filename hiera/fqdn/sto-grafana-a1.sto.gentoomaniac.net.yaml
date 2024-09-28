@@ -473,7 +473,7 @@ ressources:
 
         exporters:
           otlphttp:
-            endpoint: https://tempo:4318
+            endpoint: http://tempo:4318
           debug:
 
         service:
@@ -549,6 +549,7 @@ docker::run_instance::instance:
       - traefik.http.middlewares.tempo-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
       - traefik.http.routers.tempo.middlewares=tempo-whitelist
       - traefik.http.routers.tempo.service=tempo@docker
+      - traefik.docker.network=web
     command: >
       --config.file=/etc/tempo.yaml
     extra_parameters:
