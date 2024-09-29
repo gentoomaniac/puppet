@@ -425,7 +425,7 @@ docker::run_instance::instance:
     volumes:
       - /srv/plex/config:/config
       - /srv/plex/transcode:/transcode
-      #- nfs_movies:/data/movies:ro
+      - nfs_movies:/data/movies:ro
       - nfs_shows:/data/shows:ro
       - nfs_kids_movies:/data/kids_movies:ro
       - nfs_kids_shows:/data/kids_shows:ro
@@ -437,7 +437,7 @@ docker::run_instance::instance:
       - Class[docker]
       - File[/srv/plex/config]
       - File[/srv/plex/transcode]
-      #- Docker_volume[nfs_movies]
+      - Docker_volume[nfs_movies]
       - Docker_volume[nfs_shows]
       - Docker_volume[nfs_kids_movies]
       - Docker_volume[nfs_kids_shows]
