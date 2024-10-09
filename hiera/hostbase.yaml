@@ -286,9 +286,9 @@ ressources:
 
         POOLS="$(zpool list| awk '/ONLINE/{print $1}')"
         for POOL_NAME in ${POOLS}; do
-            DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
+            DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}" | grep -v docker)"
             for dataset in ${DATASETS}; do
-                for snapshot in $(zfs list -t snapshot "${dataset}"); do
+                for snapshot in $(zfs list -t snapshot "${dataset}" 2>/dev/null ); do
                     created=$(date -d "$(sed -n "s|^"${dataset}"@"${LABEL}"-\(.\{4\}\)\(.\{2\}\)\(.\{2\}\)-\(.\{2\}\)\(.\{2\}\)\(.\{2\}\).*|\1-\2-\3 \4:\5:\6|p" <<<${snapshot})" "+%s")
                     if (( $[$(date '+%s')-${created}] > ${MAXAGE} )); then
                         echo "deleting snapshot '${snapshot}' ..."
