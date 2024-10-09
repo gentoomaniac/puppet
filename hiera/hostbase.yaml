@@ -139,8 +139,6 @@ ressources:
           echo "reboot_required_since value=${REBOOT_REQUIRED_SINCE:-0}"
           echo "puppet_branch value=1,branch=\"$(head -1 /etc/puppet_branch)\""
 
-    "/etc/cron.weekly/regular-reboot":
-      ensure: absent
     "/usr/local/bin/unattended-reboot":
       ensure: present
       mode: "0754"
@@ -228,7 +226,7 @@ ressources:
         LABEL=${1:-frequent}
 
         POOL_NAME="$(zpool list| awk '/ONLINE/{print $1}')"
-        DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
+        DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")" | egrep -v "(docker|aptarchives|varlog)"
 
         for dataset in ${DATASETS}; do
             zfs snapshot "${dataset}@${LABEL}-$(date +%Y%m%d-%H%M%S)"
