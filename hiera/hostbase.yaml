@@ -17,6 +17,7 @@ classes:
 hostbase::puppet::version: 8.8.1-1
 
 hostbase::packages::present:
+  - btop
   - mailutils
   - neovim
   - git
