@@ -157,6 +157,7 @@ ressources:
                 - sto-grafana-a1.sto.gentoomaniac.net:9100
                 - sto-infra-a1.sto.gentoomaniac.net:9100
                 - sto-minecraft-a1.sto.gentoomaniac.net:9100
+                - sto-minecraft-b1.sto.gentoomaniac.net:9100
                 - sto-nzbget-a1.sto.gentoomaniac.net:9100
                 - sto-plex-a1.sto.gentoomaniac.net:9100
                 - sto-proxmox-a1.sto.gentoomaniac.net:9100

@@ -3,6 +3,9 @@ classes:
   - docker
   - docker::run_instance
 
+hostbase::packages::present:
+- tlp
+
 ressources:
   zfs:
     "localpool/minecraft":
