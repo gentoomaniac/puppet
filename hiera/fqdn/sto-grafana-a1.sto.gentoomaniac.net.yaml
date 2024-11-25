@@ -17,6 +17,8 @@ ressources:
       ensure: present
     "datapool/traefik":
       ensure: present
+    "datapool/shelly-exporter":
+      ensure: present
   file:
     "/srv/traefik/conf":
       ensure: directory
@@ -488,6 +490,29 @@ ressources:
               receivers: [otlp]
               exporters: [otlphttp]
       require: Zfs[datapool/otelcol]
+    "/srv/shelly-exporter/config.yaml":
+      ensure: present
+      content: |
+        global:
+          user: "marco"
+          password: "%{lookup('secret_shelly_password')}"
+
+        devices:
+        - name: "shellyplug-s-80646F819FD8"
+          alias: "birds"
+          type: "SHPLG-S"
+          ip: "10.1.3.117"
+        - name: "shellyplug-s-80646F8222B4"
+          alias: "proxmox"
+          type: "SHPLG-S"
+          ip: "10.1.3.100"
+        - name: "shellyplug-s-80646F82B19A"
+          alias: "livingroom"
+          type: "SHPLG-S"
+          ip: "10.1.3.154"
+
+      require: Zfs[datapool/shelly-exporter]
+      notify: Docker::Run[shelly-exporter]
 
 docker::networks::networks:
   web:
@@ -685,3 +710,29 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/otelcol/config.yaml]
+
+  shelly-exporter:
+    image: ghcr.io/gentoomaniac/shelly-exporter:v0.0.1-amd64
+    expose:
+      - 8080/tcp
+    command: >
+      -vv
+      --config-file /etc/shelly-exporter.yaml
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - web
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.shelly-exporter.rule=Host(`shelly-exporter.srv.gentoomaniac.net`)
+      - traefik.http.routers.shelly-exporter.entrypoints=ssl
+      - traefik.http.routers.shelly-exporter.tls=true
+      - traefik.http.middlewares.shelly-exporter-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
+      - traefik.http.routers.shelly-exporter.middlewares=shelly-exporter-whitelist
+      - traefik.docker.network=web
+    pull_on_start: true
+    volumes:
+      - /srv/shelly-exporter/config.yaml:/etc/shelly-exporter.yaml:ro
+    require:
+      - Class[docker]
+      - File[/srv/shelly-exporter/config.yaml]
