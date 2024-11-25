@@ -173,6 +173,11 @@ ressources:
             static_configs:
               - targets:
                 - sto-grafana-a1.sto.gentoomaniac.net:9109
+          - job_name: "iot"
+            scheme: https
+            static_configs:
+              - targets:
+                - shelly-exporter.srv.gentoomaniac.net:443
       require: Zfs[datapool/prometheus]
     "/srv/graphite-exporter/mappings.conf":
       ensure: present
