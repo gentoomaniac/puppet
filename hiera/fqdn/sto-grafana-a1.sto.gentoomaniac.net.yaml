@@ -503,17 +503,11 @@ ressources:
           password: "%{lookup('secret_shelly_password')}"
 
         devices:
-        - name: "shellyplug-s-80646F819FD8"
-          alias: "birds"
-          type: "SHPLG-S"
+        - type: "SHPLG-S"
           ip: "10.1.3.117"
-        - name: "shellyplug-s-80646F8222B4"
-          alias: "proxmox"
-          type: "SHPLG-S"
+        - type: "SHPLG-S"
           ip: "10.1.3.100"
-        - name: "shellyplug-s-80646F82B19A"
-          alias: "livingroom"
-          type: "SHPLG-S"
+        - type: "SHPLG-S"
           ip: "10.1.3.154"
 
       require: Zfs[datapool/shelly-exporter]
@@ -717,7 +711,7 @@ docker::run_instance::instance:
       - File[/srv/otelcol/config.yaml]
 
   shelly-exporter:
-    image: ghcr.io/gentoomaniac/shelly-exporter:v0.0.1-amd64
+    image: ghcr.io/gentoomaniac/shelly-exporter:v0.0.2-amd64
     expose:
       - 8080/tcp
     command: >
