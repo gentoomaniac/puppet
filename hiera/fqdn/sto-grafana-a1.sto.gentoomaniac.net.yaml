@@ -590,6 +590,7 @@ docker::run_instance::instance:
       --providers.docker.exposedbydefault=false
       --providers.file.directory=/conf
       --providers.file.watch=true
+      --metrics.prometheus=true
     dns:
       - 10.1.1.52
       - 10.1.1.53
