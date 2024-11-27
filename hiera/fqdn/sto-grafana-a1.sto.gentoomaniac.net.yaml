@@ -161,6 +161,13 @@ ressources:
                 - sto-plex-a1.sto.gentoomaniac.net:9100
                 - sto-proxmox-a1.sto.gentoomaniac.net:9100
                 - sto-vault-a1.sto.gentoomaniac.net:9100
+          - job_name: "traefik"
+            static_configs:
+              - targets:
+                - sto-grafana-a1.sto.gentoomaniac.net:8080
+                - sto-infra-a1.sto.gentoomaniac.net:8080
+                - sto-nzbget-a1.sto.gentoomaniac.net:8080
+                - sto-plex-a1.sto.gentoomaniac.net:8080
           - job_name: "coredns"
             static_configs:
               - targets:
