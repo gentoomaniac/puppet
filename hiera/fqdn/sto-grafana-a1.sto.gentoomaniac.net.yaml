@@ -544,6 +544,18 @@ ressources:
             room: "kitchen"
             category: "appliances"
         - type: "SHPLG-S"
+          ip: "10.1.3.131"
+          labels:
+            building: "main"
+            room: "living room"
+            category: "misc"
+        - type: "SHPLG-S"
+          ip: "10.1.3.136"
+          labels:
+            building: "main"
+            room: "kitchen"
+            category: "appliance"
+        - type: "SHPLG-S"
           ip: "10.1.3.149"
           labels:
             building: "main"
@@ -574,6 +586,12 @@ ressources:
             room: "bedroom"
             category: "misc"
         - type: "SHPLG-S"
+          ip: "10.1.3.172"
+          labels:
+            building: "main"
+            room: "kitchen"
+            category: "appliance"
+        - type: "SHPLG-S"
           ip: "10.1.3.173"
           labels:
             building: "main"
@@ -585,6 +603,18 @@ ressources:
             building: "main"
             room: "media rack"
             category: "infrastructure"
+        - type: "SHPLG-S"
+          ip: "10.1.3.190"
+          labels:
+            building: "main"
+            room: "kitchen"
+            category: "appliance"
+        - type: "SHPLG-S"
+          ip: "10.1.3.200"
+          labels:
+            building: "main"
+            room: "kitchen"
+            category: "appliance"
 
       require: Zfs[datapool/shelly-exporter]
       notify: Docker::Run[shelly-exporter]
