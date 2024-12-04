@@ -615,6 +615,12 @@ ressources:
             room: "kitchen"
             category: "appliance"
         - type: "SHPLG-S"
+          ip: "10.1.3.198"
+          labels:
+            building: "main"
+            room: "kitchen"
+            category: "appliance"
+        - type: "SHPLG-S"
           ip: "10.1.3.200"
           labels:
             building: "main"
