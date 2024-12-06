@@ -513,6 +513,12 @@ ressources:
             building: "main"
 
         - type: "SHPLG-S"
+          ip: "10.1.3.101"
+          labels:
+            building: "adu"
+            room: "living room"
+            category: "entertainment"
+        - type: "SHPLG-S"
           ip: "10.1.3.100"
           labels:
             building: "main"
@@ -578,6 +584,12 @@ ressources:
             building: "main"
             room: "living room"
             category: "entertainment"
+        - type: "SHPLG-S"
+          ip: "10.1.3.156"
+          labels:
+            building: "adu"
+            room: "living room"
+            category: "house"
         - type: "SHPLG-S"
           ip: "10.1.3.156"
           labels:
