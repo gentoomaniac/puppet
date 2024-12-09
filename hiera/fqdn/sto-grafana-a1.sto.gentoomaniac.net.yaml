@@ -627,7 +627,7 @@ ressources:
             building: "main"
             room: "media rack"
             category: "infrastructure"
-        - type: "SHMINIPM3G"
+        - type: "SHMINIPMG3"
           ip: "10.1.3.187"
           labels:
             building: "main"
