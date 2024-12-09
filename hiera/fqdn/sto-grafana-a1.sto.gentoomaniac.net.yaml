@@ -514,10 +514,10 @@ ressources:
             
         - type: "SHPRO3EM"
           ip: "10.1.3.127"
-          user: admin
+          user: "admin"
           labels:
-            building: adu
-            category: total
+            building: "adu"
+            category: "total"
 
         - type: "SHPLG-S"
           ip: "10.1.3.101"
@@ -629,6 +629,7 @@ ressources:
             category: "infrastructure"
         - type: "SHMINIPMG3"
           ip: "10.1.3.187"
+          user: "admin"
           labels:
             building: "main"
             room: "kitchen"
