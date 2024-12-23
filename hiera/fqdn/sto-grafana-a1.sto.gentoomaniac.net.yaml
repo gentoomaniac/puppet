@@ -621,6 +621,13 @@ ressources:
             building: "main"
             room: "ludvig"
             category: "computers"
+        - type: "SHMINIPMG3"
+          ip: "10.1.3.176"
+          user: "admin"
+          labels:
+            building: "main"
+            room: "bathroom"
+            category: "appliance"
         - type: "SHPLG-S"
           ip: "10.1.3.186"
           labels:
