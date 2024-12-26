@@ -68,7 +68,15 @@ ressources:
         - sudo
         - adm
       purge_ssh_keys: true
+  file_line:
+    "/etc/locale.gen":
+      path: /etc/locale.gen
+      line: "en_GB.UTF-8 UTF-8"
+      notify: Exec[/usr/sbin/locale-gen]
   file:
+    "/etc/default/locale":
+      content: "LANG=en_GB.UTF-8"
+      notify: Exec[/usr/sbin/locale-gen]
     "/var/lib/puppet/reports":
       ensure: absent
       force: true
@@ -394,6 +402,9 @@ ressources:
         - File[/etc/systemd/system/zfs-cleanup-snapshots-daily.timer]
         - File[/etc/systemd/system/zfs-cleanup-snapshots-weekly.timer]
         - File[/etc/systemd/system/zfs-scrub-weekly.timer]
+    "/usr/sbin/locale-gen":
+      refreshonly: true
+
 
   service:
     "docker-system-prune-weekly.timer":
