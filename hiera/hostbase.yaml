@@ -24,6 +24,7 @@ hostbase::packages::present:
   - python3-virtualenv
   - python3-pip
   - hwinfo
+  - fzf
 
 hostbase::packages::absent:
   - vim
