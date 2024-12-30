@@ -523,8 +523,8 @@ ressources:
           ip: "10.1.3.101"
           labels:
             building: "adu"
-            room: "living room"
-            category: "entertainment"
+            room: "bedroom"
+            category: "heating"
         - type: "SHPLG-S"
           ip: "10.1.3.100"
           labels:
