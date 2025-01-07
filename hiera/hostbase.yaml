@@ -25,11 +25,9 @@ hostbase::packages::present:
   - python3-pip
   - hwinfo
   - fzf
+  - mbuffer
 
-hostbase::packages::absent:
-  - vim
-  - vim-nox
-  - vim-tiny
+hostbase::packages::absent: []
 
 timezone::timezone: Etc/UTC
 
