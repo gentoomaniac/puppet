@@ -66,18 +66,10 @@ ressources:
 
           [http.services.unifi.loadBalancer]
             [[http.services.unifi.loadBalancer.servers]]
-              url = "https://10.1.1.2:8443/"
+              url = "https://10.1.1.1:443/"
 
-          [http.services.protect.loadBalancer]
-            [[http.services.protect.loadBalancer.servers]]
-              url = "https://10.1.1.2:7443/"
-
-          [http.services.ck.loadBalancer]
-            [[http.services.ck.loadBalancer.servers]]
-              url = "https://10.1.1.2:443/"
-
-          [http.services.proxmox1.loadBalancer]
-            [[http.services.proxmox1.loadBalancer.servers]]
+          [http.services.proxmox.loadBalancer]
+            [[http.services.proxmox.loadBalancer.servers]]
               url = "https://sto-proxmox-a1.sto.gentoomaniac.net:8006/"
 
           [http.services.proxmox2.loadBalancer]
@@ -95,7 +87,7 @@ ressources:
             rule = "Host(`nas.srv.gentoomaniac.net`)"
             service = "nas"
             entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist", "sso@file"]
+            middlewares = ["local-only-whitelist"]
             [http.routers.nas.tls]
 
           [http.routers.unifi]
@@ -105,33 +97,12 @@ ressources:
             middlewares = ["local-only-whitelist"]
             [http.routers.unifi.tls]
 
-          [http.routers.protect]
-            rule = "Host(`protect.srv.gentoomaniac.net`)"
-            service = "protect"
+          [http.routers.proxmox]
+            rule = "Host(`proxmox.srv.gentoomaniac.net`)"
+            service = "proxmox"
             entryPoints = ["ssl"]
             middlewares = ["local-only-whitelist"]
-            [http.routers.protect.tls]
-
-          [http.routers.ck]
-            rule = "Host(`ck.srv.gentoomaniac.net`)"
-            service = "ck"
-            entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist"]
-            [http.routers.ck.tls]
-
-          [http.routers.proxmox1]
-            rule = "Host(`proxmox1.srv.gentoomaniac.net`)"
-            service = "proxmox1"
-            entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist", "sso@file"]
-            [http.routers.proxmox1.tls]
-
-          [http.routers.proxmox2]
-            rule = "Host(`proxmox2.srv.gentoomaniac.net`)"
-            service = "proxmox2"
-            entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist"]
-            [http.routers.proxmox2.tls]
+            [http.routers.proxmox.tls]
 
         [http.middlewares]
           [http.middlewares.redirect-to-https]
@@ -355,12 +326,14 @@ docker::run_instance::instance:
       - 10.1.1.53
     expose:
       - 80/tcp
+    ports:
+      - 8443:8443/tcp
     labels:
       - traefik.enable=true
       - traefik.http.routers.whoami.rule=Host(`whoami.srv.gentoomaniac.net`)
       - traefik.http.routers.whoami.entrypoints=ssl
       - traefik.http.routers.whoami.tls=true
-      - traefik.http.routers.whoami.middlewares=sso@file
+      #- traefik.http.routers.whoami.middlewares=sso@file
     net:
       - web
   openhab:
