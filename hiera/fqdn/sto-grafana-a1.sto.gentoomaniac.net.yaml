@@ -756,6 +756,7 @@ docker::run_instance::instance:
       --web.enable-remote-write-receiver
       --config.file=/etc/prometheus/prometheus.yml
       --enable-feature=native-histograms
+      --storage.tsdb.retention.time=10y
     extra_parameters:
       - --restart=unless-stopped
     volumes:
