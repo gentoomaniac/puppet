@@ -560,7 +560,7 @@ ressources:
           labels:
             building: "adu"
             room: "kitchen"
-            category: "appliances"
+            category: "appliance"
         - type: "SHPLG-S"
           ip: "10.1.3.131"
           labels:
