@@ -547,8 +547,8 @@ ressources:
           ip: "10.1.3.117"
           labels:
             building: "main"
-            room: "living room"
-            category: "pets"
+            room: "kitchen"
+            category: "appliance"
         - type: "SHPLG-S"
           ip: "10.1.3.128"
           labels:
