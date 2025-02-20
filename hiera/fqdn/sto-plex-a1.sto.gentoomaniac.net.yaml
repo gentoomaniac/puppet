@@ -70,7 +70,7 @@ ressources:
         kids_shows  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows
         kids_shows_se  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_shows_se
         kids_audio  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_audio
-        music  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/music
+        music  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/movies/music
         sd_old  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/shows/sd_old
         youtube-downloader  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/youtube-downloader
 
@@ -177,7 +177,7 @@ docker::volumes::volumes:
     options:
       - - type=nfs
         - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
-        - device=:/mnt/tank0/music
+        - device=:/mnt/movies/music
 
 docker::run_instance::instance:
   traefik:

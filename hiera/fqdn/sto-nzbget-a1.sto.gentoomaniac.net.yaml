@@ -53,6 +53,13 @@ docker::volumes::volumes:
       - - type=nfs
         - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
         - device=:/mnt/movies/movies
+  nfs_music:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
+        - device=:/mnt/movies/music
   nfs_kids_movies:
     ensure: present
     driver: local
@@ -117,6 +124,7 @@ docker::run_instance::instance:
       - /srv/nzbget/config:/config
       - nfs_nzbget:/downloads
       - nfs_movies:/movies
+      - nfs_music:/music
       - nfs_shows:/shows
       - nfs_kids_movies:/kids_movies
       - nfs_kids_shows:/kids_shows
