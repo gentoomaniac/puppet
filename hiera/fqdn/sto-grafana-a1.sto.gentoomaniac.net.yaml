@@ -485,14 +485,13 @@ ressources:
 
         exporters:
           otlphttp:
-            endpoint: http://tempo:4318
-          debug:
+            endpoint: https://tempo-otelhttp.srv.gentoomaniac.net:4318
 
         service:
           telemetry:
             logs:
-              level: "DEBUG"
-              development: true
+              level: "INFO"
+              development: false
               encoding: "json"
           pipelines:
             traces:
@@ -667,7 +666,7 @@ docker::networks::networks:
   web:
     ensure: "present"
   backend:
-    ensure: "present"
+    ensure: "absent"
 
 docker::run_instance::instance:
   traefik:
@@ -727,6 +726,13 @@ docker::run_instance::instance:
       - traefik.http.middlewares.tempo-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
       - traefik.http.routers.tempo.middlewares=tempo-whitelist
       - traefik.http.routers.tempo.service=tempo@docker
+      - traefik.http.routers.tempo-otelhttp.rule=Host(`tempo-otelhttp.srv.gentoomaniac.net`)
+      - traefik.http.services.tempo-otelhttp.loadbalancer.server.port=4318
+      - traefik.http.routers.tempo-otelhttp.entrypoints=otel
+      - traefik.http.routers.tempo-otelhttp.tls=true
+      - traefik.http.middlewares.tempo-otelhttp-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.0.0.0/8
+      - traefik.http.routers.tempo-otelhttp.middlewares=tempo-otelhttp-whitelist
+      - traefik.http.routers.tempo-otelhttp.service=tempo-otelhttp@docker
       - traefik.docker.network=web
     command: >
       --config.file=/etc/tempo.yaml
@@ -737,7 +743,6 @@ docker::run_instance::instance:
       - /srv/tempo/data:/var/tempo
     net:
       - web
-      - backend
     expose:
       - 3200
       - 4318
@@ -846,7 +851,6 @@ docker::run_instance::instance:
       - --restart=unless-stopped
     net:
       - web
-      - backend
     labels:
       - traefik.enable=true
       - traefik.http.routers.otelcol.rule=Host(`otelcol.srv.gentoomaniac.net`)
