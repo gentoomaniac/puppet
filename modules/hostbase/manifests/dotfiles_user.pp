@@ -41,7 +41,7 @@ define hostbase::dotfiles_user (
     provider => git,
     source   => 'https://github.com/gentoomaniac/dotfiles.git',
     revision => 'master',
-    require  => [File["${base_dir}/.config"], File["${base_dir}/.dotfiles"]],
+    require  => [File["${base_dir}/.config"]],
     notify   => Exec["dotfiles-${user}-permissions"],
   }
   exec { "dotfiles-${user}-permissions":
