@@ -7,27 +7,17 @@ define hostbase::dotfiles_user (
     $base_dir = "/home/${user}"
   }
 
-  $powerlineVersion = '2.1.0'
-  $powerlineDebPath = "https://github.com/gentoomaniac/powerline-go/releases/download/v${powerlineVersion}"
-  $powerlineDebName = "powerline-go_${powerlineVersion}_linux_${facts['os']['architecture']}.deb"
-
-  file {"${base_dir}/.cache/${powerlineDebName}":
-    ensure => 'present',
-    source => "${powerlineDebPath}/${powerlineDebName}",
-  }
-  package { "powerline-go-${user}-install":
-    provider => dpkg,
-    source   => "${base_dir}/.cache/${powerlineDebName}",
-  }
-
   file { "${base_dir}/.go":
-    ensure  => absent,
+    ensure => absent,
+    force  => true,
   }
   file { "${base_dir}/.cache/go-build":
-    ensure  => absent,
+    ensure => absent,
+    force  => true,
   }
   file { "${base_dir}/snap":
-    ensure  => absent,
+    ensure => absent,
+    force  => true,
   }
 
   file { "${base_dir}/.config":
