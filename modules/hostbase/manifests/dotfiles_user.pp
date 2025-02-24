@@ -11,13 +11,13 @@ define hostbase::dotfiles_user (
   $powerlineDebPath = "https://github.com/gentoomaniac/powerline-go/releases/download/v${powerlineVersion}"
   $powerlineDebName = "powerline-go_${powerlineVersion}_linux_${facts['os']['architecture']}.deb"
 
-  file {"/root/${powerlineDebName}":
+  file {"${base_dir}/.cache/${powerlineDebName}":
     ensure => 'present',
     source => "${powerlineDebPath}/${powerlineDebName}",
   }
-  package { 'powerline-go-install':
+  package { "powerline-go-${user}-install":
     provider => dpkg,
-    source   => "/root/${powerlineDebName}",
+    source   => "${base_dir}/.cache/${powerlineDebName}",
   }
 
   file { "${base_dir}/.go":
