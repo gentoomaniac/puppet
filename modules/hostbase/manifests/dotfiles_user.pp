@@ -15,7 +15,7 @@ define hostbase::dotfiles_user (
     ensure => 'present',
     source => "${powerlineDebPath}/${powerlineDebName}",
   }
-  package { 'run-puppet-install':
+  package { 'powerline-go-install':
     provider => dpkg,
     source   => "/root/${powerlineDebName}",
   }
