@@ -26,6 +26,9 @@ define hostbase::dotfiles_user (
   file { "${base_dir}/.cache/go-build":
     ensure  => absent,
   }
+  file { "${base_dir}/snap":
+    ensure  => absent,
+  }
 
   file { "${base_dir}/.config":
     ensure => directory,

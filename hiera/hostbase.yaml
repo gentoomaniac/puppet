@@ -27,7 +27,8 @@ hostbase::packages::present:
   - fzf
   - mbuffer
 
-hostbase::packages::absent: []
+hostbase::packages::absent:
+  - snapd
 
 timezone::timezone: Etc/UTC
 
