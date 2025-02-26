@@ -1,5 +1,6 @@
 ---
 classes:
+  - hostbase::cleanup
   - docker::networks
   - docker::run_instance
   - docker::volumes
@@ -25,7 +26,7 @@ ressources:
     "datapool/ksnginx":
       ensure: present
     "datapool/openhab":
-      ensure: present
+      ensure: absent
 
   file:
     "/srv/traefik/conf":
@@ -217,15 +218,6 @@ ressources:
       require:
         - File[/etc/clouddns-updater-key.json]
         - File[/usr/local/bin/clouddns-update]
-    "/srv/openhab/addons":
-      ensure: directory
-      require: Zfs[datapool/openhab]
-    "/srv/openhab/conf":
-      ensure: directory
-      require: Zfs[datapool/openhab]
-    "/srv/openhab/userdata":
-      ensure: directory
-      require: Zfs[datapool/openhab]
 
   service:
     "clouddns-updater.timer":
@@ -336,37 +328,6 @@ docker::run_instance::instance:
       #- traefik.http.routers.whoami.middlewares=sso@file
     net:
       - web
-  openhab:
-    image: openhab/openhab:4.3.2
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    expose:
-      - 8080/tcp
-    env:
-      - OPENHAB_HTTP_PORT=8080
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.openhab.rule=Host(`openhab.srv.gentoomaniac.net`)
-      - traefik.http.routers.openhab.entrypoints=ssl
-      - traefik.http.routers.openhab.tls=true
-      - traefik.http.middlewares.openhab-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,10.1.15.0/24
-      - traefik.http.routers.openhab.middlewares=openhab-whitelist
-    net:
-      - web
-    volumes:
-      - "/etc/localtime:/etc/localtime:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-      - "/srv/openhab/addons:/openhab/addons"
-      - "/srv/openhab/conf:/openhab/conf"
-      - "/srv/openhab/userdata:/openhab/userdata"
-    require:
-      - Class[docker]
-      - Docker_network[web]
-      - File[/srv/openhab/addons]
-      - File[/srv/openhab/conf]
-      - File[/srv/openhab/userdata]
-
 
 kickstart_nginx::labels:
   - traefik.enable=true
