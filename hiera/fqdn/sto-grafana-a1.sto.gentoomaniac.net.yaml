@@ -871,7 +871,7 @@ docker::run_instance::instance:
       - File[/srv/otelcol/config.yaml]
 
   shelly-exporter:
-    image: ghcr.io/gentoomaniac/shelly-exporter:v0.0.20-amd64
+    image: ghcr.io/gentoomaniac/shelly-exporter:v0.0.21-amd64
     expose:
       - 8080/tcp
     command: >
