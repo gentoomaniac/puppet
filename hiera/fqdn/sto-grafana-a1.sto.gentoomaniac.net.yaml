@@ -510,12 +510,13 @@ ressources:
           ip: "10.1.3.182"
           labels:
             building: "main"
-            
+
         - type: "SHPRO3EM"
           ip: "10.1.3.127"
           user: "admin"
           labels:
             building: "adu"
+            room: "house"
             category: "total"
 
         - type: "SHPLG-S"
@@ -646,12 +647,13 @@ ressources:
             building: "main"
             room: "kitchen"
             category: "appliance"
-        - type: "SHPLG-S"
-          ip: "10.1.3.198"
-          labels:
-            building: "main"
-            room: "kitchen"
-            category: "appliance"
+        # unplugged
+        # - type: "SHPLG-S"
+        #   ip: "10.1.3.198"
+        #   labels:
+        #     building: "main"
+        #     room: "kitchen"
+        #     category: "appliance"
         - type: "SHPLG-S"
           ip: "10.1.3.200"
           labels:
