@@ -679,7 +679,7 @@ docker::run_instance::instance:
       --entrypoints.tempo.address=:3200
       --entrypoints.otel.address=:4318
       --entrypoints.ssl.address=:443
-      --entrypoints.web.address=:8000
+      --entrypoints.webhook.address=:8000
       --entrypoints.prometheus.address=:9090
       --serverstransport.insecureskipverify=true
       --providers.docker
@@ -887,7 +887,7 @@ docker::run_instance::instance:
       - traefik.http.routers.shelly-exporter.rule=Host(`shelly-exporter.srv.gentoomaniac.net`)
       - traefik.http.routers.shelly-exporter.service=shelly-exporter@docker
       - traefik.http.services.shelly-exporter.loadbalancer.server.port=8080
-      - traefik.http.routers.shelly-exporter.entrypoints=web
+      - traefik.http.routers.shelly-exporter.entrypoints=webhook
       - traefik.http.routers.shelly-exporter.middlewares=shelly-exporter-whitelist
       - traefik.http.routers.shelly-exporter-https.rule=Host(`shelly-exporter.srv.gentoomaniac.net`)
       - traefik.http.routers.shelly-exporter-https.service=shelly-exporter-https@docker
@@ -895,6 +895,11 @@ docker::run_instance::instance:
       - traefik.http.routers.shelly-exporter-https.entrypoints=ssl
       - traefik.http.routers.shelly-exporter-https.tls=true
       - traefik.http.routers.shelly-exporter-https.middlewares=shelly-exporter-whitelist
+      - traefik.http.routers.shelly-exporter-ip.rule=Host(`10.1.1.62`)
+      - traefik.http.routers.shelly-exporter-ip.service=shelly-exporter-ip@docker
+      - traefik.http.services.shelly-exporter-ip.loadbalancer.server.port=8080
+      - traefik.http.routers.shelly-exporter-ip.entrypoints=webhook
+      - traefik.http.routers.shelly-exporter-ip.middlewares=shelly-exporter-whitelist
       - traefik.docker.network=web
     pull_on_start: true
     volumes:
