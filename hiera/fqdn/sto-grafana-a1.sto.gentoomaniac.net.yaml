@@ -518,6 +518,13 @@ ressources:
             building: "adu"
             room: "house"
             category: "total"
+        - type: "SHPRO3EM"
+          ip: "10.1.3.192"
+          user: "admin"
+          labels:
+            building: "main"
+            room: "bathroom"
+            category: "heating"
 
         - type: "SHPLG-S"
           ip: "10.1.3.101"
@@ -871,7 +878,7 @@ docker::run_instance::instance:
       - File[/srv/otelcol/config.yaml]
 
   shelly-exporter:
-    image: ghcr.io/gentoomaniac/shelly-exporter:v0.0.21-amd64
+    image: ghcr.io/gentoomaniac/shelly-exporter:v0.0.22-amd64
     expose:
       - 8080/tcp
     command: >
