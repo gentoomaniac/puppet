@@ -523,7 +523,7 @@ ressources:
           user: "admin"
           labels:
             building: "main"
-            room: "bathroom"
+            room: "house"
             category: "heating"
 
         - type: "SHPLG-S"
