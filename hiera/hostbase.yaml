@@ -93,7 +93,7 @@ ressources:
       content: |
         ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESaPVR26gxGnwaomoRcdipNTNC7jxn7TO7Pb+FmECnL marco@gentoobox.clients.gentoomaniac.net
         ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAxSYdM4DORK2/koKHlz9nWuDclxIKIhlXoQTKdEnz67 marco@marcos-desktop
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBCR9BEezV3MH1y/9YEzvaQ9PXn9KsJ0ZVyzZtUHSMTJ marco@marco-mbrk-ubuntu
+        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICU8Rd9oxln9cdIJVhzsDPcBY3qQZfkiNgg+U3gT4zwj marco@mbrk-gentoo
 
       require: File[/etc/userkeys/marco]
     /etc/userkeys/root/authorized_keys:
