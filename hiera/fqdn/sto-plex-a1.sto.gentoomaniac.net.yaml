@@ -386,7 +386,7 @@ docker::run_instance::instance:
       - Zfs[localpool/lidarr]
       - Docker_volume[nfs_music]
   readarr:
-    image: linuxserver/readarr:latest
+    image: linuxserver/readarr:0.4.15-nightly
     dns:
       - 10.1.1.52
       - 10.1.1.53
