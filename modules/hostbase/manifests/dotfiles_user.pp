@@ -73,7 +73,7 @@ define hostbase::dotfiles_user (
     force   => true,
     require => File["${base_dir}/.ssh"],
   }
-  file { "${base_dir}/.gitconfig":
+  file { "${base_dir}/.gitconfig-servers":
     ensure  => link,
     target  => "${base_dir}/.config/dotfiles/.gitconfig",
     owner   => $user,
