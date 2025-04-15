@@ -396,7 +396,7 @@ docker::run_instance::instance:
       - TZ=Europe/Berlin
       - UMASK_SET=022
     expose:
-      - 8686/tcp
+      - 8787/tcp
     extra_parameters:
       - --restart=unless-stopped
     labels:
