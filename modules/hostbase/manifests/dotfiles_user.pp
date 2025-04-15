@@ -73,9 +73,9 @@ define hostbase::dotfiles_user (
     force   => true,
     require => File["${base_dir}/.ssh"],
   }
-  file { "${base_dir}/.gitconfig-servers":
+  file { "${base_dir}/.gitconfig":
     ensure  => link,
-    target  => "${base_dir}/.config/dotfiles/.gitconfig",
+    target  => "${base_dir}/.config/dotfiles/.gitconfig-servers",
     owner   => $user,
     group   => $user,
     require => Vcsrepo["${base_dir}/.config/dotfiles"],
