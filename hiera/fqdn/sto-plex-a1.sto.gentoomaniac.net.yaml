@@ -22,6 +22,8 @@ ressources:
       ensure: present
     "localpool/radarr-kids":
       ensure: present
+    "localpool/readarr":
+      ensure: present
     "localpool/sonarr":
       ensure: present
     "localpool/sonarr-kids":
@@ -64,6 +66,7 @@ ressources:
     /etc/auto.nfs:
       ensure: present
       content: |
+        ebooks  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/shows/ebooks
         movies  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/movies/movies
         kids_movies  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/tank0/kids_movies
         shows  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/shows/shows
@@ -178,6 +181,13 @@ docker::volumes::volumes:
       - - type=nfs
         - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
         - device=:/mnt/movies/music
+  nfs_ebooks:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/shows/ebooks
 
 docker::run_instance::instance:
   traefik:
@@ -375,6 +385,37 @@ docker::run_instance::instance:
       - Class[docker]
       - Zfs[localpool/lidarr]
       - Docker_volume[nfs_music]
+  readarr:
+    image: linuxserver/readarr:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+      - UMASK_SET=022
+    expose:
+      - 8686/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.readarr.rule=Host(`readarr.srv.gentoomaniac.net`)
+      - traefik.http.routers.readarr.entrypoints=websecure
+      - traefik.http.routers.readarr.tls=true
+      - traefik.http.middlewares.readarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.readarr.middlewares=readarr-whitelist
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/readarr:/config
+      - nfs_ebooks:/ebooks
+    require:
+      - Class[docker]
+      - Zfs[localpool/readarr]
+      - Docker_volume[nfs_ebooks]
   tautulli:
     image: linuxserver/tautulli:latest
     dns:

@@ -88,6 +88,13 @@ docker::volumes::volumes:
       - - type=nfs
         - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
         - device=:/mnt/tmp/nzbget
+  nfs_ebooks:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=192.168.0.5,nolock,soft,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
+        - device=:/mnt/shows/ebooks
 
 docker::docker_users:
   - marco
@@ -128,6 +135,7 @@ docker::run_instance::instance:
       - nfs_shows:/shows
       - nfs_kids_movies:/kids_movies
       - nfs_kids_shows:/kids_shows
+      - nfs_ebooks:/ebooks
     require:
       - Class[docker]
       - Docker_volume[nfs_movies]
@@ -135,6 +143,7 @@ docker::run_instance::instance:
       - Docker_volume[nfs_kids_movies]
       - Docker_volume[nfs_kids_shows]
       - Docker_volume[nfs_nzbget]
+      - Docker_volume[nfs_ebooks]
       - File[/srv/nzbget/config]
   traefik:
     image: traefik:v3.1
