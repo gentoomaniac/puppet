@@ -489,7 +489,7 @@ docker::run_instance::instance:
       - Docker_volume[nfs_youtube_downloader]
       - Service[avahi-daemon]
   youtube-dl:
-    image: tzahi12345/youtubedl-material:nightly
+    image: ghcr.io/voc0der/youtubedl-material:nightly
     dns:
       - 10.1.1.52
       - 10.1.1.53
