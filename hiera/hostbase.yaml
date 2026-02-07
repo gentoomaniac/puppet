@@ -286,28 +286,56 @@ ressources:
       ensure: present
       mode: "0754"
       content: |
-        #!/bin/env bash
+        #!/usr/bin/env bash
 
-        LABEL=${1:-frequent}
+        LABEL=${1:-frequent}       # Snapshot label to look for
+        KEEP_MIN=${3:-4}           # KEEP AT LEAST this many snapshots (Safety Net)
+
+        # Set max age in seconds
         if [ "${LABEL}" == "weekly" ]; then
-            MAXAGE=${2:-7257600} # 30 days in seconds
+            MAXAGE_SEC=${2:-1209600} # 14 days
         else
-            MAXAGE=${2:-2592000} # 90 days in seconds
+            MAXAGE_SEC=${2:-604800}  # 7 days
         fi
 
-        POOLS="$(zpool list| awk '/ONLINE/{print $1}')"
+        # Get list of online pools
+        POOLS=$(zpool list -H -o name)
+
         for POOL_NAME in ${POOLS}; do
-            DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
-            for dataset in ${DATASETS}; do
-                for snapshot in $(zfs list -t snapshot "${dataset}"); do
-                    created=$(date -d "$(sed -n "s|^"${dataset}"@"${LABEL}"-\(.\{4\}\)\(.\{2\}\)\(.\{2\}\)-\(.\{2\}\)\(.\{2\}\)\(.\{2\}\).*|\1-\2-\3 \4:\5:\6|p" <<<${snapshot})" "+%s")
-                    if (( $[$(date '+%s')-${created}] > ${MAXAGE} )); then
-                        echo "deleting snapshot '${snapshot}' ..."
-                        zfs destroy -r "${snapshot}"
+            zfs list -H -o name -t filesystem,volume -r "${POOL_NAME}" | while read -r DATASET; do
+                # Skip Docker datasets
+                if [[ "${DATASET}" == *"docker"* ]]; then
+                    continue
+                fi
+
+                COUNT=0
+
+                # -S creation : Sort by creation (Newest First)
+                # -d 1        : Depth 1 (Don't look at children datasets)
+                zfs list -H -p -t snapshot -o name,creation -S creation -d 1 "${DATASET}" | grep "@${LABEL}-" | while read -r SNAPNAME CREATED; do
+                    COUNT=$((COUNT + 1))
+
+                    CURRENT_TS=$(date +%s)
+                    AGE_SEC=$(( CURRENT_TS - CREATED ))
+                    AGE_DAYS=$(( AGE_SEC / 86400 ))
+
+
+                    if (( COUNT <= KEEP_MIN )); then
+                        echo "${COUNT}/${KEEP_MIN} to keep ${SNAPNAME} (${AGE_DAYS} days old)"
+                        continue
                     fi
+
+                    if (( AGE_SEC > MAXAGE_SEC )); then
+                        echo "deleting ${SNAPNAME} (${AGE_DAYS} days old)"
+                        zfs destroy -r "${SNAPNAME}"
+                    else
+                        echo "not expired ${SNAPNAME} (${AGE_DAYS} days old)"
+                    fi
+
                 done
             done
         done
+
     "/etc/systemd/system/zfs-cleanup-snapshots@.service":
       ensure: present
       content: |
