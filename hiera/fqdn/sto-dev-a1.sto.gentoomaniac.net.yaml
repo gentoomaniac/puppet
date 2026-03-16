@@ -60,6 +60,9 @@ docker::run_instance::instance:
     env:
       - USER_UID=1000
       - USER_GID=1000
+      - SSH_DOMAIN=git.srv.gentoomaniac.net
+      - SSH_PORT=222
+      - SSH_LISTEN_PORT=22
     expose:
       - "3000"
       - "22"
