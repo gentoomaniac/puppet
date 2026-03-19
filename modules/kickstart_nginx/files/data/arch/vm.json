@@ -158,6 +158,7 @@
     "lsb-release",
     "neovim",
     "openssh",
+    "parted",
     "puppet",
     "vault",
     "vault"

@@ -4,7 +4,6 @@
 LOG_FILE="/var/log/bootstrap.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-
 function wait_for_network() {
     until ping -c 1 -W 2 vault.srv.gentoomaniac.net >/dev/null 2>&1; do
         sleep 2
@@ -14,20 +13,23 @@ function wait_for_network() {
 function create_data_pool() {
     if [ -b /dev/sdb ]; then
         if parted /dev/sdb p 2>&1 | grep -q "Partition Table: unknown"; then
-            echo "*** /dev/sdb is empty, creating partition and BTRFS datapool" 
-            parted -s -a optimal /dev/sdb mklabel gpt -- mkpart data btrfs '0%' '100%'
+            echo "*** /dev/sdb is empty, creating partition and BTRFS datapool"
+            if ! parted -s -a optimal /dev/sdb mklabel gpt -- mkpart data btrfs '0%' '100%'; then
+                echo '!!! failed writing partition table'
+                exit 1
+            fi
             partprobe /dev/sdb
             udevadm settle
             
             if ! mkfs.btrfs -L datapool -f /dev/sdb1; then
-                echo "!!! failed creating BTRFS pool on /dev/sdb1" 
-                return
+                echo "!!! failed creating BTRFS pool on /dev/sdb1"
+                exit 1
             fi
         fi
 
         mkdir -p /srv
         if blkid -t LABEL=datapool /dev/sdb1 >/dev/null 2>&1; then
-            echo "*** mounting datapool on /dev/sdb1 ..." 
+            echo "*** mounting datapool on /dev/sdb1 ..."
             mount LABEL=datapool /srv
             
             if ! grep -q "LABEL=datapool /srv" /etc/fstab; then
@@ -39,10 +41,10 @@ function create_data_pool() {
         fi
     elif [[ -b /dev/sda4 ]]; then
         if ! blkid /dev/sda4 >/dev/null 2>&1; then
-            echo "*** /dev/sda4 is empty, setting up BTRFS localpool" 
+            echo "*** /dev/sda4 is empty, setting up BTRFS localpool"
             if ! mkfs.btrfs -L localpool -f /dev/sda4; then
-                echo "!!! failed creating BTRFS pool on /dev/sda4" 
-                return
+                echo "!!! failed creating BTRFS pool on /dev/sda4"
+                exit 1
             fi
         fi
 
@@ -72,7 +74,10 @@ if [ -f /etc/bootstrap ]; then
     echo "*** Network is fully routed and DNS is responding!"
 
     echo "*** Updating the system ..." 
-    pacman -Syu --noconfirm 
+    if ! pacman -Syu --noconfirm; then
+        echo '!!! system update failed'
+        exit 1
+    fi
 
     # Set up datapool on either /dev/sda4 or /dev/sdb1
     # This is mainly to cover Physical machines with only one drive
@@ -81,28 +86,33 @@ if [ -f /etc/bootstrap ]; then
     echo "*** Setting up Vault credentials" 
     export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
     mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
-    VAULT_TOKEN="$(cat /etc/vault_token)"
-    export VAULT_TOKEN
-    if [[ -z "${VAULT_TOKEN}" ]]; then
+
+    if [[ -f "/etc/vault_token" ]]; then
+        echo "... Getting Vault credentials from preeseeded token" 
+        VAULT_TOKEN="$(cat /etc/vault_token)"
+        export VAULT_TOKEN
+        vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
+        vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
+        rm /etc/vault_token
+    else
         echo "... Getting Vault credentials from BIOS" 
         dmidecode | sed -n 's/\s\+Serial Number: \(.*\)/\1/p' | head -1 > /etc/vault_role_id
         dmidecode | sed -n 's/\s\+SKU Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
-    else
-        echo "... Getting Vault credentials from preeseeded token" 
-        vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
-        vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
+        chmod 600 /etc/vault_*
+        VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
+        export VAULT_TOKEN
     fi
-    chmod 600 /etc/vault_*
-    VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
-    export VAULT_TOKEN
+
     if [[ -z "${VAULT_TOKEN}" ]]; then
-        echo '!!! Could not get vault token from approle' 
-    else
-        rm /etc/vault_token
+        echo '!!! Could not get vault token from approle'
+        exit 1
     fi
 
     echo "*** Enable sshd" 
-    systemctl enable --now sshd
+    if ! systemctl enable --now sshd; then
+        echo "!!! failed enabling sshd"
+        exit 1
+    fi
 
 
     echo "*** Starting initial puppet run ..." 
@@ -116,7 +126,10 @@ if [ -f /etc/bootstrap ]; then
     
     PUPPET_BRANCH=$(cat /etc/puppet_branch 2>/dev/null)
     PUPPET_BRANCH=${PUPPET_BRANCH:-arch}
-    git clone --single-branch --branch ${PUPPET_BRANCH} --depth 1 https://github.com/gentoomaniac/puppet.git /var/lib/puppet-repo
+    if ! git clone --single-branch --branch "${PUPPET_BRANCH}" --depth 1 https://github.com/gentoomaniac/puppet.git /var/lib/puppet-repo; then
+        echo '!!! failed fetching puppet repo on branch '"${PUPPET_BRANCH}"
+        exit 1
+    fi
     puppet apply --config /var/lib/puppet-repo/puppet.conf -vvvt --modulepath=/var/lib/puppet-repo/modules/ /var/lib/puppet-repo/manifests/site.pp
 
     echo "*** Init complete" 
