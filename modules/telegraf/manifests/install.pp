@@ -56,23 +56,23 @@ class telegraf::install {
           default:
             ensure  => link,
             require => Archive["/tmp/telegraf-${telegraf::archive_version}.tar.gz"],
-            ;
+          ;
           '/usr/local/bin/telegraf':
             target  => "${telegraf::archive_install_dir}-${telegraf::archive_version}/usr/bin/telegraf",
-            ;
+          ;
           '/usr/local/etc/telegraf':
-            target  => "${telegraf::archive_install_dir}-${telegraf::archive_version}/etc/telegraf",
-            ;
+            target => "${telegraf::archive_install_dir}-${telegraf::archive_version}/etc/telegraf",
+          ;
           '/usr/local/var/log/telegraf':
-            target  => "${telegraf::archive_install_dir}-${telegraf::archive_version}/var/log/telegraf",
-            ;
+            target => "${telegraf::archive_install_dir}-${telegraf::archive_version}/var/log/telegraf",
+          ;
         }
 
         file { '/Library/LaunchDaemons/telegraf.plist':
           ensure  => file,
           content => epp('telegraf/telegraf.plist.epp', {
-              'config_file_owner' => $telegraf::config_file_owner,
-              'config_file_group' => $telegraf::config_file_group,
+            'config_file_owner' => $telegraf::config_file_owner,
+            'config_file_group' => $telegraf::config_file_group,
           }),
         }
       }
@@ -92,8 +92,8 @@ class telegraf::install {
           release  => 'stable',
           repos    => 'main',
           key      => {
-            'id'     => '9D539D90D3328DC7D6C8D3B9D8FF8E1F7DF8B07E',
-            'source' => "${telegraf::repo_location}influxdata-archive_compat.key",
+            'name'   => 'influxdata-archive.key',
+            'source' => "${telegraf::repo_location}influxdata-archive.key",
           },
         }
         Class['apt::update'] -> Package[$telegraf::package_name]
@@ -118,7 +118,7 @@ class telegraf::install {
           descr    => "InfluxData Repository - ${facts['os']['name']} \$releasever",
           enabled  => 1,
           baseurl  => $_baseurl,
-          gpgkey   => "${telegraf::repo_location}influxdata-archive_compat.key",
+          gpgkey   => "${telegraf::repo_location}influxdata-archive.key",
           gpgcheck => 1,
         }
         Yumrepo['influxdata'] -> Package[$telegraf::package_name]

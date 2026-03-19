@@ -1,0 +1,5 @@
+---
+classes:
+  - hostbase::hostname
+
+hostbase::hostname::hostname: sto-dev-a1.sto.gentoomaniac.net

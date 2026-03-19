@@ -1,3 +1,37 @@
+## 2025-08-15 - Release 7.0.1
+
+### Features
+
+- Update CHANGELOG.md that support has been removed for Ubuntu-18.04 and not Ubuntu-24.04.
+
+## 2025-08-14 - Release 7.0.0
+
+### Features
+
+- Add Debian-13 (Trixie) to the list of supported operating systems.
+
+### Breaking changes
+
+- Drop support for Debian-10.
+- Drop support for Ubuntu-18.04.
+
+## 2025-05-29 - Release 6.2.0
+
+### Bugfixes
+
+- The debconf value can now also be an empty string
+
+### Features
+
+- Remove legacy facts
+
+## 2024-08-13 - Release 6.1.0
+
+### Features
+
+- Add sensible error message when calling `puppet resource debconf`.
+- Add Ubuntu-24.04 (Noble) to the list of support operating systems.
+
 ## 2023-07-07 - Release 6.0.0
 
 ### Features

@@ -3,12 +3,7 @@ class hostbase::sshd(
   $root_login_enable = true
 ) {
 
-  if $facts['os']['distro']['codename'] == 'noble' {
-    $service_name = 'ssh'
-  } else {
-    $service_name = 'sshd'
-  }
-
+  # TODO: put the customisation into /etc/ssh/sshd_config.d
   file { '/etc/ssh/sshd_config':
     ensure  => file,
     owner   => root,
@@ -17,7 +12,7 @@ class hostbase::sshd(
     content => epp('hostbase/sshd_config.epp', {'port' => $port, 'root_login_enable' => $root_login_enable}),
   }
 
-  service { $service_name:
+  service { 'sshd':
     ensure     => running,
     enable     => true,
     hasrestart => true,

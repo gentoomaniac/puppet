@@ -1,6 +1,6 @@
 {
   "name": "stm-debconf",
-  "version": "6.0.0",
+  "version": "7.0.1",
   "author": "stm",
   "summary": "Manage debconf database items on Debian based systems.",
   "license": "BSD-2-Clause",
@@ -14,16 +14,17 @@
     {
       "operatingsystem": "Debian",
       "operatingsystemrelease": [
-        "10",
-        "11"
+        "11",
+        "12",
+        "13"
       ]
     },
     {
       "operatingsystem": "Ubuntu",
       "operatingsystemrelease": [
-        "18.04",
         "20.04",
-        "22.04"
+        "22.04",
+        "24.04"
       ]
     }
   ],
@@ -31,12 +32,13 @@
     {
       "name": "puppet",
       "version_requirement": ">= 7.0.0 < 9.0.0"
+    },
+    {
+      "name": "openvox",
+      "version_requirement": ">= 7.0.0 < 9.0.0"
     }
   ],
   "tags": [
     "debconf"
-  ],
-  "pdk-version": "3.0.0",
-  "template-url": "pdk-default#3.0.0",
-  "template-ref": "tags/3.0.0-0-g056e50d"
+  ]
 }

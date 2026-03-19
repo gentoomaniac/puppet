@@ -1,16 +1,16 @@
 {
   "name": "puppetlabs-powershell",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "author": "puppetlabs",
   "summary": "Adds a new exec provider for executing PowerShell commands.",
   "license": "Apache-2.0",
   "source": "https://github.com/puppetlabs/puppetlabs-powershell",
   "project_page": "https://github.com/puppetlabs/puppetlabs-powershell",
-  "issues_url": "https://tickets.puppet.com/browse/MODULES",
+  "issues_url": "https://github.com/puppetlabs/puppetlabs-powershell/issues",
   "dependencies": [
     {
       "name": "puppetlabs/pwshlib",
-      "version_requirement": ">= 0.4.0 < 2.0.0"
+      "version_requirement": ">= 0.4.0 < 3.0.0"
     }
   ],
   "operatingsystem_support": [
@@ -71,10 +71,10 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 7.0.0 < 9.0.0"
+      "version_requirement": ">= 8.0.0 < 9.0.0"
     }
   ],
-  "pdk-version": "2.7.0",
+  "pdk-version": "3.5.0",
   "template-url": "https://github.com/puppetlabs/pdk-templates.git#main",
-  "template-ref": "heads/main-0-ge5b0114"
+  "template-ref": "heads/main-0-g19976cd"
 }

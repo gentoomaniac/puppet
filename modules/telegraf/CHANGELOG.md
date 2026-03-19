@@ -4,6 +4,53 @@ All notable changes to this project will be documented in this file.
 Each new release typically also includes the latest modulesync defaults.
 These should not affect the functionality of the module.
 
+## [v7.2.0](https://github.com/voxpupuli/puppet-telegraf/tree/v7.2.0) (2025-12-04)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v7.1.0...v7.2.0)
+
+**Implemented enhancements:**
+
+- allow puppetlabs/apt 11.x [\#261](https://github.com/voxpupuli/puppet-telegraf/pull/261) ([marcusdots](https://github.com/marcusdots))
+
+## [v7.1.0](https://github.com/voxpupuli/puppet-telegraf/tree/v7.1.0) (2025-12-02)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v7.0.0...v7.1.0)
+
+**Implemented enhancements:**
+
+- Add Ubuntu 24.04 support [\#260](https://github.com/voxpupuli/puppet-telegraf/pull/260) ([bastelfreak](https://github.com/bastelfreak))
+- Replace deprecated InfluxData repo signing key [\#257](https://github.com/voxpupuli/puppet-telegraf/pull/257) ([trauta](https://github.com/trauta))
+
+## [v7.0.0](https://github.com/voxpupuli/puppet-telegraf/tree/v7.0.0) (2025-08-20)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v6.0.0...v7.0.0)
+
+**Breaking changes:**
+
+- Drop puppet, update openvox minimum version to 8.19 [\#246](https://github.com/voxpupuli/puppet-telegraf/pull/246) ([TheMeier](https://github.com/TheMeier))
+- Apt: Write repo key to own file; require puppetlabs/apt 10.X [\#243](https://github.com/voxpupuli/puppet-telegraf/pull/243) ([bastelfreak](https://github.com/bastelfreak))
+
+**Implemented enhancements:**
+
+- Add Debian 13 support [\#248](https://github.com/voxpupuli/puppet-telegraf/pull/248) ([bastelfreak](https://github.com/bastelfreak))
+
+**Closed issues:**
+
+- Debian apt deprecation warning for repository gpg key [\#241](https://github.com/voxpupuli/puppet-telegraf/issues/241)
+
+## [v6.0.0](https://github.com/voxpupuli/puppet-telegraf/tree/v6.0.0) (2025-07-11)
+
+[Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v5.4.0...v6.0.0)
+
+**Breaking changes:**
+
+- Drop EoL EL7 support [\#235](https://github.com/voxpupuli/puppet-telegraf/pull/235) ([bastelfreak](https://github.com/bastelfreak))
+
+**Implemented enhancements:**
+
+- puppet/archive: Allow 8.x [\#240](https://github.com/voxpupuli/puppet-telegraf/pull/240) ([yorickps](https://github.com/yorickps))
+- metadata.json: Add OpenVox [\#237](https://github.com/voxpupuli/puppet-telegraf/pull/237) ([jstraw](https://github.com/jstraw))
+
 ## [v5.4.0](https://github.com/voxpupuli/puppet-telegraf/tree/v5.4.0) (2024-02-28)
 
 [Full Changelog](https://github.com/voxpupuli/puppet-telegraf/compare/v5.3.0...v5.4.0)
@@ -100,7 +147,6 @@ These should not affect the functionality of the module.
 **Implemented enhancements:**
 
 - Add FreeBSD support, using telegraf as installed by pkg\(8\) [\#185](https://github.com/voxpupuli/puppet-telegraf/pull/185) ([rvstaveren](https://github.com/rvstaveren))
-- Add support for Debian 11 [\#181](https://github.com/voxpupuli/puppet-telegraf/pull/181) ([ZloeSabo](https://github.com/ZloeSabo))
 - Allow recent dependencies [\#178](https://github.com/voxpupuli/puppet-telegraf/pull/178) ([smortex](https://github.com/smortex))
 
 **Merged pull requests:**
@@ -144,10 +190,6 @@ These should not affect the functionality of the module.
 **Implemented enhancements:**
 
 - Add support for Darwin [\#161](https://github.com/voxpupuli/puppet-telegraf/pull/161) ([yachub](https://github.com/yachub))
-
-**Fixed bugs:**
-
-- Changed Assign repo-\>package even when manage\_repo=false on Debian+Re… [\#148](https://github.com/voxpupuli/puppet-telegraf/pull/148) ([danielsreichenbach](https://github.com/danielsreichenbach))
 
 **Closed issues:**
 

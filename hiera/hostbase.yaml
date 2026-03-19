@@ -1,20 +1,14 @@
 ---
 classes:
-  - apt
-  - cron
-  #- hostbase::autoupdate
+# - hostbase::autoupdate
   - hostbase::dotfiles
   - hostbase::packages
   - hostbase::puppet
   - hostbase::puppet_cron
-  - hostbase::resolved
+# - hostbase::resolved
   - hostbase::sshd
-  - hostbase::syslog
-  - timezone
   - docker
   - docker::run_instance
-
-hostbase::puppet::version: 8.8.1-1
 
 hostbase::packages::present:
   - btop
@@ -33,17 +27,15 @@ hostbase::packages::absent:
 dns::servers:
   - 10.1.1.53
 
-apt::sources:
-
 dotfiles:
   "marco": {}
   "root": {}
 
 ressources:
   file:
-    "/var/lib/puppet/reports":
-      ensure: absent
-      force: true
+    # "/var/lib/puppet/reports":
+    #   ensure: absent
+    #   force: true
     "/etc/userkeys":
       ensure: directory
     "/etc/userkeys/root":

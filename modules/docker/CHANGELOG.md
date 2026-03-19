@@ -5,7 +5,52 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
 
-## [v10.0.1](https://github.com/puppetlabs/puppetlabs-docker/tree/v10.0.1) - 2024-07-12
+## [v10.4.0](https://github.com/puppetlabs/puppetlabs-docker/tree/v10.4.0) - 2026-02-10
+
+[Full Changelog](https://github.com/puppetlabs/puppetlabs-docker/compare/v10.3.0...v10.4.0)
+
+### Changed
+
+- Use modern APT keyrings on Debian family [#965](https://github.com/puppetlabs/puppetlabs-docker/pull/965) ([kenyon](https://github.com/kenyon))
+
+### Added
+
+- MODULES-11639: Review PR #1029 (use apt keyring to manage gpg key) for puppetlabs-docker [#1041](https://github.com/puppetlabs/puppetlabs-docker/pull/1041) ([span786](https://github.com/span786))
+
+### Other
+
+- (MODULES-11645) Ignore services with restart option as 'no' in exists? method [#1046](https://github.com/puppetlabs/puppetlabs-docker/pull/1046) ([shubhamshinde360](https://github.com/shubhamshinde360))
+- (CAT-2370) Prepare module for Puppetcore [#1032](https://github.com/puppetlabs/puppetlabs-docker/pull/1032) ([skyamgarp](https://github.com/skyamgarp))
+- use apt keyring to manage gpg key [#1029](https://github.com/puppetlabs/puppetlabs-docker/pull/1029) ([techsk8](https://github.com/techsk8))
+- remove dependency on cgroupfs-mount for Debian trixie [#1024](https://github.com/puppetlabs/puppetlabs-docker/pull/1024) ([zen-fu](https://github.com/zen-fu))
+- (CAT-2296) Update github runner image to ubuntu-24.04 [#1019](https://github.com/puppetlabs/puppetlabs-docker/pull/1019) ([shubhamshinde360](https://github.com/shubhamshinde360))
+
+## [v10.3.0](https://github.com/puppetlabs/puppetlabs-docker/tree/v10.3.0) - 2025-04-14
+
+[Full Changelog](https://github.com/puppetlabs/puppetlabs-docker/compare/v10.2.0...v10.3.0)
+
+### Other
+
+- (MODULES-11475): Fix formatting in docker run and service manifests [#1017](https://github.com/puppetlabs/puppetlabs-docker/pull/1017) ([span786](https://github.com/span786))
+- Update package source to use rhel repo instead of deprecated centos. [#999](https://github.com/puppetlabs/puppetlabs-docker/pull/999) ([jbagleyjr](https://github.com/jbagleyjr))
+
+## [v10.2.0](https://github.com/puppetlabs/puppetlabs-docker/tree/v10.2.0) - 2025-03-10
+
+[Full Changelog](https://github.com/puppetlabs/puppetlabs-docker/compare/v10.1.0...v10.2.0)
+
+### Added
+
+- (GH-962) Allow Amazon Linux 2 and newer versions [#972](https://github.com/puppetlabs/puppetlabs-docker/pull/972) ([rjd1](https://github.com/rjd1))
+
+## [v10.1.0](https://github.com/puppetlabs/puppetlabs-docker/tree/v10.1.0) - 2024-12-18
+
+[Full Changelog](https://github.com/puppetlabs/puppetlabs-docker/compare/v10.0.1...v10.1.0)
+
+### Added
+
+- Add support for EL9 [#1007](https://github.com/puppetlabs/puppetlabs-docker/pull/1007) ([ghoneycutt](https://github.com/ghoneycutt))
+
+## [v10.0.1](https://github.com/puppetlabs/puppetlabs-docker/tree/v10.0.1) - 2024-07-13
 
 [Full Changelog](https://github.com/puppetlabs/puppetlabs-docker/compare/v10.0.0...v10.0.1)
 
@@ -422,7 +467,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - (FM-8151) Add Windows Server 2019 support [#493](https://github.com/puppetlabs/puppetlabs-docker/pull/493) ([eimlav](https://github.com/eimlav))
 - Support for docker machine download and install [#466](https://github.com/puppetlabs/puppetlabs-docker/pull/466) ([acurus-puppetmaster](https://github.com/acurus-puppetmaster))
-- Add service_provider parameter to docker::run [#376](https://github.com/puppetlabs/puppetlabs-docker/pull/376) ([jameslikeslinux](https://github.com/jameslikeslinux))
+- Add service_provider parameter to docker::run [#376](https://github.com/puppetlabs/puppetlabs-docker/pull/376) ([puppetjoy](https://github.com/puppetjoy))
 
 ### Fixed
 

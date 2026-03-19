@@ -1,4 +1,4 @@
-# debconf.rb --- The debconf type
+# frozen_string_literal: true
 
 Puppet::Type.newtype(:debconf) do
   desc <<-EOT
@@ -28,6 +28,10 @@ Puppet::Type.newtype(:debconf) do
         seen    => true,
       }
   EOT
+
+  def self.instances
+    raise _('Listing debconf instances is not supported.')
+  end
 
   def munge_boolean(value)
     case value
@@ -61,7 +65,7 @@ Puppet::Type.newtype(:debconf) do
       'tzdata/Areas'). The default value is the title of the resource."
 
     defaultto { @resource[:name] }
-    newvalues(%r{^[a-z0-9][a-z0-9:.+-]+\/[a-zA-Z0-9\/_.+-]+$})
+    newvalues(%r{^[a-z0-9][a-z0-9:.+-]+/[a-zA-Z0-9/_.+-]+$})
   end
 
   newparam(:package) do
@@ -84,8 +88,7 @@ Puppet::Type.newtype(:debconf) do
   newproperty(:value) do
     desc "The value for the item (e.g. 'Europe')."
 
-    newvalues(%r{\S})
-    munge { |value| value.strip } # Remove leading and trailing spaces
+    munge(&:strip)              # Remove leading and trailing spaces
   end
 
   newproperty(:seen, boolean: true) do
@@ -100,10 +103,6 @@ Puppet::Type.newtype(:debconf) do
   end
 
   validate do
-    unless self[:type]
-      unless self[:ensure].to_s == 'absent'
-        raise(Puppet::Error, 'type is a required attribute')
-      end
-    end
+    raise(Puppet::Error, 'type is a required attribute') unless self[:type] || self[:ensure].to_s == 'absent'
   end
 end
