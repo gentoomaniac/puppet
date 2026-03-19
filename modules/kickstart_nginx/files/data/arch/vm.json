@@ -110,7 +110,7 @@
     "linux"
   ],
   "locale_config": {
-    "kb_layout": "gb",
+    "kb_layout": "uk",
     "sys_enc": "UTF-8",
     "sys_lang": "en_GB"
   },
@@ -157,6 +157,7 @@
     "less",
     "lsb-release",
     "neovim",
+    "openssh",
     "puppet",
     "vault",
     "vault"

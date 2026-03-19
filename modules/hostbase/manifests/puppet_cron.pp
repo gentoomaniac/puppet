@@ -7,25 +7,27 @@ class hostbase::puppet_cron (
     ensure => 'absent',
   }
 
-  # TODO: build AUR for run-puppet
-
   $runPuppetDebPath = "https://github.com/gentoomaniac/run-puppet/releases/download/v${runPuppetVersion}"
-  $runPuppetDebName = "run-puppet_${runPuppetVersion}_linux_${facts['os']['architecture']}.deb"
+  $runPuppetFileName = "run-puppet_${runPuppetVersion}_linux_${facts['os']['architecture']}"
 
-  file {"/root/${runPuppetDebName}":
+  file {"/root/${runPuppetFileName}":
     ensure => 'present',
-    source => "${runPuppetDebPath}/${runPuppetDebName}",
+    source => "${runPuppetDebPath}/${runPuppetFileName}",
   }
-  package { 'run-puppet-install':
-    provider => dpkg,
-    source   => "/root/${runPuppetDebName}",
+  file {"/usr/local/sbin/run-puppet":
+    ensure => 'present',
+    source => "${runPuppetDebPath}/${runPuppetFileName}",
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0744',
+    require => File["/root/${runPuppetFileName}"],
   }
 
   file { '/etc/systemd/system/run-puppet.service':
     ensure  => 'present',
     mode    => '0644',
     source  => 'puppet:///modules/hostbase/puppet.service',
-    require => File['/usr/local/bin/run-puppet'],
+    require => File['/usr/local/sbin/run-puppet'],
   }
 
   file { '/etc/systemd/system/run-puppet.timer':

@@ -1,0 +1,125 @@
+#! /usr/bin/env bash
+
+# Set up global logging
+LOG_FILE="/var/log/bootstrap.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+
+function wait_for_network() {
+    until ping -c 1 -W 2 vault.srv.gentoomaniac.net >/dev/null 2>&1; do
+        sleep 2
+    done
+}
+
+function create_data_pool() {
+    if [ -b /dev/sdb ]; then
+        if parted /dev/sdb p 2>&1 | grep -q "Partition Table: unknown"; then
+            echo "*** /dev/sdb is empty, creating partition and BTRFS datapool" 
+            parted -s -a optimal /dev/sdb mklabel gpt -- mkpart data btrfs '0%' '100%'
+            partprobe /dev/sdb
+            udevadm settle
+            
+            if ! mkfs.btrfs -L datapool -f /dev/sdb1; then
+                echo "!!! failed creating BTRFS pool on /dev/sdb1" 
+                return
+            fi
+        fi
+
+        mkdir -p /srv
+        if blkid -t LABEL=datapool /dev/sdb1 >/dev/null 2>&1; then
+            echo "*** mounting datapool on /dev/sdb1 ..." 
+            mount LABEL=datapool /srv
+            
+            if ! grep -q "LABEL=datapool /srv" /etc/fstab; then
+                echo "LABEL=datapool /srv btrfs defaults 0 0" >> /etc/fstab
+            fi
+        else
+            echo "!!! /dev/sdb1 is missing or contains an unknown filesystem. Skipping datapool mount." 
+            return
+        fi
+    elif [[ -b /dev/sda4 ]]; then
+        if ! blkid /dev/sda4 >/dev/null 2>&1; then
+            echo "*** /dev/sda4 is empty, setting up BTRFS localpool" 
+            if ! mkfs.btrfs -L localpool -f /dev/sda4; then
+                echo "!!! failed creating BTRFS pool on /dev/sda4" 
+                return
+            fi
+        fi
+
+        mkdir -p /srv
+        if blkid -t LABEL=localpool /dev/sda4 >/dev/null 2>&1; then
+            echo "*** mounting localpool on /dev/sda4 ..." 
+            mount LABEL=localpool /srv
+            if ! grep -q "LABEL=localpool /srv" /etc/fstab; then
+                echo "LABEL=localpool /srv btrfs defaults 0 0" >> /etc/fstab
+            fi
+        else
+            echo "!!! /dev/sda4 contains an unknown filesystem. Skipping localpool creation to prevent data loss." 
+            return
+        fi
+    else
+        echo "No separate data partition or disk detected." 
+        return
+    fi
+}
+
+if [ -f /etc/bootstrap ]; then
+    echo "+++ DEBUG" 
+    cat /proc/cmdline
+
+    echo "*** Waiting for network connectivity to Vault..." 
+    wait_for_network
+    echo "*** Network is fully routed and DNS is responding!"
+
+    echo "*** Updating the system ..." 
+    pacman -Syu --noconfirm 
+
+    # Set up datapool on either /dev/sda4 or /dev/sdb1
+    # This is mainly to cover Physical machines with only one drive
+    create_data_pool
+
+    echo "*** Setting up Vault credentials" 
+    export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
+    mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
+    VAULT_TOKEN="$(cat /etc/vault_token)"
+    export VAULT_TOKEN
+    if [[ -z "${VAULT_TOKEN}" ]]; then
+        echo "... Getting Vault credentials from BIOS" 
+        dmidecode | sed -n 's/\s\+Serial Number: \(.*\)/\1/p' | head -1 > /etc/vault_role_id
+        dmidecode | sed -n 's/\s\+SKU Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
+    else
+        echo "... Getting Vault credentials from preeseeded token" 
+        vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
+        vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
+    fi
+    chmod 600 /etc/vault_*
+    VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
+    export VAULT_TOKEN
+    if [[ -z "${VAULT_TOKEN}" ]]; then
+        echo '!!! Could not get vault token from approle' 
+    else
+        rm /etc/vault_token
+    fi
+
+    echo "*** Enable sshd" 
+    systemctl enable --now sshd
+
+
+    echo "*** Starting initial puppet run ..." 
+    RUN_PUPPET=/usr/local/sbin/run-puppet
+    curl -L https://github.com/gentoomaniac/run-puppet/releases/download/v0.1.6/run-puppet_0.1.6_linux-amd64 -o "${RUN_PUPPET}" 
+    if [ ! -f "${RUN_PUPPET}" ]; then
+        echo "failed fetching run-puppet"
+        exit 1
+    fi
+    chmod +x "${RUN_PUPPET}"
+    
+    PUPPET_BRANCH=$(cat /etc/puppet_branch 2>/dev/null)
+    PUPPET_BRANCH=${PUPPET_BRANCH:-arch}
+    git clone --single-branch --branch ${PUPPET_BRANCH} --depth 1 https://github.com/gentoomaniac/puppet.git /var/lib/puppet-repo
+    puppet apply --config /var/lib/puppet-repo/puppet.conf -vvvt --modulepath=/var/lib/puppet-repo/modules/ /var/lib/puppet-repo/manifests/site.pp
+
+    echo "*** Init complete" 
+    rm /etc/bootstrap /etc/systemd/system/bootstrap.service /usr/local/sbin/bootstrap.sh 
+    reboot
+fi
