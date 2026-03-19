@@ -30,8 +30,6 @@ hostbase::packages::present:
 hostbase::packages::absent:
   - snapd
 
-timezone::timezone: Etc/UTC
-
 dns::servers:
   - 10.1.1.53
 
@@ -42,40 +40,7 @@ dotfiles:
   "root": {}
 
 ressources:
-  group:
-    "ubuntu":
-      ensure: absent
-      before: Group[marco]
-      require: User[ubuntu]
-    "marco":
-      ensure: present
-      gid: 1000
-      before: User[marco]
-  user:
-    "ubuntu":
-      ensure: absent
-      before: User[marco]
-    "marco":
-      ensure: present
-      uid: 1000
-      gid: marco
-      home: /home/marco
-      shell: /bin/bash
-      managehome: true
-      password: "%{lookup('secret_marco')}"
-      groups:
-        - sudo
-        - adm
-      purge_ssh_keys: true
-  file_line:
-    "/etc/locale.gen":
-      path: /etc/locale.gen
-      line: "en_GB.UTF-8 UTF-8"
-      notify: Exec[/usr/sbin/locale-gen]
   file:
-    "/etc/default/locale":
-      content: "LANG=en_GB.UTF-8"
-      notify: Exec[/usr/sbin/locale-gen]
     "/var/lib/puppet/reports":
       ensure: absent
       force: true
@@ -102,10 +67,6 @@ ressources:
       content: |
         ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5d/oJWpUQaelmkllEMO6nwy4TYWFSoGtkuVPTq4wavpHwp7/uqRHIzQ8/DnjEkuFzyNImrCLpgOPnNstWmTmyMHRfHDy+wiwvlO1ceVixL5Uj8qYewvEXP7alG9lueVS/PovidhzVoh7p7VDXrZynU7lJaGQ2cfMXXJXwcjXIOkD3X0z3//j6yu7Rw/65ZuexSGtCRgrXDDCzEK+Kp4b/MLavY5N2ukEl654VUZEYvagQXSFsNsFEq6tu+4ywOnAZhtV1Ob/oCfspr8ejaFyxHpmnjiE5Ln72/rMEM+IrI6ifjn8zY9sqku20olc17Cr4cgGhvR5J8Ws8xu1GlG79 root@freenas.gentoomaniac.net
       require: File[/etc/userkeys/root]
-    "/etc/netplan/00-installer-config.yaml":
-      ensure: absent
-    "/etc/netplan/99-installer-config.yaml":
-      ensure: absent
     "/srv":
       ensure: directory
     "/usr/local/bin/mvault":
@@ -148,8 +109,6 @@ ressources:
           echo "reboot_required_since value=${REBOOT_REQUIRED_SINCE:-0}"
           echo "puppet_branch value=1,branch=\"$(head -1 /etc/puppet_branch)\""
 
-    "/etc/cron.weekly/regular-reboot":
-      ensure: absent
     "/usr/local/bin/unattended-reboot":
       ensure: present
       mode: "0754"
@@ -188,8 +147,6 @@ ressources:
       require:
         - File[/usr/local/bin/unattended-reboot]
 
-    "/etc/cron.weekly/docker-system-prune":
-      ensure: absent
     "/usr/local/bin/docker-system-prune":
       ensure: present
       mode: "0750"
@@ -228,193 +185,6 @@ ressources:
       require:
         - File[/usr/local/bin/docker-system-prune]
 
-    "/usr/local/bin/zfs-create-snapshots":
-      ensure: present
-      mode: "0754"
-      content: |
-        #!/bin/env bash
-
-        LABEL=${1:-frequent}
-
-        POOL_NAME="$(zpool list| awk '/ONLINE/{print $1}')"
-        DATASETS="$(zfs list | awk "/${POOL_NAME}\//{print \$1}")"
-
-        for dataset in ${DATASETS}; do
-            zfs snapshot "${dataset}@${LABEL}-$(date +%Y%m%d-%H%M%S)"
-        done
-    "/etc/systemd/system/zfs-snapshots@.service":
-      ensure: present
-      content: |
-        [Unit]
-        Description=Create zfs %i snapshots
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/local/bin/zfs-create-snapshots %i
-        User=root
-        Group=systemd-journal
-      require: File[/usr/local/bin/zfs-create-snapshots]
-    "/etc/systemd/system/zfs-snapshots-daily.timer":
-      ensure: present
-      content: |
-        [Unit]
-        Description=Timer for daily zfs snapshots
-
-        [Timer]
-        OnCalendar=daily
-        Persistent=true
-        Unit=zfs-snapshots@daily.service
-
-        [Install]
-        WantedBy=timers.target
-      require: File[/etc/systemd/system/zfs-snapshots@.service]
-    "/etc/systemd/system/zfs-snapshots-weekly.timer":
-      ensure: present
-      content: |
-        [Unit]
-        Description=Timer for weekly zfs snapshots
-
-        [Timer]
-        OnCalendar=weekly
-        Persistent=true
-        Unit=zfs-snapshots@weekly.service
-
-        [Install]
-        WantedBy=timers.target
-      require: File[/etc/systemd/system/zfs-snapshots@.service]
-    "/usr/local/bin/zfs-cleanup-snapshots":
-      ensure: present
-      mode: "0754"
-      content: |
-        #!/usr/bin/env bash
-
-        LABEL=${1:-frequent}       # Snapshot label to look for
-        KEEP_MIN=${3:-4}           # KEEP AT LEAST this many snapshots (Safety Net)
-
-        # Set max age in seconds
-        if [ "${LABEL}" == "weekly" ]; then
-            MAXAGE_SEC=${2:-1209600} # 14 days
-        else
-            MAXAGE_SEC=${2:-604800}  # 7 days
-        fi
-
-        # Get list of online pools
-        POOLS=$(zpool list -H -o name)
-
-        for POOL_NAME in ${POOLS}; do
-            zfs list -H -o name -t filesystem,volume -r "${POOL_NAME}" | while read -r DATASET; do
-                # Skip Docker datasets
-                if [[ "${DATASET}" == *"docker"* ]]; then
-                    continue
-                fi
-
-                COUNT=0
-
-                # -S creation : Sort by creation (Newest First)
-                # -d 1        : Depth 1 (Don't look at children datasets)
-                zfs list -H -p -t snapshot -o name,creation -S creation -d 1 "${DATASET}" | grep "@${LABEL}-" | while read -r SNAPNAME CREATED; do
-                    COUNT=$((COUNT + 1))
-
-                    CURRENT_TS=$(date +%s)
-                    AGE_SEC=$(( CURRENT_TS - CREATED ))
-                    AGE_DAYS=$(( AGE_SEC / 86400 ))
-
-
-                    if (( COUNT <= KEEP_MIN )); then
-                        echo "${COUNT}/${KEEP_MIN} to keep ${SNAPNAME} (${AGE_DAYS} days old)"
-                        continue
-                    fi
-
-                    if (( AGE_SEC > MAXAGE_SEC )); then
-                        echo "deleting ${SNAPNAME} (${AGE_DAYS} days old)"
-                        zfs destroy -r "${SNAPNAME}"
-                    else
-                        echo "not expired ${SNAPNAME} (${AGE_DAYS} days old)"
-                    fi
-
-                done
-            done
-        done
-
-    "/etc/systemd/system/zfs-cleanup-snapshots@.service":
-      ensure: present
-      content: |
-        [Unit]
-        Description=Cleanup zfs %i snapshots
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/local/bin/zfs-cleanup-snapshots %i
-        User=root
-        Group=systemd-journal
-      require: File[/usr/local/bin/zfs-cleanup-snapshots]
-    "/etc/systemd/system/zfs-cleanup-snapshots-daily.timer":
-      ensure: present
-      content: |
-        [Unit]
-        Description=Timer for cleaning up daily zfs snapshots
-
-        [Timer]
-        OnCalendar=daily
-        Persistent=true
-        Unit=zfs-cleanup-snapshots@daily.service
-
-        [Install]
-        WantedBy=timers.target
-      require: File[/etc/systemd/system/zfs-cleanup-snapshots@.service]
-    "/etc/systemd/system/zfs-cleanup-snapshots-weekly.timer":
-      ensure: present
-      content: |
-        [Unit]
-        Description=Timer for cleaning up weekly zfs snapshots
-
-        [Timer]
-        OnCalendar=weekly
-        Persistent=true
-        Unit=zfs-cleanup-snapshots@weekly.service
-
-        [Install]
-        WantedBy=timers.target
-      require: File[/etc/systemd/system/zfs-cleanup-snapshots@.service]
-
-    "/usr/local/bin/zfs-scrub-all-pools":
-      ensure: present
-      mode: "0744"
-      content: |
-        #!/bin/env bash
-
-        for pool in $(zpool list -H -o name); do sudo zpool scrub ${pool}; done
-
-    "/etc/systemd/system/zfs-scrub-weekly.timer":
-      content: |
-        [Unit]
-        Description=Run zfs scrub weekly
-
-        [Timer]
-        OnCalendar=weekly
-        Persistent=true
-        Unit=zfs-scrub.service
-
-        [Install]
-        WantedBy=timers.target
-      require:
-        - File[/etc/systemd/system/zfs-scrub.service]
-    "/etc/systemd/system/zfs-scrub.service":
-      ensure: present
-      mode: "0644"
-      content: |
-        [Unit]
-        Description=Run a zfs scrub
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/local/bin/zfs-scrub-all-pools
-        User=root
-        Group=systemd-journal
-      require:
-        - File[/usr/local/bin/zfs-scrub-all-pools]
-
-
   exec:
     "systemctl daemon-reload":
       refreshonly: true
@@ -429,8 +199,6 @@ ressources:
         - File[/etc/systemd/system/zfs-cleanup-snapshots-daily.timer]
         - File[/etc/systemd/system/zfs-cleanup-snapshots-weekly.timer]
         - File[/etc/systemd/system/zfs-scrub-weekly.timer]
-    "/usr/sbin/locale-gen":
-      refreshonly: true
 
 
   service:
@@ -439,26 +207,6 @@ ressources:
       enable: true
       require: Exec[systemctl daemon-reload]
     "unattended-reboot-weekly.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
-    "zfs-snapshots-daily.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
-    "zfs-snapshots-weekly.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
-    "zfs-cleanup-snapshots-daily.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
-    "zfs-cleanup-snapshots-weekly.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
-    "zfs-scrub-weekly.timer":
       ensure: running
       enable: true
       require: Exec[systemctl daemon-reload]
