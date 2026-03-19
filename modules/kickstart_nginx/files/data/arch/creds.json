@@ -1,0 +1,11 @@
+{
+    "root_enc_password": "$y$j9T$7AddUSEcv9WlYXUlO6NkN/$pqcy7FZD2Y/Ryd2OeRnGaykO68aXUCKXInv3f6kvmz0",
+    "users": [
+        {
+            "enc_password": "$y$j9T$ftF608BNDoxOYiJRmLBZK1$.a2xa7J55gNrMcUdFbSiVyDRUyveQ.YzfJYHopR/IhD",
+            "groups": [],
+            "sudo": true,
+            "username": "marco"
+        }
+    ]
+}
