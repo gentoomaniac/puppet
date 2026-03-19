@@ -151,6 +151,7 @@
     "btrfs-progs",
     "curl",
     "dmidecode",
+    "docker",
     "fzf",
     "git",
     "hwinfo",
@@ -161,7 +162,8 @@
     "parted",
     "puppet",
     "vault",
-    "vault"
+    "vault",
+    "which"
   ],
   "parallel_downloads": 0,
   "profile_config": {

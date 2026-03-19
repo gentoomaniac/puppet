@@ -7,7 +7,7 @@ classes:
   - hostbase::puppet_cron
 # - hostbase::resolved
   - hostbase::sshd
-  - docker
+#  - docker
   - docker::run_instance
 
 hostbase::packages::present:

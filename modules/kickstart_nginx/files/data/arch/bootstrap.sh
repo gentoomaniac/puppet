@@ -83,7 +83,7 @@ if [ -f /etc/bootstrap ]; then
     # This is mainly to cover Physical machines with only one drive
     create_data_pool
 
-    echo "*** Setting up Vault credentials" 
+    echo "*** Setting up Vault credentials"
     export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
     mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
 
@@ -108,11 +108,13 @@ if [ -f /etc/bootstrap ]; then
         exit 1
     fi
 
-    echo "*** Enable sshd" 
-    if ! systemctl enable --now sshd; then
-        echo "!!! failed enabling sshd"
-        exit 1
-    fi
+    echo "*** Enable services"
+    for service in sshd docker; do
+        if ! systemctl enable --now "${service}"; then
+            echo "!!! failed enabling "${service}""
+            exit 1
+        fi
+    done
 
 
     echo "*** Starting initial puppet run ..." 
@@ -123,14 +125,8 @@ if [ -f /etc/bootstrap ]; then
         exit 1
     fi
     chmod +x "${RUN_PUPPET}"
-    
-    PUPPET_BRANCH=$(cat /etc/puppet_branch 2>/dev/null)
-    PUPPET_BRANCH=${PUPPET_BRANCH:-arch}
-    if ! git clone --single-branch --branch "${PUPPET_BRANCH}" --depth 1 https://github.com/gentoomaniac/puppet.git /var/lib/puppet-repo; then
-        echo '!!! failed fetching puppet repo on branch '"${PUPPET_BRANCH}"
-        exit 1
-    fi
-    puppet apply --config /var/lib/puppet-repo/puppet.conf -vvvt --modulepath=/var/lib/puppet-repo/modules/ /var/lib/puppet-repo/manifests/site.pp
+    "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet
+
 
     echo "*** Init complete" 
     rm /etc/bootstrap /etc/systemd/system/bootstrap.service /usr/local/sbin/bootstrap.sh 
