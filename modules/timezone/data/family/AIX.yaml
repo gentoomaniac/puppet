@@ -1,3 +1,0 @@
-timezone::zoneinfo_dir: /usr/share/lib/zoneinfo
-timezone::timezone_update: "chtz %s"
-timezone::timezone_update_check_cmd: "echo $TZ | grep -q %s"

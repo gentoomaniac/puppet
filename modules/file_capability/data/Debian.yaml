@@ -1,4 +1,0 @@
-# Debian.yaml --- Settings specific to the Debian family
----
-
-file_capability::package_name: 'libcap2-bin'
