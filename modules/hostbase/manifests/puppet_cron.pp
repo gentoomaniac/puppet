@@ -7,6 +7,8 @@ class hostbase::puppet_cron (
     ensure => 'absent',
   }
 
+  # TODO: build AUR for run-puppet
+
   $runPuppetDebPath = "https://github.com/gentoomaniac/run-puppet/releases/download/v${runPuppetVersion}"
   $runPuppetDebName = "run-puppet_${runPuppetVersion}_linux_${facts['os']['architecture']}.deb"
 

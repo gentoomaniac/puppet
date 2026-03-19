@@ -2,7 +2,7 @@
 classes:
   - apt
   - cron
-  - hostbase::autoupdate
+  #- hostbase::autoupdate
   - hostbase::dotfiles
   - hostbase::packages
   - hostbase::puppet
@@ -194,12 +194,6 @@ ressources:
       subscribe:
         - File[/etc/systemd/system/docker-system-prune-weekly.timer]
         - File[/etc/systemd/system/unattended-reboot-weekly.timer]
-        - File[/etc/systemd/system/zfs-snapshots-daily.timer]
-        - File[/etc/systemd/system/zfs-snapshots-weekly.timer]
-        - File[/etc/systemd/system/zfs-cleanup-snapshots-daily.timer]
-        - File[/etc/systemd/system/zfs-cleanup-snapshots-weekly.timer]
-        - File[/etc/systemd/system/zfs-scrub-weekly.timer]
-
 
   service:
     "docker-system-prune-weekly.timer":
