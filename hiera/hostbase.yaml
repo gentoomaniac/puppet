@@ -178,7 +178,7 @@ ressources:
         - File[/usr/local/bin/docker-system-prune]
     "/etc/sshd_config.d/99-homelab":
       ensure: present
-      mode: 0644
+      mode: "0644"
       content: |
         AllowAgentForwarding   yes
         AuthorizedKeysFile     /etc/userkeys/%u/authorized_keys
