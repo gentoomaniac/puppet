@@ -19,6 +19,7 @@ hostbase::packages::present:
   - hwinfo
   - fzf
   - mbuffer
+  - openssh
 
 hostbase::packages::absent:
   - snapd
