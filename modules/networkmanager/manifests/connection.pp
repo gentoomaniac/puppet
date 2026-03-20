@@ -1,6 +1,8 @@
 define networkmanager::connection (
   String $interface = $title,
   
+  Optional[Boolean] $activate = true,
+
   # IPv4 Configuration
   Enum['auto', 'manual', 'disabled'] $ipv4_method        = 'manual',
   Optional[Array[String]]            $ipv4_addresses     = undef,
@@ -35,6 +37,15 @@ define networkmanager::connection (
     exec { 'reload_nm_connections':
       command     => '/usr/bin/nmcli connection reload',
       refreshonly => true,
+    }
+  }
+
+  if $activate {
+    exec { "activate_nm_connection_${interface}":
+      command     => "/usr/bin/nmcli connection up ${interface}",
+      refreshonly => true,
+      require     => Exec['reload_nm_connections'],
+      subscribe   => File["/etc/NetworkManager/system-connections/${interface}.nmconnection"],
     }
   }
 }
