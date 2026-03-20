@@ -6,7 +6,6 @@ classes:
   - hostbase::puppet
   - hostbase::puppet_cron
 # - hostbase::resolved
-  - hostbase::sshd
   - docker
   - docker::run_instance
 
@@ -17,8 +16,6 @@ hostbase::packages::present:
   - mailutils
   - neovim
   - git
-  - python3-virtualenv
-  - python3-pip
   - hwinfo
   - fzf
   - mbuffer
@@ -178,6 +175,20 @@ ressources:
         Group=systemd-journal
       require:
         - File[/usr/local/bin/docker-system-prune]
+    "/etc/sshd_config.d/99-homelab":
+      ensure: present
+      mode: 0644
+      content: |
+        AllowAgentForwarding   yes
+        AuthorizedKeysFile     /etc/userkeys/%u/authorized_keys
+        PasswordAuthentication no
+        PermitRootLogin        prohibit-password
+        PubkeyAuthentication   yes
+        X11Forwarding          yes
+      require:
+        - Package[openssh]
+      notify:
+        - Service[sshd]
 
   exec:
     "systemctl daemon-reload":
@@ -198,6 +209,10 @@ ressources:
       ensure: running
       enable: true
       require: Exec[systemctl daemon-reload]
+    "sshd":
+      ensure: running
+      enable: true
+      require: Package[openssh]
 
 docker::docker_users:
   - marco
