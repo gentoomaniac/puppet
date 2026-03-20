@@ -13,6 +13,6 @@ class hostbase::puppet (
   service { 'puppet':
     ensure  => 'stopped',
     enable  => false,
-    require => Package['puppet-agent'],
+    require => Package['puppet'],
   }
 }
