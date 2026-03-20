@@ -93,7 +93,7 @@ docker::run_instance::instance:
       - File[/srv/gitea/data]
   traefik:
     service_provider: systemd
-    image: traefik:v3.1
+    image: traefik:v3.6
     command: >
       --api.insecure=true
       --api.dashboard=true
