@@ -12,6 +12,14 @@ classes:
 docker::manage_package: false
 docker::acknowledge_unsupported_os: true
 
+network::ipv4::gateway: 10.1.1.1
+network::ipv4::dns::server:
+  - 10.1.1.52
+  - 10.1.1.53
+network::ipv4::dns::search:
+  - gentoomaniac.net
+  - srv.gentoomaniac.net
+
 hostbase::packages::present:
   - btop
   - mailutils
@@ -22,8 +30,6 @@ hostbase::packages::present:
   - mbuffer
   - openssh
 
-hostbase::packages::absent:
-  - snapd
 
 dns::servers:
   - 10.1.1.53

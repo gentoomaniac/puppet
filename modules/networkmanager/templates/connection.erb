@@ -1,0 +1,50 @@
+[connection]
+id=<%= @interface %>
+type=ethernet
+interface-name=<%= @interface %>
+
+[ipv4]
+method=<%= @ipv4_method %>
+<%- if @ipv4_addresses -%>
+<%- @ipv4_addresses.each_with_index do |addr, index| -%>
+address<%= index + 1 %>=<%= addr %>
+<%- end -%>
+<%- end -%>
+<%- if @ipv4_gateway -%>
+gateway=<%= @ipv4_gateway %>
+<%- end -%>
+<%- if @ipv4_route_metric -%>
+route-metric=<%= @ipv4_route_metric %>
+<%- end -%>
+<%- if @ipv4_dns -%>
+dns=<%= @ipv4_dns.join(';') %>;
+<%- end -%>
+<%- if @ipv4_dns_search -%>
+dns-search=<%= @ipv4_dns_search.join(';') %>;
+<%- end -%>
+<%- if @ipv4_never_default -%>
+never-default=true
+<%- end -%>
+
+[ipv6]
+method=<%= @ipv6_method %>
+<%- if @ipv6_addresses -%>
+<%- @ipv6_addresses.each_with_index do |addr, index| -%>
+address<%= index + 1 %>=<%= addr %>
+<%- end -%>
+<%- end -%>
+<%- if @ipv6_gateway -%>
+gateway=<%= @ipv6_gateway %>
+<%- end -%>
+<%- if @ipv6_route_metric -%>
+route-metric=<%= @ipv6_route_metric %>
+<%- end -%>
+<%- if @ipv6_dns -%>
+dns=<%= @ipv6_dns.join(';') %>;
+<%- end -%>
+<%- if @ipv6_dns_search -%>
+dns-search=<%= @ipv6_dns_search.join(';') %>;
+<%- end -%>
+<%- if @ipv6_never_default -%>
+never-default=true
+<%- end -%>

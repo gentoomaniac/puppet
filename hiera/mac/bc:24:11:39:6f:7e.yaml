@@ -3,3 +3,11 @@ classes:
   - hostbase::hostname
 
 hostbase::hostname::hostname: sto-dev-a1.sto.gentoomaniac.net
+
+ressources:
+  networkmanager::connection:
+    'ens18':
+      ipv4_method: 'manual'
+      ipv4_addresses:
+        - '10.1.1.60/24'
+      ipv4_route_metric: 10
