@@ -8,7 +8,7 @@ class hostbase::puppet_cron (
   }
 
   $runPuppetDebPath = "https://github.com/gentoomaniac/run-puppet/releases/download/v${runPuppetVersion}"
-  $runPuppetFileName = "run-puppet_${runPuppetVersion}_linux-${facts['os']['architecture']}"
+  $runPuppetFileName = "run-puppet_${runPuppetVersion}_linux-amd64"
 
   file {"/root/${runPuppetFileName}":
     ensure => 'present',
