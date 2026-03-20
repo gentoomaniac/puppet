@@ -6,7 +6,6 @@ classes:
   - hostbase::puppet
   - hostbase::puppet_cron
 # - hostbase::resolved
-  - docker
   - docker::run_instance
 
 docker::acknowledge_unsupported_os: true
