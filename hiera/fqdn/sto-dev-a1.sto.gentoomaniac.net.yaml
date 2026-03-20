@@ -4,18 +4,18 @@ classes:
   - docker::run_instance
 
 ressources:
-  zfs:
-    "datapool/traefik":
+  btrfs::subvolume:
+    "/srv/traefik":
       ensure: present
-    "datapool/gitea":
+    "/srv/gitea":
       ensure: present
   file:
     "/srv/traefik/conf":
       ensure: directory
-      require: Zfs[datapool/traefik]
+      require: Btrfs::Subvolume[/srv/traefik]
     "/srv/traefik/ssl":
       ensure: directory
-      require: Zfs[datapool/traefik]
+      require: Btrfs::Subvolume[/srv/traefik]
     "/srv/traefik/ssl/key.pem":
       ensure: present
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
@@ -41,7 +41,7 @@ ressources:
       ensure: directory
       owner: 1000
       group: 1000
-      require: Zfs[datapool/gitea]
+      require: Btrfs::Subvolume[/srv/gitea]
 
 docker::docker_users:
   - marco
