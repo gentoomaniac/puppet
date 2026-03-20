@@ -7,11 +7,11 @@ class hostbase::hostname(
     }
 
     if $facts['networking']['fqdn'] != $hostname {
-      host { $facts['networking']['hostname']:
+      host { "short_${facts['networking']['hostname']}":
         ensure  => absent,
         require => Exec['set-hostname'],
       }
-      host { $facts['networking']['fqdn']:
+      host { "fqdn_${facts['networking']['fqdn']}":
         ensure  => absent,
         require => Exec['set-hostname'],
       }
@@ -19,7 +19,7 @@ class hostbase::hostname(
 
     $alias = regsubst($name, '^([^.]*).*$', '\1')
 
-    host { $hostname:
+    host { "lo_${hostname}":
       ensure  => present,
       ip      => '127.0.0.1',
       alias   => $alias,
