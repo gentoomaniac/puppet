@@ -116,7 +116,6 @@ if [ -f /etc/bootstrap ]; then
         fi
     done
 
-
     echo "*** Starting initial puppet run ..." 
     RUN_PUPPET=/usr/local/sbin/run-puppet
     curl -L https://github.com/gentoomaniac/run-puppet/releases/download/v0.1.6/run-puppet_0.1.6_linux-amd64 -o "${RUN_PUPPET}" 
@@ -125,8 +124,16 @@ if [ -f /etc/bootstrap ]; then
         exit 1
     fi
     chmod +x "${RUN_PUPPET}"
+    if ! gem install vault debouncer toml-rb; then
+        echo "failed installing ruby gems for puppet"
+        exit 1
+    fi
     "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet
-
+    PUPPET_EXIT_CODE=$?
+    if [ ${PUPPET_EXIT_CODE} -eq 1 ] || [ ${PUPPET_EXIT_CODE} -eq 4 ] || [ ${PUPPET_EXIT_CODE} -eq 6 ]; then
+        exit "puppet failed"
+        exit 1
+    fi
 
     echo "*** Init complete" 
     rm /etc/bootstrap /etc/systemd/system/bootstrap.service /usr/local/sbin/bootstrap.sh 
