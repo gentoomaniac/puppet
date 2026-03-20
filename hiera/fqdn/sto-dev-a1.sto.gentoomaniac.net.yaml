@@ -76,7 +76,7 @@ docker::run_instance::instance:
       - traefik.http.middlewares.gitea-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
       - traefik.http.routers.gitea.middlewares=gitea-whitelist
       - traefik.http.services.gitea.loadbalancer.server.port=3000
-      - traefik.tcp.routers.gitssh.entrypoints=ssh
+      - traefik.tcp.routers.gitssh.entrypoints=git
       - traefik.tcp.routers.gitssh.rule=HostSNI(`*`)
       - traefik.tcp.services.gitssh.loadbalancer.server.port=22
       - traefik.tcp.middlewares.gitea-ssh-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
