@@ -1,4 +1,6 @@
 ---
+docker::acknowledge_unsupported_os: true
+
 classes:
 # - hostbase::autoupdate
   - hostbase::dotfiles
@@ -7,8 +9,9 @@ classes:
   - hostbase::puppet_cron
 # - hostbase::resolved
   - hostbase::sshd
-#  - docker
+  - docker
   - docker::run_instance
+
 
 hostbase::packages::present:
   - btop
