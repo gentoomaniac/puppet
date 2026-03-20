@@ -1,6 +1,4 @@
 ---
-docker::acknowledge_unsupported_os: true
-
 classes:
 # - hostbase::autoupdate
   - hostbase::dotfiles
@@ -12,6 +10,7 @@ classes:
   - docker
   - docker::run_instance
 
+docker::acknowledge_unsupported_os: true
 
 hostbase::packages::present:
   - btop
@@ -205,6 +204,7 @@ docker::docker_users:
 
 docker::run_instance::instance:
   nodexporter:
+    service_provider: systemd
     image: quay.io/prometheus/node-exporter:latest
     command: >
       --path.rootfs=/host
