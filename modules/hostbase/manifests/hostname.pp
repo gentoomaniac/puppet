@@ -1,19 +1,19 @@
 class hostbase::hostname(
   $hostname = $name,
 ) {
-    exec { 'set-hostname':
+    exec { "set-hostname_${hostname}":
       command => "/usr/bin/hostnamectl set-hostname  ${hostname}",
-      unless  => "/usr/bin/test $(hostname) = ${hostname}",
+      unless  => "/usr/bin/test $(hostnamectl hostname) = ${hostname}",
     }
 
     if $facts['networking']['fqdn'] != $hostname {
       host { "short_${facts['networking']['hostname']}":
         ensure  => absent,
-        require => Exec['set-hostname'],
+        require => Exec["set-hostname_${hostname}"],
       }
       host { "fqdn_${facts['networking']['fqdn']}":
         ensure  => absent,
-        require => Exec['set-hostname'],
+        require => Exec["set-hostname_${hostname}"],
       }
     }
 
@@ -23,6 +23,6 @@ class hostbase::hostname(
       ensure  => present,
       ip      => '127.0.0.1',
       alias   => $alias,
-      require => Exec['set-hostname'],
+      require => Exec["set-hostname_${hostname}"],
     }
 }
