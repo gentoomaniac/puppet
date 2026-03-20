@@ -177,7 +177,7 @@ ressources:
         Group=systemd-journal
       require:
         - File[/usr/local/bin/docker-system-prune]
-    "/etc/sshd_config.d/99-homelab":
+    "/etc/ssh/sshd_config.d/99-homelab":
       ensure: present
       mode: "0644"
       content: |
