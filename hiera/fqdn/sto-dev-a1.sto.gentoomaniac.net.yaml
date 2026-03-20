@@ -53,6 +53,7 @@ docker::networks::networks:
 
 docker::run_instance::instance:
   gitea:
+    service_provider: systemd
     image: docker.gitea.com/gitea:1.25
     dns:
       - 10.1.1.52
@@ -92,6 +93,7 @@ docker::run_instance::instance:
       - Class[docker]
       - File[/srv/gitea/data]
   traefik:
+    service_provider: systemd
     image: traefik:v3.1
     command: >
       --api.insecure=true
