@@ -3,8 +3,11 @@
 archinstall --config-url https://ks.srv.gentoomaniac.net/arch/vm.json --creds-url https://ks.srv.gentoomaniac.net/arch/creds.json --silent
 
 # seed vault token
-sed -n 's/.*VAULT_TOKEN=\([a-zA-Z0-9\.]\+\).*/\1/p' /proc/cmdline > /mnt/etc/vault_token
-chmod 600 /mnt/etc/vault_token
+VAULT_TOKEN=$(sed -n 's/.*VAULT_TOKEN=\([a-zA-Z0-9\.]\+\).*/\1/p' /proc/cmdline)
+if [ ! -z "${VAULT_TOKEN}" ]; then
+    echo "${VAULT_TOKEN}" > /mnt/etc/vault_token
+    chmod 600 /mnt/etc/vault_token
+fi
 
 # puppet branch
 PUPPET_BRANCH=$(sed -n 's/.*PUPPET_BRANCH=\([a-zA-Z0-9\._-/]\+\).*/\1/p' /proc/cmdline); echo ${PUPPET_BRANCH:-arch} > /mnt/etc/puppet_branch
