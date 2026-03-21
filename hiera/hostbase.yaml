@@ -1,11 +1,10 @@
 ---
 classes:
-# - hostbase::autoupdate
+  - hostbase::autoupdate
   - hostbase::dotfiles
   - hostbase::packages
   - hostbase::puppet
   - hostbase::puppet_cron
-# - hostbase::resolved
   - docker
   - docker::run_instance
 
@@ -29,7 +28,6 @@ hostbase::packages::present:
   - fzf
   - mbuffer
   - openssh
-
 
 dns::servers:
   - 10.1.1.53

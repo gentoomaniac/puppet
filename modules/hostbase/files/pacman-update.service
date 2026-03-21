@@ -1,0 +1,9 @@
+[Unit]
+Description=Arch Linux Automatic Updates
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Update keyring first to prevent PGP signature errors, then update system
+ExecStart=/usr/bin/sh -c '/usr/bin/pacman -Sy archlinux-keyring --noconfirm && /usr/bin/pacman -Su --noconfirm'

@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Arch Linux Automatic Updates Daily
+
+[Timer]
+# Run daily at 4:00 AM
+OnCalendar=*-*-* 04:00:00
+# Spread the load across the fleet by randomizing start time by up to 1 hour
+RandomizedDelaySec=60m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
