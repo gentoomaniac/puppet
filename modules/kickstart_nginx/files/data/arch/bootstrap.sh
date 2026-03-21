@@ -116,7 +116,7 @@ if [ -f /etc/bootstrap ]; then
         fi
     done
 
-    echo "*** Starting initial puppet run ..." 
+    echo "*** Setting up puppet automation"
     RUN_PUPPET=/usr/local/sbin/run-puppet
     curl -L https://github.com/gentoomaniac/run-puppet/releases/download/v0.1.6/run-puppet_0.1.6_linux-amd64 -o "${RUN_PUPPET}" 
     if [ ! -f "${RUN_PUPPET}" ]; then
@@ -128,10 +128,20 @@ if [ -f /etc/bootstrap ]; then
         echo "failed installing ruby gems for puppet"
         exit 1
     fi
-    "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet
+
+    echo "*** Starting initial puppet run ..." 
+    "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet --puppet-branch "$(cat /etc/puppet_branch)"
     PUPPET_EXIT_CODE=$?
     if [ ${PUPPET_EXIT_CODE} -eq 1 ] || [ ${PUPPET_EXIT_CODE} -eq 4 ] || [ ${PUPPET_EXIT_CODE} -eq 6 ]; then
-        exit "puppet failed"
+        exit "puppet initial run failed"
+        exit 1
+    fi
+
+    echo "*** Starting host customisation puppet run ..." 
+    "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet --puppet-branch "$(cat /etc/puppet_branch)"
+    PUPPET_EXIT_CODE=$?
+    if [ ${PUPPET_EXIT_CODE} -eq 1 ] || [ ${PUPPET_EXIT_CODE} -eq 4 ] || [ ${PUPPET_EXIT_CODE} -eq 6 ]; then
+        exit "puppet run for host customisation failed"
         exit 1
     fi
 
