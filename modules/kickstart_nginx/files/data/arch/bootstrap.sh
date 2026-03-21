@@ -138,7 +138,7 @@ if [ -f /etc/bootstrap ]; then
     fi
 
     echo "*** Starting host customisation puppet run ..." 
-    "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet --puppet-branch "$(cat /etc/puppet_branch)"
+    "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet --no-clone
     PUPPET_EXIT_CODE=$?
     if [ ${PUPPET_EXIT_CODE} -eq 1 ] || [ ${PUPPET_EXIT_CODE} -eq 4 ] || [ ${PUPPET_EXIT_CODE} -eq 6 ]; then
         exit "puppet run for host customisation failed"
