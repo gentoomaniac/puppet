@@ -154,9 +154,9 @@ ressources:
               - targets:
                 - sto-coredns-a1.sto.gentoomaniac.net:9100
                 - sto-coredns-c1.sto.gentoomaniac.net:9100
+                - sto-dev-b1.sto.gentoomaniac.net:9100
                 - sto-grafana-a1.sto.gentoomaniac.net:9100
                 - sto-infra-a1.sto.gentoomaniac.net:9100
-                - sto-minecraft-b1.sto.gentoomaniac.net:9100
                 - sto-nzbget-a1.sto.gentoomaniac.net:9100
                 - sto-plex-a1.sto.gentoomaniac.net:9100
                 - sto-proxmox-a1.sto.gentoomaniac.net:9100
