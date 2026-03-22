@@ -1,9 +1,15 @@
+gentoomaniac.net srv.gentoomaniac.net sto.gentoomaniac.net 1.1.10.in-addr.arpa {
+    auto {
+        directory /data/dnsdata/zones/ (.*)\.db
+        reload 60s
+    }
+    # If the record isn't in the .db files, pass it to the block below
+    fallthrough
+}
+
 .:53 {
+    # Cloudflare Family DNS (Malware + Adult Content Filtering)
     forward . 1.0.0.3:53 1.1.1.3:53
-    file /data/dnsdata/zones/srv.gentoomaniac.net.db srv.gentoomaniac.net
-    file /data/dnsdata/zones/sto.gentoomaniac.net.db sto.gentoomaniac.net
-    file /data/dnsdata/zones/gentoomaniac.net.db gentoomaniac.net
-    file /data/dnsdata/zones/10.1.1.db 1.1.10.in-addr.arpa
     cache 60
     log
     errors
