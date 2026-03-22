@@ -28,6 +28,7 @@ hostbase::packages::present:
   - fzf
   - mbuffer
   - openssh
+  - which
 
 dns::servers:
   - 10.1.1.53

@@ -20,7 +20,7 @@ function create_data_pool() {
             fi
             partprobe /dev/sdb
             udevadm settle
-            
+
             if ! mkfs.btrfs -L datapool -f /dev/sdb1; then
                 echo "!!! failed creating BTRFS pool on /dev/sdb1"
                 exit 1
@@ -31,12 +31,12 @@ function create_data_pool() {
         if blkid -t LABEL=datapool /dev/sdb1 >/dev/null 2>&1; then
             echo "*** mounting datapool on /dev/sdb1 ..."
             mount LABEL=datapool /srv
-            
+
             if ! grep -q "LABEL=datapool /srv" /etc/fstab; then
                 echo "LABEL=datapool /srv btrfs defaults 0 0" >> /etc/fstab
             fi
         else
-            echo "!!! /dev/sdb1 is missing or contains an unknown filesystem. Skipping datapool mount." 
+            echo "!!! /dev/sdb1 is missing or contains an unknown filesystem. Skipping datapool mount."
             return
         fi
     elif [[ -b /dev/sda4 ]]; then
@@ -50,30 +50,30 @@ function create_data_pool() {
 
         mkdir -p /srv
         if blkid -t LABEL=localpool /dev/sda4 >/dev/null 2>&1; then
-            echo "*** mounting localpool on /dev/sda4 ..." 
+            echo "*** mounting localpool on /dev/sda4 ..."
             mount LABEL=localpool /srv
             if ! grep -q "LABEL=localpool /srv" /etc/fstab; then
                 echo "LABEL=localpool /srv btrfs defaults 0 0" >> /etc/fstab
             fi
         else
-            echo "!!! /dev/sda4 contains an unknown filesystem. Skipping localpool creation to prevent data loss." 
+            echo "!!! /dev/sda4 contains an unknown filesystem. Skipping localpool creation to prevent data loss."
             return
         fi
     else
-        echo "No separate data partition or disk detected." 
+        echo "No separate data partition or disk detected."
         return
     fi
 }
 
 if [ -f /etc/bootstrap ]; then
-    echo "+++ DEBUG" 
+    echo "+++ DEBUG"
     cat /proc/cmdline
 
-    echo "*** Waiting for network connectivity to Vault..." 
+    echo "*** Waiting for network connectivity to Vault..."
     wait_for_network
     echo "*** Network is fully routed and DNS is responding!"
 
-    echo "*** Updating the system ..." 
+    echo "*** Updating the system ..."
     if ! pacman -Syu --noconfirm; then
         echo '!!! system update failed'
         exit 1
@@ -88,14 +88,14 @@ if [ -f /etc/bootstrap ]; then
     mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
 
     if [[ -f "/etc/vault_token" ]]; then
-        echo "... Getting Vault credentials from preeseeded token" 
+        echo "... Getting Vault credentials from preeseeded token"
         VAULT_TOKEN="$(cat /etc/vault_token)"
         export VAULT_TOKEN
         vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
         vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
         rm /etc/vault_token
     else
-        echo "... Getting Vault credentials from BIOS" 
+        echo "... Getting Vault credentials from BIOS"
         dmidecode | sed -n 's/\s\+Serial Number: \(.*\)/\1/p' | head -1 > /etc/vault_role_id
         dmidecode | sed -n 's/\s\+SKU Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
         chmod 600 /etc/vault_*
@@ -111,14 +111,14 @@ if [ -f /etc/bootstrap ]; then
     echo "*** Enable services"
     for service in sshd docker; do
         if ! systemctl enable --now "${service}"; then
-            echo "!!! failed enabling "${service}""
+            echo "!!! failed enabling '${service}'"
             exit 1
         fi
     done
 
     echo "*** Setting up puppet automation"
     RUN_PUPPET=/usr/local/sbin/run-puppet
-    curl -L https://github.com/gentoomaniac/run-puppet/releases/download/v0.1.6/run-puppet_0.1.6_linux-amd64 -o "${RUN_PUPPET}" 
+    curl -L https://github.com/gentoomaniac/run-puppet/releases/download/v0.1.6/run-puppet_0.1.6_linux-amd64 -o "${RUN_PUPPET}"
     if [ ! -f "${RUN_PUPPET}" ]; then
         echo "failed fetching run-puppet"
         exit 1
@@ -129,23 +129,23 @@ if [ -f /etc/bootstrap ]; then
         exit 1
     fi
 
-    echo "*** Starting initial puppet run ..." 
+    echo "*** Starting initial puppet run ..."
     "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet --puppet-branch "$(cat /etc/puppet_branch)"
     PUPPET_EXIT_CODE=$?
     if [ ${PUPPET_EXIT_CODE} -eq 1 ] || [ ${PUPPET_EXIT_CODE} -eq 4 ] || [ ${PUPPET_EXIT_CODE} -eq 6 ]; then
-        exit "puppet initial run failed"
+        echo "puppet initial run failed"
         exit 1
     fi
 
-    echo "*** Starting host customisation puppet run ..." 
+    echo "*** Starting host customisation puppet run ..."
     "${RUN_PUPPET}" -vvvv --now --bin-path /usr/bin/puppet --no-clone
     PUPPET_EXIT_CODE=$?
     if [ ${PUPPET_EXIT_CODE} -eq 1 ] || [ ${PUPPET_EXIT_CODE} -eq 4 ] || [ ${PUPPET_EXIT_CODE} -eq 6 ]; then
-        exit "puppet run for host customisation failed"
+        echo "puppet run for host customisation failed"
         exit 1
     fi
 
-    echo "*** Init complete" 
-    rm /etc/bootstrap /etc/systemd/system/bootstrap.service /usr/local/sbin/bootstrap.sh 
+    echo "*** Init complete"
+    rm /etc/bootstrap /etc/systemd/system/bootstrap.service /usr/local/sbin/bootstrap.sh
     reboot
 fi
