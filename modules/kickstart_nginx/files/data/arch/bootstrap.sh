@@ -33,7 +33,7 @@ function create_data_pool() {
             mount LABEL=datapool /srv
 
             if ! grep -q "LABEL=datapool /srv" /etc/fstab; then
-                echo "LABEL=datapool /srv btrfs defaults 0 0" >> /etc/fstab
+                echo "LABEL=datapool /srv btrfs defaults,nodatacow 0 0" >> /etc/fstab
             fi
         else
             echo "!!! /dev/sdb1 is missing or contains an unknown filesystem. Skipping datapool mount."
@@ -53,7 +53,7 @@ function create_data_pool() {
             echo "*** mounting localpool on /dev/sda4 ..."
             mount LABEL=localpool /srv
             if ! grep -q "LABEL=localpool /srv" /etc/fstab; then
-                echo "LABEL=localpool /srv btrfs defaults 0 0" >> /etc/fstab
+                echo "LABEL=localpool /srv btrfs defaults,nodatacow 0 0" >> /etc/fstab
             fi
         else
             echo "!!! /dev/sda4 contains an unknown filesystem. Skipping localpool creation to prevent data loss."
