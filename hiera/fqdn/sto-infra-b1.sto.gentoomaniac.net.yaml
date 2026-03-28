@@ -16,8 +16,6 @@ ressources:
   btrfs::subvolume:
     "/srv/traefik":
       ensure: present
-    "/srv/ksnginx":
-      ensure: present
     "/srv/authelia":
       ensure: present
 

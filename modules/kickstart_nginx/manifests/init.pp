@@ -4,11 +4,16 @@
 class kickstart_nginx (
   $labels = [],
 ) {
+
+  btrfs::subvolume { '/srv/ksnginx':
+    ensure => present,
+  }
+
   file { '/srv/ksnginx':
     ensure  => directory,
     source  => 'puppet:///modules/kickstart_nginx/data',
     recurse => 'true',
-    require => Zfs['datapool/ksnginx'],
+    require => Btrfs::Subvolume['/srv/ksnginx'],
     notify  => Docker::Run['ksnginx'],
   }
 
