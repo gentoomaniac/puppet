@@ -1,0 +1,260 @@
+---
+classes:
+  - hostbase::cleanup
+  - docker::networks
+  - docker::run_instance
+  - docker::volumes
+  - kickstart_nginx
+  - certbot
+
+certbot::domain: "*.srv.gentoomaniac.net"
+
+hostbase::sshd::root_login_enable: false
+
+ressources:
+  package:
+    "fail2ban":
+      ensure: latest
+
+  btrfs::subvolume:
+    "/srv/traefik":
+      ensure: present
+    "/srv/ksnginx":
+      ensure: present
+    "/srv/authelia":
+      ensure: present
+
+  file:
+    "/srv/authelia/conf":
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/authelia]
+    "/srv/traefik/conf":
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/traefik]
+    "/srv/traefik/ssl":
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/traefik]
+    "/srv/traefik/ssl/key.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
+      require: File[/srv/traefik/ssl]
+      notify: Docker::Run[traefik]
+    "/srv/traefik/ssl/cert.pem":
+      ensure: present
+      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
+      require: File[/srv/traefik/ssl]
+      notify: Docker::Run[traefik]
+    "/srv/traefik/conf/certs.toml":
+      ensure: present
+      content: |
+        [tls.stores]
+          [tls.stores.default]
+          [tls.stores.default.defaultCertificate]
+            certFile = "/ssl/cert.pem"
+            keyFile = "/ssl/key.pem"
+    "/srv/traefik/conf/static.toml":
+      ensure: present
+      content: |
+        [http.services]
+          [http.services.dummy.loadBalancer]
+            [[http.services.dummy.loadBalancer.servers]]
+                url = ""
+
+          [http.services.nas.loadBalancer]
+            [[http.services.nas.loadBalancer.servers]]
+              url = "https://10.1.1.5:443/"
+
+          [http.services.unifi.loadBalancer]
+            [[http.services.unifi.loadBalancer.servers]]
+              url = "https://10.1.1.1:443/"
+
+          [http.services.proxmox.loadBalancer]
+            [[http.services.proxmox.loadBalancer.servers]]
+              url = "https://sto-proxmox-a1.sto.gentoomaniac.net:8006/"
+
+          [http.services.proxmox2.loadBalancer]
+            [[http.services.proxmox2.loadBalancer.servers]]
+              url = "https://sto-proxmox-a2.sto.gentoomaniac.net:8006/"
+
+        [http.routers]
+          [http.routers.redirect-to-https]
+            rule = "hostregexp(`{host:.+}`)"
+            service = "dummy"
+            entryPoints = ["web"]
+            middlewares = ["redirect-to-https"]
+
+          [http.routers.nas]
+            rule = "Host(`nas.srv.gentoomaniac.net`)"
+            service = "nas"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.nas.tls]
+
+          [http.routers.unifi]
+            rule = "Host(`unifi.srv.gentoomaniac.net`)"
+            service = "unifi"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.unifi.tls]
+
+          [http.routers.proxmox]
+            rule = "Host(`proxmox.srv.gentoomaniac.net`)"
+            service = "proxmox"
+            entryPoints = ["ssl"]
+            middlewares = ["local-only-whitelist"]
+            [http.routers.proxmox.tls]
+
+        [http.middlewares]
+          [http.middlewares.redirect-to-https]
+            [http.middlewares.redirect-to-https.redirectscheme]
+              scheme = "https"
+
+          [http.middlewares.local-only-whitelist]
+            [http.middlewares.local-only-whitelist.ipwhitelist]
+              sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
+
+          [http.middlewares.sso.forwardAuth]
+            address = "https://auth.srv.gentoomaniac.net"
+            authResponseHeaders = ["X-Forwarded-User"]
+
+    "/etc/clouddns-updater-key.json":
+      ensure: present
+      mode: "0750"
+      content: "%{lookup('secret_cloud_dns')}"
+    "/usr/local/bin/clouddns-update":
+      ensure: present
+      mode: "0750"
+      content: |
+        #! /bin/env bash
+
+        DNS_NAME="vpn.gentoomaniac.net"
+        PROJECT="gentoomaniac-net"
+        SERVICE_ACCOUNT_NAME="dns-updates@gentoomaniac-net.iam.gserviceaccount.com"
+        ZONE="gentoomaniac-net"
+        IMAGE_NAME="google/cloud-sdk:latest"
+
+        OLD_IP="$(dig +short "${DNS_NAME}")"
+        CURRENT_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+
+        if [ "${OLD_IP}" != "${CURRENT_IP}" ]; then
+            docker pull "${IMAGE_NAME}"
+            docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/key.json -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" -v /etc/clouddns-updater-key.json:/key.json:ro "${IMAGE_NAME}" gcloud auth activate-service-account "${SERVICE_ACCOUNT_NAME}" --key-file=/key.json --project="${PROJECT}"
+            docker run -it -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" "${IMAGE_NAME}" gcloud dns record-sets update "${DNS_NAME}" --rrdatas="${CURRENT_IP}" --type=A --zone="${ZONE}" --account="${SERVICE_ACCOUNT_NAME}"
+        fi
+      require:
+      - Docker_volume[clouddns-config]
+      - Docker_volume[clouddns-kube]
+
+    "/etc/systemd/system/clouddns-updater.timer":
+      content: |
+        [Unit]
+        Description=Update clouddns entries hourly if necessary
+
+        [Timer]
+        OnCalendar=hourly
+        Persistent=true
+        Unit=clouddns-updater.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/clouddns-updater.service]
+    "/etc/systemd/system/clouddns-updater.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=update vpn dns alias
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/clouddns-update
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/etc/clouddns-updater-key.json]
+        - File[/usr/local/bin/clouddns-update]
+
+  service:
+    "clouddns-updater.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
+    "fail2ban":
+      ensure: running
+      enable: true
+      require: Package[fail2ban]
+
+docker::volumes::volumes:
+  "clouddns-config":
+    ensure: present
+  "clouddns-kube":
+    ensure: present
+
+docker::networks::networks:
+  web:
+    ensure: "present"
+
+docker::run_instance::instance:
+  traefik:
+    image: traefik:v3.6
+    command: >
+      --api.insecure=true
+      --api.dashboard=true
+      --entrypoints.web.address=:80
+      --entrypoints.ssl.address=:443
+      --providers.file.directory=/conf
+      --providers.file.watch=true
+      --providers.docker
+      --providers.docker.exposedbydefault=false
+      --serverstransport.insecureskipverify=true
+      --metrics.prometheus=true
+    #  --log.level=DEBUG
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - web
+    ports:
+      - 80:80/tcp
+      - 443:443/tcp
+      - 8080:8080/tcp
+    pull_on_start: true
+    require:
+      - Class[docker]
+      - Docker_network[web]
+      - File[/srv/traefik/conf/certs.toml]
+      - File[/srv/traefik/conf/static.toml]
+      - File[/srv/traefik/ssl/cert.pem]
+      - File[/srv/traefik/ssl/key.pem]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /srv/traefik/ssl:/ssl:ro
+      - /srv/traefik/conf:/conf:ro
+  authelia:
+    image: 'authelia/authelia:latest'
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    net:
+      - web
+    ports:
+      - 9091:9091/tcp
+    volumes:
+      - '/srv/authelia/config:/config'
+    restart: unless-stopped
+    require: Btrfs::Subvolume[/srv/authelia]
+
+kickstart_nginx::labels:
+  - traefik.enable=true
+  - traefik.http.routers.ksnginx.rule=Host(`ks.srv.gentoomaniac.net`)
+  - traefik.http.routers.ksnginx.entrypoints=ssl
+  - traefik.http.routers.ksnginx.tls=true
+  - traefik.http.middlewares.ksnginx-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
+  - traefik.http.routers.ksnginx.middlewares=ksnginx-whitelist
