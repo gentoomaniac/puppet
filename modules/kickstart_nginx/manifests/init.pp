@@ -13,6 +13,7 @@ class kickstart_nginx (
   }
 
   docker::run { 'ksnginx':
+    service_provider => 'systemd',
     image            => 'nginx',
     expose           => ['80/tcp'],
     dns              => lookup('network::ipv4::dns::servers'),
