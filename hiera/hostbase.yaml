@@ -5,7 +5,6 @@ classes:
   - hostbase::packages
   - hostbase::puppet
   - hostbase::puppet_cron
-  - docker
   - docker::run_instance
 
 docker::manage_package: false
