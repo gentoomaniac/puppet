@@ -195,6 +195,7 @@ docker::networks::networks:
 
 docker::run_instance::instance:
   traefik:
+    service_provider: systemd
     image: traefik:v3.6
     command: >
       --api.insecure=true
@@ -236,6 +237,7 @@ docker::run_instance::instance:
       - /srv/traefik/ssl:/ssl:ro
       - /srv/traefik/conf:/conf:ro
   authelia:
+    service_provider: systemd
     image: 'authelia/authelia:latest'
     dns:
       - 10.1.1.52
