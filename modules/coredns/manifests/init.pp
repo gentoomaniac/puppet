@@ -20,6 +20,7 @@ class coredns {
   }
 
   docker::run { 'coredns':
+    service_provider => 'systemd',
     image            => 'coredns/coredns',
     ports            => ['53:53', '53:53/udp', '9153:9153/tcp'],
     command          => '-conf /data/Corefile',
