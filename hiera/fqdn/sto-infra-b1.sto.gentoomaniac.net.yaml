@@ -1,6 +1,5 @@
 ---
 classes:
-  - hostbase::cleanup
   - docker::networks
   - docker::run_instance
   - docker::volumes
