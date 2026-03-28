@@ -96,8 +96,8 @@ if [ -f /etc/bootstrap ]; then
         rm /etc/vault_token
     else
         echo "... Getting Vault credentials from BIOS"
-        dmidecode | sed -n 's/\s\+Serial Number: \(.*\)/\1/p' | head -1 > /etc/vault_role_id
-        dmidecode | sed -n 's/\s\+SKU Number: \(.*\)/\1/p' | head -1 > /etc/vault_secret_id
+        dmidecode -s system-serial-number > /etc/vault_role_id
+        dmidecode -s system-version > /etc/vault_secret_id
         chmod 600 /etc/vault_*
         VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
         export VAULT_TOKEN
