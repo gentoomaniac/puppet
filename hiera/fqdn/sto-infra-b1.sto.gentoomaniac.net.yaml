@@ -1,5 +1,6 @@
 ---
 classes:
+  - docker
   - docker::networks
   - docker::run_instance
   - docker::volumes
@@ -7,8 +8,6 @@ classes:
   - certbot
 
 certbot::domain: "*.srv.gentoomaniac.net"
-
-hostbase::sshd::root_login_enable: false
 
 ressources:
   package:
