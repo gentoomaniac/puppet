@@ -1,7 +1,7 @@
 
 .:53 {
     auto {
-        directory /data/dnsdata/zones/ (.*)\.db
+        directory /data/dnsdata/zones/ (.*)\.db {1}
         reload 60s
     }
 
