@@ -162,7 +162,6 @@
     "parted",
     "puppet",
     "vault",
-    "vault",
     "which"
   ],
   "parallel_downloads": 0,
