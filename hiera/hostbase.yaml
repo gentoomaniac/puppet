@@ -20,14 +20,17 @@ network::ipv4::dns::search:
   - srv.gentoomaniac.net
 
 hostbase::packages::present:
+  - arch-audit
   - btop
-  - mailutils
-  - neovim
+  - fakeroot
+  - fzf
   - git
   - hwinfo
-  - fzf
+  - mailutils
   - mbuffer
+  - neovim
   - openssh
+  - pacman-contrib
   - which
 
 dns::servers:
@@ -96,16 +99,18 @@ ressources:
 
           EPOCHTIME=$(date +%s)
 
-          OS_NAME="$(lsb_release -d | sed "s/^Description:\s\+\(.*\)/\1/")"
-          PENDING_UPDATES="$(apt-get -s dist-upgrade | grep "^Inst" | wc -l)"
-          PENDING_SEC_UPDATES="$(apt-get -s dist-upgrade | grep "^Inst" | grep -i security | wc -l)"
-          REBOOT_REQUIRED_SINCE="$(( ${EPOCHTIME} - $(ls -l --time-style='+%s' /var/run/reboot-required 2>/dev/null | awk '{if ($6) print $6;}' || echo "${EPOCHTIME}") ))"
+          OS_NAME="$(source /etc/os-release && echo "${PRETTY_NAME}")"
+          PENDING_UPDATES="$(checkupdates 2>/dev/null | wc -l)"
+          PENDING_SEC_UPDATES="$(arch-audit -uq 2>/dev/null | wc -l)"
+
+          # Calculate standard patch updates safely
+          PATCH_UPDATES=$(( PENDING_UPDATES - PENDING_SEC_UPDATES ))
+          if [ "${PATCH_UPDATES}" -lt 0 ]; then PATCH_UPDATES=0; fi
 
           echo "lsb_release value=1,release=\"${OS_NAME}\""
-          echo "pending_updates,type=patch value=$((PENDING_UPDATES-PENDING_SEC_UPDATES))"
+          echo "pending_updates,type=patch value=${PATCH_UPDATES}"
           echo "pending_updates,type=security value=${PENDING_SEC_UPDATES}"
-          echo "reboot_required_since value=${REBOOT_REQUIRED_SINCE:-0}"
-          echo "puppet_branch value=1,branch=\"$(head -1 /etc/puppet_branch)\""
+          echo "puppet_branch value=1,branch=\"$(head -1 /etc/puppet_branch 2>/dev/null || echo 'unknown')\""
 
     "/usr/local/bin/unattended-reboot":
       ensure: present
