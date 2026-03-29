@@ -20,7 +20,7 @@ ressources:
       ensure: present
 
   file:
-    "/srv/authelia/conf":
+    "/srv/authelia/config":
       ensure: directory
       require: Btrfs::Subvolume[/srv/authelia]
     "/srv/traefik/conf":
@@ -170,6 +170,70 @@ ressources:
         - File[/etc/clouddns-updater-key.json]
         - File[/usr/local/bin/clouddns-update]
 
+    "/srv/authelia/config/configuration.yml":
+        ensure: 'file'
+        require: File[/srv/authelia/config]
+        content: |
+          theme: auto
+          server:
+            host: 0.0.0.0
+            port: 9091
+          
+          log:
+            level: info
+          
+          # SECURITY KEYS (Change these to long, random strings in production!)
+          jwt_secret: 'a_very_secret_string_change_me'
+          
+          default_2fa_method: 'totp'
+          
+          authentication_backend:
+            file:
+              path: /config/users.yml
+              password:
+                algorithm: argon2id
+          
+          session:
+            name: authelia_session
+            domain: srv.gentoomaniac.net  # The magic SSO domain
+            secret: 'another_very_secret_string_change_me'
+            expiration: 1h
+            inactivity: 15m
+            remember_me_duration: 1M
+          
+          storage:
+            # Encryption key MUST be > 20 characters
+            encryption_key: 'a_string_that_must_be_more_than_twenty_characters_long'
+            local:
+              path: /config/db.sqlite3
+          
+          notifier:
+            # For testing: "emails" for device registration will be written here
+            filesystem:
+              filename: /config/notification.txt
+          
+          access_control:
+            # Default is deny all, then we punch holes
+            default_policy: deny
+            rules:
+              # Require 2FA for all apps under your domain
+              - domain: '*.srv.gentoomaniac.net'
+                policy: two_factor
+
+    "/srv/authelia/config/users.yml":
+      ensure: 'file'
+      require: File[/srv/authelia/config]
+      content: |
+        users:
+          admin:
+            displayname: "Admin User"
+            # This is the hash for the password 'authelia'
+            password: "$argon2id$v=19$m=65536,t=3,p=4$BpLnfgDsc2WD8F2q$o/vUcIfheGAyyDrtDAg2XlM/G5I3/b9AHEy0mD02z2M"
+            email: admin@srv.gentoomaniac.net
+            groups:
+              - admins
+
+
   service:
     "clouddns-updater.timer":
       ensure: running
@@ -246,7 +310,10 @@ docker::run_instance::instance:
     volumes:
       - '/srv/authelia/config:/config'
     restart: unless-stopped
-    require: Btrfs::Subvolume[/srv/authelia]
+    require:
+      - Btrfs::Subvolume[/srv/authelia]
+      - File[/srv/authelia/config/configuration.yml]
+      - File[/srv/authelia/config/users.yml]
 
 kickstart_nginx::labels:
   - traefik.enable=true
