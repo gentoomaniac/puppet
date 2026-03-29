@@ -6,7 +6,7 @@
     }
 
     # Cloudflare Family DNS (Malware + Adult Content Filtering)
-    forward . 1.0.0.3:53 1.1.1.3:5
+    forward . 1.0.0.3:53 1.1.1.3:53
     cache 60
     log
     errors
