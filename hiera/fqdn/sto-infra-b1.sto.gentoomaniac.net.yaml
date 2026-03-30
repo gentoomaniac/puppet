@@ -178,21 +178,21 @@ ressources:
           server:
             host: 0.0.0.0
             port: 9091
-          
+
           log:
             level: info
-          
+
           # SECURITY KEYS (Change these to long, random strings in production!)
           jwt_secret: 'a_very_secret_string_change_me'
-          
+
           default_2fa_method: 'totp'
-          
+
           authentication_backend:
             file:
               path: /config/users.yml
               password:
                 algorithm: argon2id
-          
+
           session:
             name: authelia_session
             domain: srv.gentoomaniac.net  # The magic SSO domain
@@ -200,18 +200,18 @@ ressources:
             expiration: 1h
             inactivity: 15m
             remember_me_duration: 1M
-          
+
           storage:
             # Encryption key MUST be > 20 characters
             encryption_key: 'a_string_that_must_be_more_than_twenty_characters_long'
             local:
               path: /config/db.sqlite3
-          
+
           notifier:
             # For testing: "emails" for device registration will be written here
             filesystem:
               filename: /config/notification.txt
-          
+
           access_control:
             # Default is deny all, then we punch holes
             default_policy: deny
@@ -225,11 +225,10 @@ ressources:
       require: File[/srv/authelia/config]
       content: |
         users:
-          admin:
-            displayname: "Admin User"
-            # This is the hash for the password 'authelia'
-            password: "$argon2id$v=19$m=65536,t=3,p=4$BpLnfgDsc2WD8F2q$o/vUcIfheGAyyDrtDAg2XlM/G5I3/b9AHEy0mD02z2M"
-            email: admin@srv.gentoomaniac.net
+          marco:
+            displayname: "Marco Siebecke"
+            password: $argon2id$v=19$m=65536,t=3,p=4$++Z6gvweMpMYWtRyuzjsUA$N2izA2m5wEExHmiBejSGR1FWPBuNkDTO1elb8CAVWEA
+            email: marco@siebecke.se
             groups:
               - admins
 
