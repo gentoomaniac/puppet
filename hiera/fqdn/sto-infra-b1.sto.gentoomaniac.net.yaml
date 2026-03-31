@@ -3,6 +3,7 @@ classes:
   - docker::networks
   - docker::run_instance
   - docker::volumes
+  - arch_pkg_host
   - kickstart_nginx
   - certbot
 
