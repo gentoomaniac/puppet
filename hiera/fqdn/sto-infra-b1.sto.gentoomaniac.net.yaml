@@ -18,8 +18,13 @@ ressources:
       ensure: present
     "/srv/authelia":
       ensure: present
+    "/srv/minio":
+      ensure: present
 
   file:
+    "/srv/minio/data":
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/minio]
     "/srv/authelia/config":
       ensure: directory
       require: Btrfs::Subvolume[/srv/authelia]
@@ -303,13 +308,46 @@ docker::run_instance::instance:
       - traefik.http.routers.authelia.tls=true
       - traefik.http.middlewares.authelia-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
       - traefik.http.routers.authelia.middlewares=authelia-whitelist
-
     volumes:
       - '/srv/authelia/config:/config'
-    restart: unless-stopped
     require:
       - Btrfs::Subvolume[/srv/authelia]
       - File[/srv/authelia/config/configuration.yml]
+  minio:
+    service_provider: systemd
+    image: 'minio/minio:latest'
+    command: 'server /data --console-address ":9001"'
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    net:
+      - web
+    expose:
+      - 9000/tcp
+      - 9001/tcp
+    env:
+      - MINIO_ROOT_USER=%{lookup('secret_minio_user')}
+      - MINIO_ROOT_PASSWORD=%{lookup('secret_minio_password')}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.minio-web.rule=Host(`minio-web.srv.gentoomaniac.net`)
+      - traefik.http.routers.minio-web.entrypoints=ssl
+      - traefik.http.routers.minio-web.tls=true
+      - traefik.http.middlewares.minio-web-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
+      - traefik.http.routers.minio-web.middlewares=minio-web-whitelist
+      - traefik.http.services.minio-web.loadbalancer.server.port=9000
+      - traefik.http.routers.minio.rule=Host(`minio.srv.gentoomaniac.net`)
+      - traefik.http.routers.minio.entrypoints=ssl
+      - traefik.http.routers.minio.tls=true
+      - traefik.http.middlewares.minio-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
+      - traefik.http.routers.minio.middlewares=minio-whitelist
+      - traefik.http.services.minio.loadbalancer.server.port=9001
+    volumes:
+      - '/srv/minio/data:/data'
+    restart: unless-stopped
+    require:
+      - Btrfs::Subvolume[/srv/minio]
+      - File[/srv/minio/data]
 
 kickstart_nginx::labels:
   - traefik.enable=true
