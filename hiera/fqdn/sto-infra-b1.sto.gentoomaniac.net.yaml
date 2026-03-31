@@ -18,8 +18,6 @@ ressources:
       ensure: present
     "/srv/authelia":
       ensure: present
-    "/srv/minio":
-      ensure: absent
 
   file:
     "/srv/authelia/config":
