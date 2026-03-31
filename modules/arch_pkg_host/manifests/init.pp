@@ -26,6 +26,6 @@ class arch_pkg_host (
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => ['/srv/arch-pkg-host:/usr/share/nginx/html:ro'],
-    require          => [Class['docker'], File['/srv/arch-pkg-host']],
+    require          => [Class['docker'], Btrfs::Subvolume['/srv/arch-pkg-host']],
   }
 }

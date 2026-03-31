@@ -26,14 +26,17 @@ hostbase::packages::present:
   - fakeroot
   - fzf
   - git
+  - go
   - hwinfo
   - less
   - lsb-release
   - mailutils
   - mbuffer
   - neovim
+  - npm
   - openssh
   - pacman-contrib
+  - unzip
   - vault
   - which
 
