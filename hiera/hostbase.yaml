@@ -212,6 +212,21 @@ ressources:
         - Package[openssh]
       notify:
         - Service[sshd]
+    "/etc/pacman.d/homelab-repo":
+      ensure: file
+      content: |
+        [homelab]
+        SigLevel = Optional TrustAll
+        Server = https://arch.srv.gentoomaniac.net
+      notify: Exec[pacman-swup]
+
+  file_line:
+    'include_homelab_repo':
+      path: '/etc/pacman.conf'
+      line: 'Include = /etc/pacman.d/homelab-repo'
+      before: '^\[extra\]$'
+      require: File[/etc/pacman.d/homelab-repo]
+      notify: Exec[pacman-swup]
 
   exec:
     "systemctl daemon-reload":
@@ -222,6 +237,9 @@ ressources:
       subscribe:
         - File[/etc/systemd/system/docker-system-prune-weekly.timer]
         - File[/etc/systemd/system/unattended-reboot-weekly.timer]
+    "pacman-swup":
+      command: /usr/bin/pacman -Sy
+      refreshonly: true
 
   service:
     "docker-system-prune-weekly.timer":
