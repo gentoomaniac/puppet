@@ -208,9 +208,12 @@ ressources:
               path: /config/db.sqlite3
 
           notifier:
-            # For testing: "emails" for device registration will be written here
-            filesystem:
-              filename: /config/notification.txt
+            smtp:
+              address: "smtp://smtp.gmail.com:587"
+              username: marco@siebecke.se
+              password:
+              sender: "Authelia <no-reply@siebecke.se>"
+              subject: "[Authelia] {title}"
 
           access_control:
             # Default is deny all, then we punch holes
@@ -220,15 +223,17 @@ ressources:
               - domain: '*.srv.gentoomaniac.net'
                 policy: two_factor
 
+
     "/srv/authelia/config/users.yml":
       ensure: 'file'
       require: File[/srv/authelia/config]
       content: |
         users:
           marco:
-            displayname: "Marco Siebecke"
+            displayname: "Admin User"
+            # This is the hash for the password 'authelia'
             password: $argon2id$v=19$m=65536,t=3,p=4$++Z6gvweMpMYWtRyuzjsUA$N2izA2m5wEExHmiBejSGR1FWPBuNkDTO1elb8CAVWEA
-            email: marco@siebecke.se
+            email: admin@srv.gentoomaniac.net
             groups:
               - admins
 
