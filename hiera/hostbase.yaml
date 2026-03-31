@@ -93,7 +93,7 @@ ressources:
         fi
 
         ${VAULT_BIN} "$@"
-      reuire: Package[vault]
+      require: Package[vault]
     "/usr/local/bin/custom-metrics":
         ensure: present
         mode: "0755"
