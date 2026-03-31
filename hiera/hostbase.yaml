@@ -34,7 +34,6 @@ hostbase::packages::present:
   - neovim
   - openssh
   - pacman-contrib
-  - puppet
   - vault
   - which
 
