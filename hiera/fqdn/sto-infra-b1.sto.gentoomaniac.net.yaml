@@ -211,7 +211,7 @@ ressources:
             smtp:
               address: "smtp://smtp.gmail.com:587"
               username: marco@siebecke.se
-              password:
+              password: %{lookup('secret_google_smtp')}
               sender: "Authelia <no-reply@siebecke.se>"
               subject: "[Authelia] {title}"
 
@@ -222,21 +222,6 @@ ressources:
               # Require 2FA for all apps under your domain
               - domain: '*.srv.gentoomaniac.net'
                 policy: two_factor
-
-
-    "/srv/authelia/config/users.yml":
-      ensure: 'file'
-      require: File[/srv/authelia/config]
-      content: |
-        users:
-          marco:
-            displayname: "Admin User"
-            # This is the hash for the password 'authelia'
-            password: $argon2id$v=19$m=65536,t=3,p=4$++Z6gvweMpMYWtRyuzjsUA$N2izA2m5wEExHmiBejSGR1FWPBuNkDTO1elb8CAVWEA
-            email: admin@srv.gentoomaniac.net
-            groups:
-              - admins
-
 
   service:
     "clouddns-updater.timer":
@@ -325,7 +310,6 @@ docker::run_instance::instance:
     require:
       - Btrfs::Subvolume[/srv/authelia]
       - File[/srv/authelia/config/configuration.yml]
-      - File[/srv/authelia/config/users.yml]
 
 kickstart_nginx::labels:
   - traefik.enable=true
