@@ -22,15 +22,20 @@ network::ipv4::dns::search:
 hostbase::packages::present:
   - arch-audit
   - btop
+  - docker
   - fakeroot
   - fzf
   - git
   - hwinfo
+  - less
+  - lsb-release
   - mailutils
   - mbuffer
   - neovim
   - openssh
   - pacman-contrib
+  - puppet
+  - vault
   - which
 
 dns::servers:
@@ -89,6 +94,7 @@ ressources:
         fi
 
         ${VAULT_BIN} "$@"
+      reuire: Package[vault]
     "/usr/local/bin/custom-metrics":
         ensure: present
         mode: "0755"
@@ -111,6 +117,9 @@ ressources:
           echo "pending_updates,type=patch value=${PATCH_UPDATES}"
           echo "pending_updates,type=security value=${PENDING_SEC_UPDATES}"
           echo "puppet_branch value=1,branch=\"$(head -1 /etc/puppet_branch 2>/dev/null || echo 'unknown')\""
+        require:
+          - Package[arch-audit]
+          - Package[lsb-release]
 
     "/usr/local/bin/unattended-reboot":
       ensure: present
@@ -247,6 +256,7 @@ docker::run_instance::instance:
       - host
     pull_on_start: true
     require:
+      - Package[docker]
       - Class[docker]
     volumes:
       - /:/host:ro,rslave

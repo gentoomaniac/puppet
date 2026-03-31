@@ -148,22 +148,7 @@
   },
   "ntp": true,
   "packages": [
-    "btop",
-    "btrfs-progs",
-    "curl",
-    "dmidecode",
-    "docker",
-    "fzf",
-    "git",
-    "hwinfo",
-    "less",
-    "lsb-release",
-    "neovim",
-    "openssh",
-    "parted",
-    "puppet",
-    "vault",
-    "which"
+    "btrfs-progs"
   ],
   "parallel_downloads": 0,
   "profile_config": {

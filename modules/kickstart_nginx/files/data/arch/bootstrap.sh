@@ -66,7 +66,6 @@ function create_data_pool() {
 }
 
 if [ -f /etc/bootstrap ]; then
-    echo "+++ DEBUG"
     cat /proc/cmdline
 
     echo "*** Waiting for network connectivity to Vault..."
@@ -78,6 +77,17 @@ if [ -f /etc/bootstrap ]; then
         echo '!!! system update failed'
         exit 1
     fi
+
+    echo "*** make sure some required tools are installed ..."
+    for binary in curl dmidecode git parted puppet vault which; do
+        if ! command -v ${binary} >/dev/null 2>&1; then
+            echo "${binary} not found, installing it ..."
+            if ! pacman -Sy --noconfirm ${binary}; then
+                echo "!!! failed installing ${binary}. exiting ..."
+                exit
+            fi
+        fi
+    done
 
     # Set up datapool on either /dev/sda4 or /dev/sdb1
     # This is mainly to cover Physical machines with only one drive
