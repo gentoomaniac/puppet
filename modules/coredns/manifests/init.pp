@@ -16,7 +16,8 @@ class coredns {
     provider => git,
     source   => 'https://github.com/gentoomaniac/dnsdata.git',
     revision => 'master',
-    require => Btrfs::Subvolume['/srv/coredns'],
+    require  => Btrfs::Subvolume['/srv/coredns'],
+    notify   => Docker::Run['coredns'],
   }
 
   docker::run { 'coredns':
