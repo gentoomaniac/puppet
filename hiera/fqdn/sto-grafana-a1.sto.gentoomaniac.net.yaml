@@ -678,7 +678,7 @@ docker::networks::networks:
 
 docker::run_instance::instance:
   traefik:
-    image: traefik:v3.1
+    image: traefik:v3.6
     command: >
       --api.insecure=true
       --api.dashboard=true
@@ -796,6 +796,7 @@ docker::run_instance::instance:
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel,vonage-status-panel,doitintl-bigquery-datasource
       - GF_RENDERING_SERVER_URL=http://renderer:8081/render
       - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
+      - GF_RENDERING_RENDERER_TOKEN=%{lookup('secret_grafana_renderer_token')}
       - GF_LOG_FILTERS=rendering:debug
     expose:
       - 3000/tcp
@@ -806,7 +807,8 @@ docker::run_instance::instance:
       - traefik.http.routers.grafana.rule=Host(`grafana.srv.gentoomaniac.net`)
       - traefik.http.routers.grafana.entrypoints=ssl
       - traefik.http.routers.grafana.tls=true
-      - traefik.http.middlewares.grafana-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
+      - traefik.http.middlewares.grafana-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.16.0.0/12
       - traefik.http.routers.grafana.middlewares=grafana-whitelist
     net:
       - web
@@ -819,9 +821,10 @@ docker::run_instance::instance:
       - Zfs[datapool/grafana]
 
   renderer:
-    image: grafana/grafana-image-renderer:2.0.0
+    image: grafana/grafana-image-renderer:latest
     env:
       - ENABLE_METRICS=true
+      - AUTH_TOKEN=%{lookup('secret_grafana_renderer_token')}
     expose:
       - 8081/tcp
     extra_parameters:
