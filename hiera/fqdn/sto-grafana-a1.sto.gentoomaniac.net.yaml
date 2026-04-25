@@ -670,18 +670,21 @@ ressources:
 
         - type: "SHELLY"
           ip: "10.1.3.151"
+          user: "admin"
           labels:
             building: "main"
             room: "outdoor"
             category: "light"
         - type: "SHELLY"
           ip: "10.1.3.108"
+          user: "admin"
           labels:
             building: "adu"
             room: "outdoor"
             category: "light"
         - type: "SHELLY"
           ip: "10.1.3.143"
+          user: "admin"
           labels:
             building: "main"
             room: "outdoor"
