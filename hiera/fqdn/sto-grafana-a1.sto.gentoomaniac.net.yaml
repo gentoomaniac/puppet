@@ -668,6 +668,25 @@ ressources:
             room: "kitchen"
             category: "appliance"
 
+        - type: "SHELLY"
+          ip: "10.1.3.151"
+          labels:
+            building: "main"
+            room: "outdoor"
+            category: "light"
+        - type: "SHELLY"
+          ip: "10.1.3.108"
+          labels:
+            building: "adu"
+            room: "outdoor"
+            category: "light"
+        - type: "SHELLY"
+          ip: "10.1.3.143"
+          labels:
+            building: "main"
+            room: "outdoor"
+            category: "light"
+
       require: Zfs[datapool/shelly-exporter]
       notify: Docker::Run[shelly-exporter]
 
