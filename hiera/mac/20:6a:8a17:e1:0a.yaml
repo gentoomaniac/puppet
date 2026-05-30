@@ -1,0 +1,14 @@
+---
+classes:
+  - hostbase::hostname
+
+hostbase::hostname::hostname: sto-windrose-a1.sto.gentoomaniac.net
+
+ressources:
+  networkmanager::connection:
+    'ens18':
+      ipv4_method: 'manual'
+      ipv4_addresses:
+        - '10.1.1.63/24'
+      ipv4_dns: [127.0.0.1, 10.1.1.53]
+      ipv4_route_metric: 10

@@ -1,0 +1,7 @@
+---
+classes:
+
+ressources:
+  btrfs::subvolume:
+    "/srv/windrose":
+      ensure: present
