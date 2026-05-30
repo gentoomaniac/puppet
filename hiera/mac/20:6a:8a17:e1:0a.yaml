@@ -6,7 +6,7 @@ hostbase::hostname::hostname: sto-windrose-a1.sto.gentoomaniac.net
 
 ressources:
   networkmanager::connection:
-    'ens18':
+    'enp3s0':
       ipv4_method: 'manual'
       ipv4_addresses:
         - '10.1.1.63/24'
