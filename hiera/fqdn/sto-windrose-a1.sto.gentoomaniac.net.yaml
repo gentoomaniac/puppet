@@ -1,4 +1,7 @@
 ---
+classes:
+  - docker
+
 ressources:
   btrfs::subvolume:
     "/srv/windrose":
