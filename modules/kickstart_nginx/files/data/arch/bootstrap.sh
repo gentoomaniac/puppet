@@ -79,7 +79,7 @@ if [ -f /etc/bootstrap ]; then
     fi
 
     echo "*** make sure some required tools are installed ..."
-    for binary in curl dmidecode git parted puppet vault which; do
+    for binary in curl dmidecode docker git neovim openssh parted puppet vault which; do
         if ! command -v ${binary} >/dev/null 2>&1; then
             echo "${binary} not found, installing it ..."
             if ! pacman -Sy --noconfirm ${binary}; then
