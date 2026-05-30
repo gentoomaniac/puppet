@@ -95,7 +95,7 @@ if [ -f /etc/bootstrap ]; then
 
     echo "*** Setting up Vault credentials"
     export VAULT_ADDR="https://vault.srv.gentoomaniac.net"
-    mac="$(ip a s | grep "brd 10.1.1.255" -B 1 | sed -n 's#^\s\+link/ether \(.*\) brd.*#\1#p' | sed 's/://g')"
+    mac="$(awk '{gsub(/:/,""); print tolower($0)}' /sys/class/net/$(ip route show default | awk '/default/ {print $5}')/address)"
 
     if [[ -f "/etc/vault_token" ]]; then
         echo "... Getting Vault credentials from preeseeded token"
