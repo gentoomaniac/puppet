@@ -19,6 +19,13 @@ ressources:
       ensure: present
     "/srv/authelia":
       ensure: present
+    "/srv/nextcloud":
+      ensure: present
+    "/srv/nextcloud/html":
+      ensure: present
+      require: Btrfs::Subvolume[/srv/nextcloud]
+    "/srv/mariadb":
+      ensure: present
 
   file:
     "/srv/authelia/config":
@@ -309,6 +316,44 @@ docker::run_instance::instance:
     require:
       - Btrfs::Subvolume[/srv/authelia]
       - File[/srv/authelia/config/configuration.yml]
+  mariadb:
+    service_provider: systemd
+    image: 'mariadb:10.6'
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    net:
+      - web
+    labels:
+      - traefik.enable=false
+    volumes:
+      - '/srv/mariadb:/var/lib/mysql'
+    require:
+      - Btrfs::Subvolume[/srv/mariadb]
+  nextcloud:
+    service_provider: systemd
+    image: 'nextcloud'
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    net:
+      - web
+    expose:
+      - 80/tcp
+    extra_parameters:
+      - --link mariadb:mariadb
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nextcloud.rule=Host(`nextcloud.srv.gentoomaniac.net`)
+      - traefik.http.routers.nextcloud.entrypoints=ssl
+      - traefik.http.routers.nextcloud.tls=true
+      - traefik.http.middlewares.nextcloud-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
+      - traefik.http.routers.nextcloud.middlewares=nextcloud-whitelist
+    volumes:
+      - '/srv/nextcloud:/var/www/html'
+    require:
+      - Btrfs::Subvolume[/srv/nextcloud/html]
+      - Docker::Run[mariadb]
 
 kickstart_nginx::labels:
   - traefik.enable=true
