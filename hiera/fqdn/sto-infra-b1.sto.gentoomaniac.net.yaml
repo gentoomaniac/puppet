@@ -338,6 +338,10 @@ docker::run_instance::instance:
       - 10.1.1.53
     net:
       - web
+    env:
+      - OVERWRITEPROTOCOL=https                        # Forces Nextcloud to generate HTTPS links
+      - OVERWRITEHOST=nextcloud.srv.gentoomaniac.net   # Forces Nextcloud to use your public domain
+      - OVERWRITECLIURL=https://nextcloud.srv.gentoomaniac.net
     expose:
       - 80/tcp
     extra_parameters:
