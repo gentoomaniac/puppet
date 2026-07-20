@@ -40,7 +40,7 @@ docker::run_instance::instance:
       - PAL_STOMACH_DECREASE_RATE=0.1
       - PLAYER_STOMACH_DECREASE_RATE=0.1
     ports:
-      - 8211:8211/udp
+      - 4343:8211/udp
       - 27015:27015/udp
       - 8212:8212/tcp
     extra_parameters:
