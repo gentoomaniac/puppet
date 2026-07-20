@@ -14,28 +14,28 @@ docker::run_instance::instance:
   palworld:
     service_provider: systemd
     image: thijsvanloef/palworld-server-docker:latest
-    command:
-      - -port=8211
-      - -useperfthreads
-      - -NoAsyncLoadingThread
-      - -UseMultithreadForDS
+    command: >
+      -port=8211
+      -useperfthreads
+      -NoAsyncLoadingThread
+      -UseMultithreadForDS
     dns:
       - 10.1.1.52
       - 10.1.1.53
     env:
-      PUID: 1000
-      PGID: 1000
-      PORT: 8211 # Optional but recommended
-      PLAYERS: 16 # Optional but recommended
-      SERVER_PASSWORD: "%{lookup('secret_palworld_server')}"
-      REST_API_ENABLED: true
-      REST_API_PORT: 8212
-      TZ: "UTC"
-      ADMIN_PASSWORD: "%{lookup('secret_palworld_admin')}"
-      COMMUNITY: false
-      SERVER_NAME: "Our private Palworld server"
-      SERVER_DESCRIPTION: "You gotta pal'em all!"
-      CROSSPLAY_PLATFORMS: "(Steam,Xbox,PS5,Mac)"
+      - PUID=1000
+      - PGID=1000
+      - PORT=8211
+      - PLAYERS=16
+      - SERVER_PASSWORD=%{lookup('secret_palworld_server')}
+      - REST_API_ENABLED=true
+      - REST_API_PORT=8212
+      - TZ=UTC
+      - ADMIN_PASSWORD=%{lookup('secret_palworld_admin')}
+      - COMMUNITY=false
+      - SERVER_NAME=Our private Palworld server
+      - SERVER_DESCRIPTION=You gotta pal'em all!
+      - CROSSPLAY_PLATFORMS=(Steam,Xbox,PS5,Mac)
     ports:
       - 8211:8211/udp
       - 27015:27015/udp
