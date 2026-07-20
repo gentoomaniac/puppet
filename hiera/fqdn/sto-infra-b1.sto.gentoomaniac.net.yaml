@@ -317,6 +317,7 @@ docker::run_instance::instance:
       - Btrfs::Subvolume[/srv/authelia]
       - File[/srv/authelia/config/configuration.yml]
   mariadb:
+    ensure: absent
     service_provider: systemd
     image: 'mariadb:10.6'
     dns:
@@ -331,6 +332,7 @@ docker::run_instance::instance:
     require:
       - Btrfs::Subvolume[/srv/mariadb]
   nextcloud:
+    ensure: absent
     service_provider: systemd
     image: 'nextcloud'
     dns:
