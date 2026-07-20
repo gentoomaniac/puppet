@@ -6,7 +6,7 @@ hostbase::hostname::hostname: sto-palworld-a1.sto.gentoomaniac.net
 
 ressources:
   networkmanager::connection:
-    'enp3s0':
+    'ens18':
       ipv4_method: 'manual'
       ipv4_addresses:
         - '10.1.1.67/24'
