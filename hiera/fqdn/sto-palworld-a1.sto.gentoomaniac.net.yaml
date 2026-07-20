@@ -1,10 +1,48 @@
 ---
-classes: []
+classes:
+  - docker::run_instance
 
 ressources:
   btrfs::subvolume:
     "/srv/palworld":
       ensure: present
+  file:
+    "/srv/palworld/Saved":
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/palworld]
+    "/srv/palworld/helper.sh":
+      ensure: present
+      mode: "0744"
+      content: |
+        #!/bin/sh
+        sudo chown -R user:usergroup /pal/Package/Pal/Saved
+        exec /bin/sh /pal/Package/PalServer.sh "$@"
+      require: Btrfs::Subvolume[/srv/palworld]
 
 docker::docker_users:
   - marco
+
+docker::run_instance::instance:
+  palworld:
+    service_provider: systemd
+    image: ghcr.io/pocketpairjp/palserver:v1.0.1.100619
+    command:
+      - -port=8211
+      - -useperfthreads
+      - -NoAsyncLoadingThread
+      - -UseMultithreadForDS
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    ports:
+      - "8211:8211/udp"
+    extra_parameters:
+      - --restart=unless-stopped
+    pull_on_start: true
+    volumes:
+      - /srv/palworld/helper.sh:/pal/helper.sh:ro
+      - /srv/palworld/Saved:/pal/Package/Pal/Saved
+    require:
+      - Class[docker]
+      - File[/srv/palworld/helper.sh]
+      - File[/srv/palworld/Saved]
