@@ -6,18 +6,6 @@ ressources:
   btrfs::subvolume:
     "/srv/palworld":
       ensure: present
-  file:
-    "/srv/palworld/Saved":
-      ensure: directory
-      require: Btrfs::Subvolume[/srv/palworld]
-    "/srv/palworld/helper.sh":
-      ensure: present
-      mode: "0744"
-      content: |
-        #!/bin/sh
-        sudo chown -R user:usergroup /pal/Package/Pal/Saved
-        exec /bin/sh /pal/Package/PalServer.sh "$@"
-      require: Btrfs::Subvolume[/srv/palworld]
 
 docker::docker_users:
   - marco
@@ -25,7 +13,7 @@ docker::docker_users:
 docker::run_instance::instance:
   palworld:
     service_provider: systemd
-    image: ghcr.io/pocketpairjp/palserver:v1.0.1.100619
+    image: thijsvanloef/palworld-server-docker:latest
     command:
       - -port=8211
       - -useperfthreads
@@ -34,15 +22,29 @@ docker::run_instance::instance:
     dns:
       - 10.1.1.52
       - 10.1.1.53
+    env:
+      PUID: 1000
+      PGID: 1000
+      PORT: 8211 # Optional but recommended
+      PLAYERS: 16 # Optional but recommended
+      SERVER_PASSWORD: "%{lookup('secret_palworld_server')}"
+      REST_API_ENABLED: true
+      REST_API_PORT: 8212
+      TZ: "UTC"
+      ADMIN_PASSWORD: "%{lookup('secret_palworld_admin')}"
+      COMMUNITY: false
+      SERVER_NAME: "Our private Palworld server"
+      SERVER_DESCRIPTION: "You gotta pal'em all!"
+      CROSSPLAY_PLATFORMS: "(Steam,Xbox,PS5,Mac)"
     ports:
-      - "8211:8211/udp"
+      - 8211:8211/udp
+      - 27015:27015/udp
+      - 8212:8212/tcp
     extra_parameters:
       - --restart=unless-stopped
     pull_on_start: true
     volumes:
-      - /srv/palworld/helper.sh:/pal/helper.sh:ro
-      - /srv/palworld/Saved:/pal/Package/Pal/Saved
+      - /srv/palworld:/palworld
     require:
       - Class[docker]
-      - File[/srv/palworld/helper.sh]
-      - File[/srv/palworld/Saved]
+      - Btrfs::Subvolume[/srv/palworld]
