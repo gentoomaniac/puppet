@@ -13,6 +13,8 @@ ressources:
   package:
     "fail2ban":
       ensure: latest
+    "bind":
+      ensure: latest
 
   btrfs::subvolume:
     "/srv/traefik":
