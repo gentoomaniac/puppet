@@ -29,6 +29,7 @@ hostbase::packages::present:
   - git
   - go
   - hwinfo
+  - jq
   - less
   - lsb-release
   - mailutils
