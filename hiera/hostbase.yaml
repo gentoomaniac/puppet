@@ -22,6 +22,7 @@ network::ipv4::dns::search:
 hostbase::packages::present:
   - arch-audit
   - btop
+  - btrfsmaintenance
   - docker
   - fakeroot
   - fzf
@@ -234,11 +235,11 @@ ressources:
       refreshonly: true
 
   service:
-    "docker-system-prune-weekly.timer":
+    "btrfs-scrub.timer":
       ensure: running
       enable: true
-      require: Exec[systemctl daemon-reload]
-    "unattended-reboot-weekly.timer":
+      require: Package[btrfsmaintenance]
+    "docker-system-prune-weekly.timer":
       ensure: running
       enable: true
       require: Exec[systemctl daemon-reload]
@@ -246,6 +247,10 @@ ressources:
       ensure: running
       enable: true
       require: Package[openssh]
+    "unattended-reboot-weekly.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
 
 docker::docker_users:
   - marco
