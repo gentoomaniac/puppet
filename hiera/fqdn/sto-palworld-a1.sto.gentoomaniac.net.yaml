@@ -1,0 +1,10 @@
+---
+classes: []
+
+ressources:
+  btrfs::subvolume:
+    "/srv/palworld":
+      ensure: present
+
+docker::docker_users:
+  - marco
