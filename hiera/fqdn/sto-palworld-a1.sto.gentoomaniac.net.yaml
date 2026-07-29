@@ -32,7 +32,7 @@ docker::run_instance::instance:
       - REST_API_PORT=8212
       - TZ=UTC
       - ADMIN_PASSWORD=%{lookup('secret_palworld_admin')}
-      - COMMUNITY=false
+      - COMMUNITY=true
       - SERVER_NAME=Our private Palworld server
       - SERVER_DESCRIPTION=You gotta pal'em all!
       - CROSSPLAY_PLATFORMS=(Steam,Xbox,PS5,Mac)
