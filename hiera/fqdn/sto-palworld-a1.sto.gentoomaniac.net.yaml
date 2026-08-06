@@ -74,10 +74,11 @@ docker::run_instance::instance:
       - REST_API_PORT=9212
       - TZ=UTC
       - ADMIN_PASSWORD=%{lookup('secret_palworld_admin')}
-      - COMMUNITY=false
+      - COMMUNITY=true
       - SERVER_NAME=Schweden Friendzone
       - SERVER_DESCRIPTION=You gotta pal'em all!
       - SERVER_PORT=9211
+      - PUBLIC_PORT=9211
       - CROSSPLAY_PLATFORMS=(Steam,Xbox,PS5,Mac)
       - QUERY_PORT=28015
       - ITEM_WEIGHT_RATE=0.0
