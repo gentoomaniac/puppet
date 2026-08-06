@@ -6,6 +6,8 @@ ressources:
   btrfs::subvolume:
     "/srv/palworld":
       ensure: present
+    "/srv/palworld_friendzone":
+      ensure: present
 
 docker::docker_users:
   - marco
@@ -51,3 +53,45 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - Btrfs::Subvolume[/srv/palworld]
+  palworld_friendzone:
+    service_provider: systemd
+    image: thijsvanloef/palworld-server-docker:latest
+    command: >
+      -port=9211
+      -useperfthreads
+      -NoAsyncLoadingThread
+      -UseMultithreadForDS
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    env:
+      - PUID=1000
+      - PGID=1000
+      - PORT=9211
+      - PLAYERS=16
+      - SERVER_PASSWORD=%{lookup('secret_palworld_friendzone_server')}
+      - REST_API_ENABLED=true
+      - REST_API_PORT=9212
+      - TZ=UTC
+      - ADMIN_PASSWORD=%{lookup('secret_palworld_admin')}
+      - COMMUNITY=false
+      - SERVER_NAME=Friendzone
+      - SERVER_DESCRIPTION=You gotta pal'em all!
+      - SERVER_PORT=9211
+      - CROSSPLAY_PLATFORMS=(Steam,Xbox,PS5,Mac)
+      - QUERY_PORT=28015
+      - ITEM_WEIGHT_RATE=0.0
+      - PAL_STOMACH_DECREASE_RATE=0.1
+      - PLAYER_STOMACH_DECREASE_RATE=0.1
+    ports:
+      - 9211:9211/udp
+      - 28015:28015/udp
+      - 9212:9212/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    pull_on_start: true
+    volumes:
+      - /srv/palworld_friendzone:/palworld
+    require:
+      - Class[docker]
+      - Btrfs::Subvolume[/srv/palworld_friendzone]
