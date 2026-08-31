@@ -42,7 +42,7 @@ simpledomain=$(sed -e 's/\*\.//g' <<<${domain})
 
 now=$(date "+%s")
 cert_path="/srv/certbot-${normalized}/data/live/${simpledomain}"
-cert_date=$(keytool -printcert -file "${cert_path}/fullchain.pem" | sed -n '1,10 s/.*until: \(.*\)/\1/p')
+cert_date=$(openssl x509 -enddate -noout -in "${cert_path}/fullchain.pem" | sed 's/notAfter=//')
 cert_timestamp=$(date -d "${cert_date}" "+%s")
 
 certbot_parameters="certonly --dns-google --dns-google-credentials /sa.json --email ${email} --agree-tos --no-eff-email -d ${domain}"
