@@ -14,10 +14,6 @@ ressources:
 docker::docker_users:
   - marco
 
-docker::networks::networks:
-  web:
-    ensure: "absent"
-
 docker::run_instance::instance:
   homeassistant:
     service_provider: systemd
