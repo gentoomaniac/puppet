@@ -1,0 +1,35 @@
+---
+classes:
+  - docker::networks
+  - docker::run_instance
+
+ressources:
+  btrfs::subvolume:
+    "/srv/homeassistant":
+      ensure: present
+  file:
+    "/srv/homeassistant/config":
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/homeassistant]
+docker::docker_users:
+  - marco
+
+docker::networks::networks:
+  web:
+    ensure: "present"
+
+docker::run_instance::instance:
+  homeassistant:
+    service_provider: systemd
+    image: ghcr.io/home-assistant/home-assistant:stable
+    net: host
+    env:
+      - TZ=Europe/Berlin
+    extra_parameters:
+      - --restart=unless-stopped
+    pull_on_start: true
+    volumes:
+      - /srv/homeassistant/config:/config
+    require:
+      - Class[docker]
+      - File[/srv/homeassistant/config]
