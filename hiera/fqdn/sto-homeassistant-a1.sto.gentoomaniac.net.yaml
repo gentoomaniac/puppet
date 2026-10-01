@@ -16,7 +16,7 @@ docker::docker_users:
 
 docker::networks::networks:
   web:
-    ensure: "present"
+    ensure: "absent"
 
 docker::run_instance::instance:
   homeassistant:
