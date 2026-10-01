@@ -6,7 +6,7 @@ hostbase::hostname::hostname: sto-homeassistant-a1.sto.gentoomaniac.net
 
 ressources:
   networkmanager::connection:
-    'ens3':
+    'ens18':
       ipv4_method: 'manual'
       ipv4_addresses:
         - '10.1.1.70/24'
