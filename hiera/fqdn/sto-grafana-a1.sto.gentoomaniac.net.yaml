@@ -154,18 +154,29 @@ ressources:
               - targets:
                 - sto-coredns-a1.sto.gentoomaniac.net:9100
                 - sto-coredns-c1.sto.gentoomaniac.net:9100
-                - sto-dev-b1.sto.gentoomaniac.net:9100
+                - sto-dev-a1.sto.gentoomaniac.net:9100
                 - sto-grafana-a1.sto.gentoomaniac.net:9100
-                - sto-infra-a1.sto.gentoomaniac.net:9100
+                - sto-homeassistant-a1.sto.gentoomaniac.net:9100
                 - sto-infra-b1.sto.gentoomaniac.net:9100
                 - sto-nzbget-a1.sto.gentoomaniac.net:9100
+                - sto-palworld-a1.sto.gentoomaniac.net:9100
                 - sto-plex-a1.sto.gentoomaniac.net:9100
                 - sto-proxmox-a1.sto.gentoomaniac.net:9100
                 - sto-vault-a1.sto.gentoomaniac.net:9100
+          - job_name: "cadvisor"
+            static_configs:
+              - targets:
+                - sto-coredns-a1.sto.gentoomaniac.net:9101
+                - sto-coredns-c1.sto.gentoomaniac.net:9101
+                - sto-dev-a1.sto.gentoomaniac.net:9101
+                - sto-homeassistant-a1.sto.gentoomaniac.net:9101
+                - sto-infra-b1.sto.gentoomaniac.net:9101
+                - sto-palworld-a1.sto.gentoomaniac.net:9101
           - job_name: "traefik"
             static_configs:
               - targets:
                 - sto-grafana-a1.sto.gentoomaniac.net:8080
+                - sto-homeassistant-a1.sto.gentoomaniac.net:8080
                 - sto-infra-a1.sto.gentoomaniac.net:8080
                 - sto-nzbget-a1.sto.gentoomaniac.net:8080
                 - sto-plex-a1.sto.gentoomaniac.net:8080
