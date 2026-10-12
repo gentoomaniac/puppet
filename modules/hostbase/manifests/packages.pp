@@ -1,13 +1,18 @@
 class hostbase::packages (){
   $packages = lookup('hostbase::packages::present', Array[String], 'unique', [])
-  package { $packages :
+  stdlib::ensure_packages($packages, {
     ensure => latest,
-  }
+  })
 
-  $remove = lookup('hostbase::packages::absent', Array[String], 'unique', [])
-  package { $remove :
+  $remove = lookup({
+    'name'          => 'hostbase::packages::absent',
+    'value_type'    => Array[String],
+    'merge'         => 'unique',
+    'default_value' => [],
+  })
+  stdlib::ensure_packages($remove, {
     ensure => absent,
-  }
+  })
 
   # TODO: build AUR for powerline-go
   # $powerlineVersion = '2.1.0'

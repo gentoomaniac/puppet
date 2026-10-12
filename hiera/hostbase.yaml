@@ -1,4 +1,10 @@
 ---
+lookup_options:
+  classes:
+    merge: unique
+  "^.*::.*":
+    merge: deep
+
 classes:
   - hostbase::autoupdate
   - hostbase::dotfiles
@@ -49,7 +55,7 @@ dotfiles:
   "marco": {}
   "root": {}
 
-ressources:
+resources:
   file:
     # "/var/lib/puppet/reports":
     #   ensure: absent
@@ -289,7 +295,7 @@ docker::run_instance::instance:
       - --pid="host"
       - --device=/dev/kmsg
     ports:
-      - "8080:9101/tcp"
+      - "9101:8080/tcp"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro

@@ -6,9 +6,9 @@ class hostbase::puppet (
     content => "${content}\n",
   }
 
-  package { 'puppet':
+  stdlib::ensure_packages(['puppet'], {
     ensure => present,
-  }
+  })
 
   service { 'puppet':
     ensure  => 'stopped',
