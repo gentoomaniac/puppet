@@ -16,11 +16,6 @@ docker::run_instance::instance:
   palworld:
     service_provider: systemd
     image: thijsvanloef/palworld-server-docker:latest
-    command: >
-      -port=8211
-      -useperfthreads
-      -NoAsyncLoadingThread
-      -UseMultithreadForDS
     dns:
       - 10.1.1.52
       - 10.1.1.53
@@ -56,11 +51,6 @@ docker::run_instance::instance:
   palworld_friendzone:
     service_provider: systemd
     image: thijsvanloef/palworld-server-docker:latest
-    command: >
-      -port=9211
-      -useperfthreads
-      -NoAsyncLoadingThread
-      -UseMultithreadForDS
     dns:
       - 10.1.1.52
       - 10.1.1.53
