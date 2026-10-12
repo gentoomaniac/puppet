@@ -278,3 +278,24 @@ docker::run_instance::instance:
       - Class[docker]
     volumes:
       - /:/host:ro,rslave
+  cadvisor:
+    service_provider: systemd
+    image: gcr.io/cadvisor/cadvisor:latest
+    dns:
+      - 10.1.1.52
+      - 10.1.1.53
+    extra_parameters:
+      - --restart=unless-stopped
+      - --pid="host"
+      - --device=/dev/kmsg
+    ports:
+      - "8080:9101/tcp"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    require:
+      - Class[docker]
