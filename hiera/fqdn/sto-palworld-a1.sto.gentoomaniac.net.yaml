@@ -2,7 +2,7 @@
 classes:
   - docker::run_instance
 
-ressources:
+resources:
   btrfs::subvolume:
     "/srv/palworld":
       ensure: present

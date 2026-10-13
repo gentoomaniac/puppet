@@ -9,7 +9,7 @@ classes:
 
 certbot::domain: "*.srv.gentoomaniac.net"
 
-ressources:
+resources:
   package:
     "fail2ban":
       ensure: latest

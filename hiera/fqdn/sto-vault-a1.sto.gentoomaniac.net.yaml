@@ -4,7 +4,7 @@ classes:
   - docker::networks
   - docker::run_instance
 
-ressources:
+resources:
   zfs:
     "datapool/traefik":
       ensure: present

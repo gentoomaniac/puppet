@@ -2,7 +2,7 @@
 classes:
   - docker
 
-ressources:
+resources:
   btrfs::subvolume:
     "/srv/windrose":
       ensure: present

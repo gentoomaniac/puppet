@@ -8,7 +8,7 @@ classes:
 docker::docker_users:
   - marco
 
-ressources:
+resources:
   package:
     autofs:
       ensure: installed

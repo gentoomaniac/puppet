@@ -3,7 +3,7 @@ classes:
   - docker::networks
   - docker::run_instance
 
-ressources:
+resources:
   btrfs::subvolume:
     "/srv/traefik":
       ensure: present
