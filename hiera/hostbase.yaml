@@ -184,7 +184,8 @@ resources:
         Description=Run docker-system-prune weekly
 
         [Timer]
-        OnCalendar=weekly
+        # not "weekly": that collides with unattended-reboot and the reboot kills the job
+        OnCalendar=Sun *-*-* 03:00:00
         Persistent=true
         Unit=docker-system-prune.service
 
@@ -241,7 +242,8 @@ resources:
         Description=Run paccache-cleanup weekly
 
         [Timer]
-        OnCalendar=weekly
+        # not "weekly": that collides with unattended-reboot and the reboot kills the job
+        OnCalendar=Sun *-*-* 03:00:00
         Persistent=true
         Unit=paccache-cleanup.service
 
