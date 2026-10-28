@@ -138,7 +138,7 @@ resources:
         PROJECT="gentoomaniac-net"
         SERVICE_ACCOUNT_NAME="dns-updates@gentoomaniac-net.iam.gserviceaccount.com"
         ZONE="gentoomaniac-net"
-        IMAGE_NAME="google/cloud-sdk:latest"
+        IMAGE_NAME="google/cloud-sdk:alpine"
 
         CURRENT_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 
@@ -146,8 +146,8 @@ resources:
           OLD_IP="$(dig +short "${DNS_NAME}")"
           if [ "${OLD_IP}" != "${CURRENT_IP}" ]; then
               docker pull "${IMAGE_NAME}"
-              docker run -it -e GOOGLE_APPLICATION_CREDENTIALS=/key.json -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" -v /etc/clouddns-updater-key.json:/key.json:ro "${IMAGE_NAME}" gcloud auth activate-service-account "${SERVICE_ACCOUNT_NAME}" --key-file=/key.json --project="${PROJECT}"
-              docker run -it -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" "${IMAGE_NAME}" gcloud dns record-sets update "${DNS_NAME}" --rrdatas="${CURRENT_IP}" --type=A --zone="${ZONE}" --account="${SERVICE_ACCOUNT_NAME}"
+              docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS=/key.json -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" -v /etc/clouddns-updater-key.json:/key.json:ro "${IMAGE_NAME}" gcloud auth activate-service-account "${SERVICE_ACCOUNT_NAME}" --key-file=/key.json --project="${PROJECT}"
+              docker run --rm -v "clouddns-config:/root/.config" -v "clouddns-kube:/root/.kube" "${IMAGE_NAME}" gcloud dns record-sets update "${DNS_NAME}" --rrdatas="${CURRENT_IP}" --type=A --zone="${ZONE}" --account="${SERVICE_ACCOUNT_NAME}"
           fi
         done
       require:
