@@ -206,6 +206,63 @@ resources:
         Group=systemd-journal
       require:
         - File[/usr/local/bin/docker-system-prune]
+    "/etc/docker":
+      ensure: directory
+    "/etc/docker/daemon.json":
+      ensure: present
+      mode: "0644"
+      content: |
+        {
+          "log-driver": "json-file",
+          "log-opts": {
+            "max-size": "10m",
+            "max-file": "3"
+          }
+        }
+      require:
+        - File[/etc/docker]
+        - Package[docker]
+      notify: Service[docker]
+    "/usr/local/bin/paccache-cleanup":
+      ensure: present
+      mode: "0750"
+      content: |
+        #!/usr/bin/env bash
+        if [ ! -f /etc/no_paccache ]; then
+          sleep $((RANDOM%60*60))
+          # keep the last 2 versions of installed packages, drop uninstalled ones
+          paccache -r -k2
+          paccache -r -u -k0
+        fi
+      require: Package[pacman-contrib]
+    "/etc/systemd/system/paccache-cleanup-weekly.timer":
+      content: |
+        [Unit]
+        Description=Run paccache-cleanup weekly
+
+        [Timer]
+        OnCalendar=weekly
+        Persistent=true
+        Unit=paccache-cleanup.service
+
+        [Install]
+        WantedBy=timers.target
+      require:
+        - File[/etc/systemd/system/paccache-cleanup.service]
+    "/etc/systemd/system/paccache-cleanup.service":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Unit]
+        Description=paccache cleanup after a random delay
+
+        [Service]
+        Type=oneshot
+        ExecStart=/usr/local/bin/paccache-cleanup
+        User=root
+        Group=systemd-journal
+      require:
+        - File[/usr/local/bin/paccache-cleanup]
     "/etc/ssh/sshd_config.d/99-homelab.conf":
       ensure: present
       mode: "0644"
@@ -227,6 +284,16 @@ resources:
         SigLevel = Optional TrustAll
         Server = https://arch.srv.gentoomaniac.net
       notify: Exec[pacman-swup]
+    "/etc/systemd/journald.conf.d":
+      ensure: directory
+    "/etc/systemd/journald.conf.d/99-homelab.conf":
+      ensure: present
+      mode: "0644"
+      content: |
+        [Journal]
+        SystemMaxUse=500M
+      require: File[/etc/systemd/journald.conf.d]
+      notify: Service[systemd-journald]
 
   exec:
     "systemctl daemon-reload":
@@ -236,6 +303,7 @@ resources:
         - /usr/bin
       subscribe:
         - File[/etc/systemd/system/docker-system-prune-weekly.timer]
+        - File[/etc/systemd/system/paccache-cleanup-weekly.timer]
         - File[/etc/systemd/system/unattended-reboot-weekly.timer]
     "pacman-swup":
       command: /usr/bin/pacman -Sy
@@ -250,10 +318,16 @@ resources:
       ensure: running
       enable: true
       require: Exec[systemctl daemon-reload]
+    "paccache-cleanup-weekly.timer":
+      ensure: running
+      enable: true
+      require: Exec[systemctl daemon-reload]
     "sshd":
       ensure: running
       enable: true
       require: Package[openssh]
+    "systemd-journald":
+      ensure: running
     "unattended-reboot-weekly.timer":
       ensure: running
       enable: true
