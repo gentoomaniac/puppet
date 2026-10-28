@@ -11,6 +11,8 @@ resources:
       ensure: present
     "/srv/trilium":
       ensure: present
+    "/srv/wor-timeline":
+      ensure: present
   file:
     "/srv/traefik/conf":
       ensure: directory
@@ -28,6 +30,16 @@ resources:
       content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
       require: File[/srv/traefik/ssl]
       notify: Docker::Run[traefik]
+    "/srv/traefik/ssl/gentoomaniac_net_key.pem":
+      ensure: present
+      content: "%{lookup('secret_gentoomaniac_net_key')}"
+      require: File[/srv/traefik/ssl]
+      notify: Docker::Run[traefik]
+    "/srv/traefik/ssl/gentoomaniac_net_cert.pem":
+      ensure: present
+      content: "%{lookup('secret_gentoomaniac_net_cert')}"
+      require: File[/srv/traefik/ssl]
+      notify: Docker::Run[traefik]
     "/srv/traefik/conf/certs.toml":
       ensure: present
       content: |
@@ -36,9 +48,23 @@ resources:
           [tls.stores.default.defaultCertificate]
             certFile = "/ssl/cert.pem"
             keyFile = "/ssl/key.pem"
+
+        [[tls.certificates]]
+          certFile = "/ssl/gentoomaniac_net_cert.pem"
+          keyFile = "/ssl/gentoomaniac_net_key.pem"
       require:
         - File[/srv/traefik/ssl/cert.pem]
         - File[/srv/traefik/ssl/key.pem]
+        - File[/srv/traefik/ssl/gentoomaniac_net_cert.pem]
+        - File[/srv/traefik/ssl/gentoomaniac_net_key.pem]
+    "/srv/traefik/conf/wor-timeline-auth.toml":
+      ensure: present
+      content: |
+        [http.middlewares.wor-timeline-auth.basicAuth]
+          users = [
+            "%{lookup('secret_wor_timeline_htpasswd')}",
+          ]
+      require: File[/srv/traefik/conf]
     /srv/gitea/data:
       ensure: directory
       owner: 1000
@@ -101,6 +127,7 @@ docker::run_instance::instance:
       --api.dashboard=true
       --entrypoints.websecure.address=:443
       --entrypoints.git.address=:222
+      --entrypoints.public.address=:45802
       --serverstransport.insecureskipverify=true
       --providers.docker
       --providers.docker.exposedbydefault=false
@@ -122,6 +149,7 @@ docker::run_instance::instance:
       - 443:443/tcp
       - 8080:8080/tcp
       - 222:222/tcp
+      - 45802:45802/tcp
     pull_on_start: true
     require:
       - Class[docker]
@@ -161,3 +189,32 @@ docker::run_instance::instance:
       - Class[docker]
       - Btrfs::Subvolume[/srv/trilium]
       
+  wor-timeline:
+    service_provider: systemd
+    image: nginx:stable-alpine
+    expose:
+      - "80"
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.wor-timeline.rule=Host(`wor-timeline.srv.gentoomaniac.net`)
+      - traefik.http.routers.wor-timeline.entrypoints=websecure
+      - traefik.http.routers.wor-timeline.tls=true
+      - traefik.http.routers.wor-timeline.middlewares=wor-timeline-auth@file
+      - traefik.http.routers.wor-timeline.service=wor-timeline
+      - traefik.http.routers.wor-timeline-public.rule=Host(`wor-timeline.gentoomaniac.net`)
+      - traefik.http.routers.wor-timeline-public.entrypoints=public
+      - traefik.http.routers.wor-timeline-public.tls=true
+      - traefik.http.routers.wor-timeline-public.middlewares=wor-timeline-auth@file
+      - traefik.http.routers.wor-timeline-public.service=wor-timeline
+      - traefik.http.services.wor-timeline.loadbalancer.server.port=80
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/wor-timeline:/usr/share/nginx/html:ro
+    require:
+      - Class[docker]
+      - Btrfs::Subvolume[/srv/wor-timeline]
+      - File[/srv/traefik/conf/wor-timeline-auth.toml]
