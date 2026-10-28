@@ -216,6 +216,9 @@ resources:
       mode: "0644"
       content: |
         {
+          "features": {
+            "containerd-snapshotter": false
+          },
           "log-driver": "json-file",
           "log-opts": {
             "max-size": "10m",
