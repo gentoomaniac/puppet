@@ -7,7 +7,9 @@ classes:
   - kickstart_nginx
   - certbot
 
-certbot::domain: "*.srv.gentoomaniac.net"
+certbot::domains:
+  - "*.srv.gentoomaniac.net"
+  - "*.gentoomaniac.net"
 
 resources:
   package:
