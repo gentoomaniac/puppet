@@ -134,7 +134,7 @@ resources:
       content: |
         #! /bin/env bash
 
-        DNS_NAMES="vpn.gentoomaniac.net windrose.gentoomaniac.net palworld.gentoomaniac.net"
+        DNS_NAMES="vpn.gentoomaniac.net windrose.gentoomaniac.net palworld.gentoomaniac.net wor-timeline.gentoomaniac.net"
         PROJECT="gentoomaniac-net"
         SERVICE_ACCOUNT_NAME="dns-updates@gentoomaniac-net.iam.gserviceaccount.com"
         ZONE="gentoomaniac-net"
