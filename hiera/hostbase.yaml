@@ -30,10 +30,8 @@ hostbase::packages::present:
   - btop
   - btrfsmaintenance
   - docker
-  - fakeroot
   - fzf
   - git
-  - go
   - hwinfo
   - jq
   - less
@@ -41,12 +39,16 @@ hostbase::packages::present:
   - mailutils
   - mbuffer
   - neovim
-  - npm
   - openssh
   - pacman-contrib
   - unzip
   - vault
   - which
+
+hostbase::packages::absent:
+  - fakeroot
+  - go
+  - npm
 
 dns::servers:
   - 10.1.1.53

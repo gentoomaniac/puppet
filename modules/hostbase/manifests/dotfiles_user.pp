@@ -81,17 +81,14 @@ define hostbase::dotfiles_user (
     require => Vcsrepo["${base_dir}/.config/dotfiles"],
   }
 
-  # TODO: this takes a huge amount of space. Need a stripped down version for servers
-  vcsrepo { "${base_dir}/.config/nvim":
-    ensure   => latest,
-    provider => git,
-    source   => 'https://github.com/gentoomaniac/nvim-config.git',
-    revision => 'main',
-    require  => File["${base_dir}/.config"],
-    notify   => Exec["nvim-${user}-permissions"],
-  }
-  exec { "nvim-${user}-permissions":
-    command     => "/bin/chown -R ${user}:${user} ${base_dir}/.config/nvim",
-    refreshonly => true,
+  # the full nvim config (plugins, LSPs via npm/go) takes too much space on servers
+  file { [
+    "${base_dir}/.config/nvim",
+    "${base_dir}/.local/share/nvim",
+    "${base_dir}/.local/state/nvim",
+    "${base_dir}/.cache/nvim",
+  ]:
+    ensure => absent,
+    force  => true,
   }
 }
