@@ -1,0 +1,135 @@
+---
+classes:
+  - docker::networks
+  - docker::run_instance
+  - traefik
+
+resources:
+  btrfs::subvolume:
+    "/srv/vault":
+      ensure: present
+  file:
+    # owner 100 / group 1000 is the vault user inside the container
+    "/srv/vault/data":
+      ensure: directory
+      owner: 100
+      group: 1000
+      mode: "0770"
+      require: Btrfs::Subvolume[/srv/vault]
+    "/srv/vault/conf":
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/vault]
+    "/srv/vault/file":
+      ensure: directory
+      owner: 100
+      group: 1000
+      require: Btrfs::Subvolume[/srv/vault]
+    "/srv/vault/logs":
+      ensure: directory
+      owner: 100
+      group: 1000
+      require: Btrfs::Subvolume[/srv/vault]
+    "/srv/vault/conf/config.hcl":
+      ensure: present
+      content: |
+        ui = true
+
+        listener "tcp" {
+          address = "0.0.0.0:8200"
+          tls_disable = 1
+
+          telemetry {
+            unauthenticated_metrics_access = true
+          }
+        }
+
+        storage "file" {
+          path = "/data"
+        }
+
+        default_lease_ttl = "720h"
+
+        # scraped by Prometheus at /v1/sys/metrics?format=prometheus
+        telemetry {
+          prometheus_retention_time = "24h"
+          disable_hostname = true
+        }
+      require: File[/srv/vault/conf]
+      notify: Docker::Run[vault]
+    "/srv/vault/secret.json":
+      ensure: file
+      owner: 0
+      mode: "0600"
+      content: |
+        {
+          "key": "%{lookup('secret_unseal_token')}"
+        }
+      require: Btrfs::Subvolume[/srv/vault]
+
+  timer:
+    # talks to the local container directly (127.0.0.1:8200, bypassing Traefik
+    # and its allowlist), so each instance unseals itself wherever DNS points
+    "vault-unseal":
+      description: Check sealed state of vault and unseal if necessary
+      command: >-
+        /bin/bash -c 'if curl -s http://127.0.0.1:8200/v1/sys/health | jq -e .sealed >/dev/null;
+        then curl -sf -X PUT -d @/srv/vault/secret.json http://127.0.0.1:8200/v1/sys/unseal >/dev/null; fi'
+      on_calendar: "*:0/5"
+      require:
+        - File[/srv/vault/secret.json]
+        - Package[jq]
+
+docker::docker_users:
+  - marco
+
+docker::networks::networks:
+  web:
+    ensure: "present"
+
+traefik::certificates:
+  srv_gentoomaniac_net:
+    cert: secret_srv_gentoomaniac_net_cert
+    key: secret_srv_gentoomaniac_net_key
+traefik::default_certificate: srv_gentoomaniac_net
+traefik::entrypoints:
+  websecure: ":443"
+traefik::ports:
+  - 443:443/tcp
+
+docker::run_instance::instance:
+  vault:
+    service_provider: systemd
+    image: hashicorp/vault:1.21
+    command: >
+      vault server
+      -config /vault/config/config.hcl
+    expose:
+      - 8200/tcp
+    ports:
+      - 127.0.0.1:8200:8200/tcp  # localhost only, for the vault-unseal timer
+    extra_parameters:
+      - --restart=unless-stopped
+      - --cap-add=IPC_LOCK
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.vault.rule=Host(`vault.srv.gentoomaniac.net`)
+      - traefik.http.routers.vault.entrypoints=websecure
+      - traefik.http.routers.vault.tls=true
+      - traefik.http.middlewares.vault-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.vault.middlewares=vault-allowlist
+      - traefik.http.services.vault.loadbalancer.server.port=8200
+    net:
+      - web
+    pull_on_start: true
+    require:
+      - Class[docker]
+      - Docker_network[web]
+      - File[/srv/vault/conf/config.hcl]
+      - File[/srv/vault/data]
+      - File[/srv/vault/file]
+      - File[/srv/vault/logs]
+    volumes:
+      - /srv/vault/conf:/vault/config
+      - /srv/vault/data:/data
+      - /srv/vault/logs:/vault/logs
+      - /srv/vault/file:/vault/file

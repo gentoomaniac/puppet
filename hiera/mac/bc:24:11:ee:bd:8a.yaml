@@ -1,0 +1,14 @@
+---
+# placeholder MAC: rename this file to the new VM's MAC once it exists
+classes:
+  - hostbase::hostname
+
+hostbase::hostname::hostname: sto-vault-b1.sto.gentoomaniac.net
+
+resources:
+  networkmanager::connection:
+    'ens18':
+      ipv4_method: 'manual'
+      ipv4_addresses:
+        - '10.1.1.59/24'
+      ipv4_route_metric: 10
