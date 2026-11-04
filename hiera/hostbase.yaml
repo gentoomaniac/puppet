@@ -144,8 +144,15 @@ resources:
           exit 0
         fi
 
-        if systemctl is-active --quiet pacman-update.service || [ -e /var/lib/pacman/db.lck ]; then
-          echo "upgrade in progress, not rebooting"
+        # a running oneshot reports "activating", which `systemctl is-active` doesn't count
+        case "$(systemctl show -p ActiveState --value pacman-update.service)" in
+          active|activating|reloading)
+            echo "upgrade in progress, not rebooting"
+            exit 0
+            ;;
+        esac
+        if [ -e /var/lib/pacman/db.lck ]; then
+          echo "pacman database locked, not rebooting"
           exit 0
         fi
 
