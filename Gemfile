@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'puppet', '~> 8.10'
+gem 'openvox', '~> 8.32'
 gem 'puppet-lint', '~> 4.0'
 gem 'racc'
 gem 'rake'
