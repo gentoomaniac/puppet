@@ -9,10 +9,13 @@ resources:
     'ens18':
       ipv4_method: 'manual'
       ipv4_addresses:
-        - '10.1.1.67/24'
+        - '10.1.1.58/24'
       ipv4_route_metric: 10
-      :
+    # direct fiber link to the NAS for storage: no gateway, no DNS
     'ens19':
       ipv4_method: 'manual'
       ipv4_addresses:
         - '192.168.0.61/24'
+      ipv4_never_default: true
+      ipv4_dns: []
+      ipv4_dns_search: []

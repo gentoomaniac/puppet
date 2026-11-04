@@ -11,16 +11,17 @@ method=<%= @ipv4_method %>
 address<%= index + 1 %>=<%= addr %>
 <%- end -%>
 <%- end -%>
-<%- if @ipv4_gateway -%>
+<%# NetworkManager rejects a gateway together with never-default -%>
+<%- if @ipv4_gateway && !@ipv4_never_default -%>
 gateway=<%= @ipv4_gateway %>
 <%- end -%>
 <%- if @ipv4_route_metric -%>
 route-metric=<%= @ipv4_route_metric %>
 <%- end -%>
-<%- if @ipv4_dns -%>
+<%- if @ipv4_dns && !@ipv4_dns.empty? -%>
 dns=<%= @ipv4_dns.join(';') %>;
 <%- end -%>
-<%- if @ipv4_dns_search -%>
+<%- if @ipv4_dns_search && !@ipv4_dns_search.empty? -%>
 dns-search=<%= @ipv4_dns_search.join(';') %>;
 <%- end -%>
 <%- if @ipv4_never_default -%>
@@ -34,16 +35,16 @@ method=<%= @ipv6_method %>
 address<%= index + 1 %>=<%= addr %>
 <%- end -%>
 <%- end -%>
-<%- if @ipv6_gateway -%>
+<%- if @ipv6_gateway && !@ipv6_never_default -%>
 gateway=<%= @ipv6_gateway %>
 <%- end -%>
 <%- if @ipv6_route_metric -%>
 route-metric=<%= @ipv6_route_metric %>
 <%- end -%>
-<%- if @ipv6_dns -%>
+<%- if @ipv6_dns && !@ipv6_dns.empty? -%>
 dns=<%= @ipv6_dns.join(';') %>;
 <%- end -%>
-<%- if @ipv6_dns_search -%>
+<%- if @ipv6_dns_search && !@ipv6_dns_search.empty? -%>
 dns-search=<%= @ipv6_dns_search.join(';') %>;
 <%- end -%>
 <%- if @ipv6_never_default -%>
