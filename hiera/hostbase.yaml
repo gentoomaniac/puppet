@@ -38,6 +38,7 @@ hostbase::packages::present:
   - btop
   - btrfsmaintenance
   - docker
+  - doggo
   - fzf
   - git
   - hwinfo
