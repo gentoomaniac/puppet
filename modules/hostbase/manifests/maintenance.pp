@@ -46,7 +46,7 @@ class hostbase::maintenance (
     require     => File['/usr/local/bin/paccache-cleanup'],
   }
 
-  # TEMPORARY cleanup of the pre-`timer` units (`<name>-weekly.timer` became `<name>.timer`).
+  # TEMPORARY cleanup of the pre-`timer` units (`<unit>-weekly.timer` became `<unit>.timer`).
   # Remove this loop once all hosts have applied it.
   ['unattended-reboot', 'docker-system-prune', 'paccache-cleanup'].each |$unit| {
     service { "${unit}-weekly.timer":
