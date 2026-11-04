@@ -1,0 +1,18 @@
+---
+classes:
+  - hostbase::hostname
+
+hostbase::hostname::hostname: sto-nzbget-b1.sto.gentoomaniac.net
+
+resources:
+  networkmanager::connection:
+    'ens18':
+      ipv4_method: 'manual'
+      ipv4_addresses:
+        - '10.1.1.67/24'
+      ipv4_route_metric: 10
+      :
+    'ens19':
+      ipv4_method: 'manual'
+      ipv4_addresses:
+        - '192.168.0.61/24'
