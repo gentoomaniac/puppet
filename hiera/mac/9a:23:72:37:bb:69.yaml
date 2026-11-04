@@ -4,12 +4,11 @@ classes:
 
 hostbase::hostname::hostname: sto-coredns-c1.sto.gentoomaniac.net
 
+# staggered so the two DNS servers never reboot together
+hostbase::maintenance::reboot_on_calendar: "*-*-* 08:00:00"
+hostbase::maintenance::reboot_randomized_delay: 30m
+
 resources:
-  # staggered so the two DNS servers never reboot together
-  timer:
-    unattended-reboot:
-      on_calendar: "*-*-* 08:00:00"
-      randomized_delay_sec: 30m
   networkmanager::connection:
     'ens18':
       ipv4_method: 'manual'
