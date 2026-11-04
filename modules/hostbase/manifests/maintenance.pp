@@ -48,14 +48,14 @@ class hostbase::maintenance (
 
   # TEMPORARY cleanup of the pre-`timer` units (`<name>-weekly.timer` became `<name>.timer`).
   # Remove this loop once all hosts have applied it.
-  ['unattended-reboot', 'docker-system-prune', 'paccache-cleanup'].each |$name| {
-    service { "${name}-weekly.timer":
+  ['unattended-reboot', 'docker-system-prune', 'paccache-cleanup'].each |$unit| {
+    service { "${unit}-weekly.timer":
       ensure => stopped,
       enable => false,
     }
-    file { "/etc/systemd/system/${name}-weekly.timer":
+    file { "/etc/systemd/system/${unit}-weekly.timer":
       ensure  => absent,
-      require => Service["${name}-weekly.timer"],
+      require => Service["${unit}-weekly.timer"],
     }
   }
 }

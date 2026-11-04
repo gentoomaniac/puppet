@@ -61,61 +61,61 @@ resources:
           fi
         done
       require:
-      - Docker_volume[clouddns-config]
-      - Docker_volume[clouddns-kube]
+        - Docker_volume[clouddns-config]
+        - Docker_volume[clouddns-kube]
 
     "/srv/authelia/config/configuration.yml":
-        ensure: 'file'
-        require: File[/srv/authelia/config]
-        content: |
-          theme: auto
-          server:
-            host: 0.0.0.0
-            port: 9091
+      ensure: 'file'
+      require: File[/srv/authelia/config]
+      content: |
+        theme: auto
+        server:
+          host: 0.0.0.0
+          port: 9091
 
-          log:
-            level: info
+        log:
+          level: info
 
-          # SECURITY KEYS (Change these to long, random strings in production!)
-          jwt_secret: 'a_very_secret_string_change_me'
+        # SECURITY KEYS (Change these to long, random strings in production!)
+        jwt_secret: 'a_very_secret_string_change_me'
 
-          default_2fa_method: 'totp'
+        default_2fa_method: 'totp'
 
-          authentication_backend:
-            file:
-              path: /config/users.yml
-              password:
-                algorithm: argon2id
+        authentication_backend:
+          file:
+            path: /config/users.yml
+            password:
+              algorithm: argon2id
 
-          session:
-            name: authelia_session
-            domain: srv.gentoomaniac.net  # The magic SSO domain
-            secret: 'another_very_secret_string_change_me'
-            expiration: 1h
-            inactivity: 15m
-            remember_me_duration: 1M
+        session:
+          name: authelia_session
+          domain: srv.gentoomaniac.net  # The magic SSO domain
+          secret: 'another_very_secret_string_change_me'
+          expiration: 1h
+          inactivity: 15m
+          remember_me_duration: 1M
 
-          storage:
-            # Encryption key MUST be > 20 characters
-            encryption_key: 'a_string_that_must_be_more_than_twenty_characters_long'
-            local:
-              path: /config/db.sqlite3
+        storage:
+          # Encryption key MUST be > 20 characters
+          encryption_key: 'a_string_that_must_be_more_than_twenty_characters_long'
+          local:
+            path: /config/db.sqlite3
 
-          notifier:
-            smtp:
-              address: "smtp://smtp.gmail.com:587"
-              username: marco@siebecke.se
-              password: %{lookup('secret_google_smtp')}
-              sender: "Authelia <no-reply@siebecke.se>"
-              subject: "[Authelia] {title}"
+        notifier:
+          smtp:
+            address: "smtp://smtp.gmail.com:587"
+            username: marco@siebecke.se
+            password: %{lookup('secret_google_smtp')}
+            sender: "Authelia <no-reply@siebecke.se>"
+            subject: "[Authelia] {title}"
 
-          access_control:
-            # Default is deny all, then we punch holes
-            default_policy: deny
-            rules:
-              # Require 2FA for all apps under your domain
-              - domain: '*.srv.gentoomaniac.net'
-                policy: two_factor
+        access_control:
+          # Default is deny all, then we punch holes
+          default_policy: deny
+          rules:
+            # Require 2FA for all apps under your domain
+            - domain: '*.srv.gentoomaniac.net'
+              policy: two_factor
 
   timer:
     "clouddns-updater":
