@@ -2,6 +2,7 @@
 classes:
   - docker::networks
   - docker::run_instance
+  - traefik
   - docker::volumes
   - arch_pkg_host
   - kickstart_nginx
@@ -19,8 +20,6 @@ resources:
       ensure: installed
 
   btrfs::subvolume:
-    "/srv/traefik":
-      ensure: present
     "/srv/authelia":
       ensure: present
     "/srv/nextcloud":
@@ -35,105 +34,6 @@ resources:
     "/srv/authelia/config":
       ensure: directory
       require: Btrfs::Subvolume[/srv/authelia]
-    "/srv/traefik/conf":
-      ensure: directory
-      require: Btrfs::Subvolume[/srv/traefik]
-    "/srv/traefik/ssl":
-      ensure: directory
-      require: Btrfs::Subvolume[/srv/traefik]
-    "/srv/traefik/ssl/key.pem":
-      ensure: present
-      mode: "0600"
-      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
-      require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
-    "/srv/traefik/ssl/cert.pem":
-      ensure: present
-      mode: "0644"
-      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
-      require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
-    "/srv/traefik/conf/dashboard.toml":
-      ensure: present
-      content: |
-        [http.routers.dashboard]
-          rule = "PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
-          entryPoints = ["dashboard"]
-          service = "api@internal"
-      require: File[/srv/traefik/conf]
-    "/srv/traefik/conf/certs.toml":
-      ensure: present
-      content: |
-        [tls.stores]
-          [tls.stores.default]
-          [tls.stores.default.defaultCertificate]
-            certFile = "/ssl/cert.pem"
-            keyFile = "/ssl/key.pem"
-    "/srv/traefik/conf/static.toml":
-      ensure: present
-      content: |
-        [http.services]
-          [http.services.dummy.loadBalancer]
-            [[http.services.dummy.loadBalancer.servers]]
-                url = ""
-
-          [http.services.nas.loadBalancer]
-            [[http.services.nas.loadBalancer.servers]]
-              url = "https://10.1.1.5:443/"
-
-          [http.services.unifi.loadBalancer]
-            [[http.services.unifi.loadBalancer.servers]]
-              url = "https://10.1.1.1:443/"
-
-          [http.services.proxmox.loadBalancer]
-            [[http.services.proxmox.loadBalancer.servers]]
-              url = "https://sto-proxmox-a1.sto.gentoomaniac.net:8006/"
-
-          [http.services.proxmox2.loadBalancer]
-            [[http.services.proxmox2.loadBalancer.servers]]
-              url = "https://sto-proxmox-a2.sto.gentoomaniac.net:8006/"
-
-        [http.routers]
-          [http.routers.redirect-to-https]
-            rule = "hostregexp(`{host:.+}`)"
-            service = "dummy"
-            entryPoints = ["web"]
-            middlewares = ["redirect-to-https"]
-
-          [http.routers.nas]
-            rule = "Host(`nas.srv.gentoomaniac.net`)"
-            service = "nas"
-            entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist"]
-            [http.routers.nas.tls]
-
-          [http.routers.unifi]
-            rule = "Host(`unifi.srv.gentoomaniac.net`)"
-            service = "unifi"
-            entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist"]
-            [http.routers.unifi.tls]
-
-          [http.routers.proxmox]
-            rule = "Host(`proxmox.srv.gentoomaniac.net`)"
-            service = "proxmox"
-            entryPoints = ["ssl"]
-            middlewares = ["local-only-whitelist"]
-            [http.routers.proxmox.tls]
-
-        [http.middlewares]
-          [http.middlewares.redirect-to-https]
-            [http.middlewares.redirect-to-https.redirectscheme]
-              scheme = "https"
-
-          [http.middlewares.local-only-whitelist]
-            [http.middlewares.local-only-whitelist.ipwhitelist]
-              sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
-
-          [http.middlewares.sso.forwardAuth]
-            address = "https://auth.srv.gentoomaniac.net"
-            authResponseHeaders = ["X-Forwarded-User"]
-
     "/etc/clouddns-updater-key.json":
       ensure: present
       mode: "0600"
@@ -237,58 +137,86 @@ docker::volumes::volumes:
   "clouddns-kube":
     ensure: present
 
+traefik::certificates:
+  srv_gentoomaniac_net:
+    cert: secret_srv_gentoomaniac_net_cert
+    key: secret_srv_gentoomaniac_net_key
+traefik::default_certificate: srv_gentoomaniac_net
+traefik::entrypoints:
+  web: ":80"
+  ssl: ":443"
+traefik::ports:
+  - 80:80/tcp
+  - 443:443/tcp
+traefik::dynamic_configs:
+  "static.toml": |
+    [http.services]
+      [http.services.dummy.loadBalancer]
+        [[http.services.dummy.loadBalancer.servers]]
+            url = ""
+
+      [http.services.nas.loadBalancer]
+        [[http.services.nas.loadBalancer.servers]]
+          url = "https://10.1.1.5:443/"
+
+      [http.services.unifi.loadBalancer]
+        [[http.services.unifi.loadBalancer.servers]]
+          url = "https://10.1.1.1:443/"
+
+      [http.services.proxmox.loadBalancer]
+        [[http.services.proxmox.loadBalancer.servers]]
+          url = "https://sto-proxmox-a1.sto.gentoomaniac.net:8006/"
+
+      [http.services.proxmox2.loadBalancer]
+        [[http.services.proxmox2.loadBalancer.servers]]
+          url = "https://sto-proxmox-a2.sto.gentoomaniac.net:8006/"
+
+    [http.routers]
+      [http.routers.redirect-to-https]
+        rule = "hostregexp(`{host:.+}`)"
+        service = "dummy"
+        entryPoints = ["web"]
+        middlewares = ["redirect-to-https"]
+
+      [http.routers.nas]
+        rule = "Host(`nas.srv.gentoomaniac.net`)"
+        service = "nas"
+        entryPoints = ["ssl"]
+        middlewares = ["local-only-whitelist"]
+        [http.routers.nas.tls]
+
+      [http.routers.unifi]
+        rule = "Host(`unifi.srv.gentoomaniac.net`)"
+        service = "unifi"
+        entryPoints = ["ssl"]
+        middlewares = ["local-only-whitelist"]
+        [http.routers.unifi.tls]
+
+      [http.routers.proxmox]
+        rule = "Host(`proxmox.srv.gentoomaniac.net`)"
+        service = "proxmox"
+        entryPoints = ["ssl"]
+        middlewares = ["local-only-whitelist"]
+        [http.routers.proxmox.tls]
+
+    [http.middlewares]
+      [http.middlewares.redirect-to-https]
+        [http.middlewares.redirect-to-https.redirectscheme]
+          scheme = "https"
+
+      [http.middlewares.local-only-whitelist]
+        [http.middlewares.local-only-whitelist.ipwhitelist]
+          sourcerange = ["10.1.1.0/24","10.1.15.0/24"]
+
+      [http.middlewares.sso.forwardAuth]
+        address = "https://auth.srv.gentoomaniac.net"
+        authResponseHeaders = ["X-Forwarded-User"]
+
 docker::networks::networks:
   web:
     ensure: "present"
 
 docker::run_instance::instance:
-  traefik:
-    service_provider: systemd
-    image: traefik:v3.6
-    command: >
-      --api.dashboard=true
-      --entrypoints.traefik.address=:8080
-      --entrypoints.dashboard.address=:8081
-      --entrypoints.web.address=:80
-      --entrypoints.ssl.address=:443
-      --providers.file.directory=/conf
-      --providers.file.watch=true
-      --providers.docker
-      --providers.docker.exposedbydefault=false
-      --serverstransport.insecureskipverify=true
-      --metrics.prometheus=true
-    #  --log.level=DEBUG
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    env:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Berlin
-    extra_parameters:
-      - --restart=unless-stopped
-    net:
-      - web
-    ports:
-      - 80:80/tcp
-      - 443:443/tcp
-      # metrics, scraped by Prometheus
-      - 8080:8080/tcp
-      # dashboard, localhost only (ssh -L 8081:localhost:8081)
-      - 127.0.0.1:8081:8081/tcp
-    pull_on_start: true
-    require:
-      - Class[docker]
-      - Docker_network[web]
-      - File[/srv/traefik/conf/certs.toml]
-      - File[/srv/traefik/conf/dashboard.toml]
-      - File[/srv/traefik/conf/static.toml]
-      - File[/srv/traefik/ssl/cert.pem]
-      - File[/srv/traefik/ssl/key.pem]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /srv/traefik/ssl:/ssl:ro
-      - /srv/traefik/conf:/conf:ro
   authelia:
     service_provider: systemd
     image: 'authelia/authelia:latest'

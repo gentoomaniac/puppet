@@ -2,11 +2,10 @@
 classes:
   - docker::networks
   - docker::run_instance
+  - traefik
 
 resources:
   btrfs::subvolume:
-    "/srv/traefik":
-      ensure: present
     "/srv/gitea":
       ensure: present
     "/srv/trilium":
@@ -14,69 +13,6 @@ resources:
     "/srv/wor-timeline":
       ensure: present
   file:
-    "/srv/traefik/conf":
-      ensure: directory
-      require: Btrfs::Subvolume[/srv/traefik]
-    "/srv/traefik/ssl":
-      ensure: directory
-      require: Btrfs::Subvolume[/srv/traefik]
-    "/srv/traefik/ssl/key.pem":
-      ensure: present
-      mode: "0600"
-      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
-      require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
-    "/srv/traefik/ssl/cert.pem":
-      ensure: present
-      mode: "0644"
-      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
-      require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
-    "/srv/traefik/ssl/gentoomaniac_net_key.pem":
-      ensure: present
-      mode: "0600"
-      content: "%{lookup('secret_gentoomaniac_net_key')}"
-      require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
-    "/srv/traefik/ssl/gentoomaniac_net_cert.pem":
-      ensure: present
-      mode: "0644"
-      content: "%{lookup('secret_gentoomaniac_net_cert')}"
-      require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
-    "/srv/traefik/conf/dashboard.toml":
-      ensure: present
-      content: |
-        [http.routers.dashboard]
-          rule = "PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
-          entryPoints = ["dashboard"]
-          service = "api@internal"
-      require: File[/srv/traefik/conf]
-    "/srv/traefik/conf/certs.toml":
-      ensure: present
-      content: |
-        [tls.stores]
-          [tls.stores.default]
-          [tls.stores.default.defaultCertificate]
-            certFile = "/ssl/cert.pem"
-            keyFile = "/ssl/key.pem"
-
-        [[tls.certificates]]
-          certFile = "/ssl/gentoomaniac_net_cert.pem"
-          keyFile = "/ssl/gentoomaniac_net_key.pem"
-      require:
-        - File[/srv/traefik/ssl/cert.pem]
-        - File[/srv/traefik/ssl/key.pem]
-        - File[/srv/traefik/ssl/gentoomaniac_net_cert.pem]
-        - File[/srv/traefik/ssl/gentoomaniac_net_key.pem]
-    "/srv/traefik/conf/wor-timeline-auth.toml":
-      ensure: present
-      content: |
-        [http.middlewares.wor-timeline-auth.basicAuth]
-          users = [
-            "%{lookup('secret_wor_timeline_htpasswd')}",
-          ]
-      require: File[/srv/traefik/conf]
     /srv/gitea/data:
       ensure: directory
       owner: 1000
@@ -85,6 +21,29 @@ resources:
 
 docker::docker_users:
   - marco
+
+traefik::certificates:
+  srv_gentoomaniac_net:
+    cert: secret_srv_gentoomaniac_net_cert
+    key: secret_srv_gentoomaniac_net_key
+  gentoomaniac_net:
+    cert: secret_gentoomaniac_net_cert
+    key: secret_gentoomaniac_net_key
+traefik::default_certificate: srv_gentoomaniac_net
+traefik::entrypoints:
+  websecure: ":443"
+  git: ":222"
+  public: ":45802"
+traefik::ports:
+  - 443:443/tcp
+  - 222:222/tcp
+  - 45802:45802/tcp
+traefik::dynamic_configs:
+  "wor-timeline-auth.toml": |
+    [http.middlewares.wor-timeline-auth.basicAuth]
+      users = [
+        "%{lookup('secret_wor_timeline_htpasswd')}",
+      ]
 
 docker::networks::networks:
   web:
@@ -131,51 +90,6 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/gitea/data]
-  traefik:
-    service_provider: systemd
-    image: traefik:v3.6
-    command: >
-      --api.dashboard=true
-      --entrypoints.traefik.address=:8080
-      --entrypoints.dashboard.address=:8081
-      --entrypoints.websecure.address=:443
-      --entrypoints.git.address=:222
-      --entrypoints.public.address=:45802
-      --serverstransport.insecureskipverify=true
-      --providers.docker
-      --providers.docker.exposedbydefault=false
-      --providers.file.directory=/conf
-      --providers.file.watch=true
-      --metrics.prometheus=true
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    env:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Berlin
-    extra_parameters:
-      - --restart=unless-stopped
-    net:
-      - web
-    ports:
-      - 443:443/tcp
-      # metrics, scraped by Prometheus
-      - 8080:8080/tcp
-      # dashboard, localhost only (ssh -L 8081:localhost:8081)
-      - 127.0.0.1:8081:8081/tcp
-      - 222:222/tcp
-      - 45802:45802/tcp
-    pull_on_start: true
-    require:
-      - Class[docker]
-      - Docker_network[web]
-      - File[/srv/traefik/conf/certs.toml]
-      - File[/srv/traefik/conf/dashboard.toml]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /srv/traefik/ssl:/ssl:ro
-      - /srv/traefik/conf:/conf:ro
   trilium:
     service_provider: systemd
     image: triliumnext/notes:stable
