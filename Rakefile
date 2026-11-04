@@ -77,7 +77,7 @@ task :spec_prep do
   target = 'spec/fixtures/modules'
   next if File.directory?("#{target}/host_core")
 
-  sh 'puppet', 'module', 'install', 'puppetlabs-host_core',
+  sh 'puppet', 'module', 'install', 'puppetlabs-host_core', '--version', '2.1.0',
      '--target-dir', target, '--ignore-dependencies'
 end
 

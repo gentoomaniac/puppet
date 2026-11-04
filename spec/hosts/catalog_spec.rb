@@ -9,12 +9,23 @@ require 'spec_helper'
 # Delete UBUNTU_ERA_CLASS and the `next` below once those MAC files are removed.
 UBUNTU_ERA_CLASS = 'netplan'.freeze
 
-Dir[File.join(REPO_ROOT, 'hiera', 'mac', '*.yaml')].sort.each do |mac_file|
-  mac = File.basename(mac_file, '.yaml')
-  data = YAML.load_file(mac_file)
-  next if data['classes'].include?(UBUNTU_ERA_CLASS)
+HOSTS = Dir[File.join(REPO_ROOT, 'hiera', 'mac', '*.yaml')].sort.map do |mac_file|
+  data = YAML.load_file(mac_file) || {}
+  next if Array(data['classes']).include?(UBUNTU_ERA_CLASS)
 
-  fqdn = data.fetch('hostbase::hostname::hostname')
+  [File.basename(mac_file, '.yaml'), data]
+end.compact
+
+# Without this, a moved MAC directory would give "0 examples, 0 failures".
+describe 'host discovery' do
+  it('finds at least one host to compile') { expect(HOSTS).not_to be_empty }
+end
+
+HOSTS.each do |mac, data|
+
+  fqdn = data.fetch('hostbase::hostname::hostname') do
+    raise "hiera/mac/#{mac}.yaml: hostbase::hostname::hostname is not set"
+  end
   hostname, domain = fqdn.split('.', 2)
   # Same pattern as lib/facter/role.rb
   pod, role, pool = hostname.match(/^(\w+)-(\w+)-([a-z]+)-?(\d+)$/)&.captures
@@ -39,7 +50,7 @@ Dir[File.join(REPO_ROOT, 'hiera', 'mac', '*.yaml')].sort.each do |mac_file|
         'architecture' => 'x86_64',
         'systemd' => true,
         'puppet_branch' => 'master',
-      }
+      }.compact # like facter, leave pod/role/pool undefined when the hostname doesn't match
     end
 
     it { is_expected.to compile.with_all_deps }
