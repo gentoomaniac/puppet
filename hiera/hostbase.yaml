@@ -274,12 +274,12 @@ resources:
       ensure: present
       mode: "0644"
       content: |
-        AllowAgentForwarding   yes
+        AllowAgentForwarding   no
         AuthorizedKeysFile     /etc/userkeys/%u/authorized_keys
         PasswordAuthentication no
         PermitRootLogin        prohibit-password
         PubkeyAuthentication   yes
-        X11Forwarding          yes
+        X11Forwarding          no
       require:
         - Package[openssh]
       notify:
