@@ -103,6 +103,7 @@ if [ -f /etc/bootstrap ]; then
         export VAULT_TOKEN
         vault kv get -field=role-id "puppet/bootstrap/${mac}" > /etc/vault_role_id
         vault kv get -field=secret-id "puppet/bootstrap/${mac}" > /etc/vault_secret_id
+        chmod 600 /etc/vault_*
         rm /etc/vault_token
     else
         echo "... Getting Vault credentials from BIOS"
