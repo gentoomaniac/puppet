@@ -88,7 +88,7 @@ if [ -f /etc/bootstrap ]; then
     fi
 
     echo "*** make sure some required tools are installed ..."
-    for entry in curl:curl dmidecode:dmidecode docker:docker git:git nvim:neovim sshd:openssh parted:parted puppet:puppet vault:vault which:which; do
+    for entry in curl:curl dmidecode:dmidecode docker:docker git:git nvim:neovim sshd:openssh parted:parted puppet:openvox vault:vault which:which; do
         binary="${entry%%:*}"
         package="${entry##*:}"
         if ! command -v "${binary}" >/dev/null 2>&1; then
