@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+      - name: Install yamllint
+        run: pip install yamllint
+      # shellcheck is preinstalled on ubuntu-latest runners
+      - run: bundle exec rake lint:puppet_parser
+      - run: bundle exec rake lint:epp
+      - run: bundle exec rake lint:erb
+      - run: bundle exec rake lint:puppet_lint
+      - run: bundle exec rake lint:ruby
+      - run: bundle exec rake lint:yaml
+      - run: bundle exec rake lint:shell
+
+  catalogs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+      - run: bundle exec rake spec

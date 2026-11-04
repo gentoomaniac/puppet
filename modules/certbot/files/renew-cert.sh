@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-for param in $*; do
+for param in "$@"; do
     arg=${param/=*}
     value=${param##*=}
 
