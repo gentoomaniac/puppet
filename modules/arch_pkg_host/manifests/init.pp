@@ -20,7 +20,6 @@ class arch_pkg_host (
     service_provider => 'systemd',
     image            => 'nginx',
     expose           => ['80/tcp'],
-    dns              => lookup('network::ipv4::dns::servers'),
     net              => ['web'],
     labels           => $labels,
     pull_on_start    => true,

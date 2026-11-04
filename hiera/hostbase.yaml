@@ -7,10 +7,18 @@ lookup_options:
 
 classes:
   - hostbase::autoupdate
+  - hostbase::btrfs_scrub
+  - hostbase::docker
   - hostbase::dotfiles
+  - hostbase::journald
+  - hostbase::maintenance
+  - hostbase::metrics
+  - hostbase::pacman
   - hostbase::packages
   - hostbase::puppet
   - hostbase::puppet_cron
+  - hostbase::ssh
+  - hostbase::vault
   - docker
   - docker::run_instance
 
@@ -57,262 +65,21 @@ dotfiles:
   "marco": {}
   "root": {}
 
+hostbase::ssh::authorized_keys:
+  marco:
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESaPVR26gxGnwaomoRcdipNTNC7jxn7TO7Pb+FmECnL marco@gentoobox.clients.gentoomaniac.net
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAxSYdM4DORK2/koKHlz9nWuDclxIKIhlXoQTKdEnz67 marco@marcos-desktop
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICU8Rd9oxln9cdIJVhzsDPcBY3qQZfkiNgg+U3gT4zwj marco@mbrk-gentoo
+  root:
+    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5d/oJWpUQaelmkllEMO6nwy4TYWFSoGtkuVPTq4wavpHwp7/uqRHIzQ8/DnjEkuFzyNImrCLpgOPnNstWmTmyMHRfHDy+wiwvlO1ceVixL5Uj8qYewvEXP7alG9lueVS/PovidhzVoh7p7VDXrZynU7lJaGQ2cfMXXJXwcjXIOkD3X0z3//j6yu7Rw/65ZuexSGtCRgrXDDCzEK+Kp4b/MLavY5N2ukEl654VUZEYvagQXSFsNsFEq6tu+4ywOnAZhtV1Ob/oCfspr8ejaFyxHpmnjiE5Ln72/rMEM+IrI6ifjn8zY9sqku20olc17Cr4cgGhvR5J8Ws8xu1GlG79 root@freenas.gentoomaniac.net
+
 resources:
   file:
     # "/var/lib/puppet/reports":
     #   ensure: absent
     #   force: true
-    "/etc/userkeys":
-      ensure: directory
-    "/etc/userkeys/root":
-      ensure: directory
-      require: File[/etc/userkeys]
-    "/etc/userkeys/marco":
-      ensure: directory
-      require: File[/etc/userkeys]
-    /etc/userkeys/marco/authorized_keys:
-      ensure: present
-      mode: "0644"
-      content: |
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESaPVR26gxGnwaomoRcdipNTNC7jxn7TO7Pb+FmECnL marco@gentoobox.clients.gentoomaniac.net
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAxSYdM4DORK2/koKHlz9nWuDclxIKIhlXoQTKdEnz67 marco@marcos-desktop
-        ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICU8Rd9oxln9cdIJVhzsDPcBY3qQZfkiNgg+U3gT4zwj marco@mbrk-gentoo
-
-      require: File[/etc/userkeys/marco]
-    /etc/userkeys/root/authorized_keys:
-      ensure: present
-      mode: "0644"
-      content: |
-        ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5d/oJWpUQaelmkllEMO6nwy4TYWFSoGtkuVPTq4wavpHwp7/uqRHIzQ8/DnjEkuFzyNImrCLpgOPnNstWmTmyMHRfHDy+wiwvlO1ceVixL5Uj8qYewvEXP7alG9lueVS/PovidhzVoh7p7VDXrZynU7lJaGQ2cfMXXJXwcjXIOkD3X0z3//j6yu7Rw/65ZuexSGtCRgrXDDCzEK+Kp4b/MLavY5N2ukEl654VUZEYvagQXSFsNsFEq6tu+4ywOnAZhtV1Ob/oCfspr8ejaFyxHpmnjiE5Ln72/rMEM+IrI6ifjn8zY9sqku20olc17Cr4cgGhvR5J8Ws8xu1GlG79 root@freenas.gentoomaniac.net
-      require: File[/etc/userkeys/root]
     "/srv":
       ensure: directory
-    "/usr/local/bin/mvault":
-      ensure: present
-      mode: "0754"
-      content: |
-        #!/usr/bin/env bash
-
-        VAULT_BIN=$(which vault)
-        export VAULT_ADDR=https://vault.srv.gentoomaniac.net/
-
-        # renew vault token:
-        if [ -n "${VAULT_BIN}" ]; then
-            VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$(cat /etc/vault_role_id)" secret_id="$(cat /etc/vault_secret_id)")
-            export VAULT_TOKEN
-        else
-            echo "Vault binary not found"
-            exit 1
-        fi
-
-        ${VAULT_BIN} "$@"
-      require: Package[vault]
-    "/usr/local/bin/custom-metrics":
-        ensure: present
-        mode: "0755"
-        content: |
-          #!/usr/bin/env bash
-
-          set -o pipefail
-
-          EPOCHTIME=$(date +%s)
-
-          OS_NAME="$(source /etc/os-release && echo "${PRETTY_NAME}")"
-          PENDING_UPDATES="$(checkupdates 2>/dev/null | wc -l)"
-          PENDING_SEC_UPDATES="$(arch-audit -uq 2>/dev/null | wc -l)"
-
-          # Calculate standard patch updates safely
-          PATCH_UPDATES=$(( PENDING_UPDATES - PENDING_SEC_UPDATES ))
-          if [ "${PATCH_UPDATES}" -lt 0 ]; then PATCH_UPDATES=0; fi
-
-          echo "lsb_release value=1,release=\"${OS_NAME}\""
-          echo "pending_updates,type=patch value=${PATCH_UPDATES}"
-          echo "pending_updates,type=security value=${PENDING_SEC_UPDATES}"
-          echo "puppet_branch value=1,branch=\"$(head -1 /etc/puppet_branch 2>/dev/null || echo 'unknown')\""
-        require:
-          - Package[arch-audit]
-          - Package[lsb-release]
-
-    "/usr/local/bin/unattended-reboot":
-      ensure: present
-      mode: "0754"
-      content: |
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-        if [ -e /etc/no_reboot ]; then
-          exit 0
-        fi
-
-        # a running oneshot reports "activating", which `systemctl is-active` doesn't count
-        case "$(systemctl show -p ActiveState --value pacman-update.service)" in
-          active|activating|reloading)
-            echo "upgrade in progress, not rebooting"
-            exit 0
-            ;;
-        esac
-        if [ -e /var/lib/pacman/db.lck ]; then
-          echo "pacman database locked, not rebooting"
-          exit 0
-        fi
-
-        min_uptime_seconds=$((7 * 24 * 3600))
-        uptime_seconds=$(cut -d. -f1 /proc/uptime)
-
-        if [ ! -d "/usr/lib/modules/$(uname -r)" ]; then
-          echo "running kernel was upgraded, rebooting"
-          reboot
-        elif [ "${uptime_seconds}" -ge "${min_uptime_seconds}" ]; then
-          echo "uptime ${uptime_seconds}s >= ${min_uptime_seconds}s, rebooting"
-          reboot
-        else
-          echo "no reboot needed"
-        fi
-    "/usr/local/bin/docker-system-prune":
-      ensure: present
-      mode: "0750"
-      content: |
-        #!/usr/bin/env bash
-        if [ ! -f /etc/no_prune ]; then
-          sleep $((RANDOM%60*60))
-          yes | docker system prune --volumes
-        fi
-    "/etc/docker":
-      ensure: directory
-    "/etc/docker/daemon.json":
-      ensure: present
-      mode: "0644"
-      content: |
-        {
-          "features": {
-            "containerd-snapshotter": false
-          },
-          "log-driver": "json-file",
-          "log-opts": {
-            "max-size": "10m",
-            "max-file": "3"
-          }
-        }
-      require:
-        - File[/etc/docker]
-        - Package[docker]
-      notify: Service[docker]
-    "/usr/local/bin/paccache-cleanup":
-      ensure: present
-      mode: "0750"
-      content: |
-        #!/usr/bin/env bash
-        if [ ! -f /etc/no_paccache ]; then
-          sleep $((RANDOM%60*60))
-          # keep the last 2 versions of installed packages, drop uninstalled ones
-          paccache -r -k2
-          paccache -r -u -k0
-        fi
-      require: Package[pacman-contrib]
-    "/etc/ssh/sshd_config.d/99-homelab.conf":
-      ensure: present
-      mode: "0644"
-      content: |
-        AllowAgentForwarding   no
-        AuthorizedKeysFile     /etc/userkeys/%u/authorized_keys
-        PasswordAuthentication no
-        PermitRootLogin        prohibit-password
-        PubkeyAuthentication   yes
-        X11Forwarding          no
-      require:
-        - Package[openssh]
-      notify:
-        - Service[sshd]
-    "/etc/pacman.d/homelab-repo":
-      ensure: file
-      content: |
-        [homelab]
-        SigLevel = Optional TrustAll
-        Server = https://arch.srv.gentoomaniac.net
-    "/etc/systemd/journald.conf.d":
-      ensure: directory
-    "/etc/systemd/journald.conf.d/99-homelab.conf":
-      ensure: present
-      mode: "0644"
-      content: |
-        [Journal]
-        SystemMaxUse=500M
-      require: File[/etc/systemd/journald.conf.d]
-      notify: Service[systemd-journald]
-    # TEMPORARY cleanup of the pre-`timer` units (`<name>-weekly.timer` became `<name>.timer`).
-    # Remove these entries and the matching services below once all hosts have applied them.
-    "/etc/systemd/system/unattended-reboot-weekly.timer":
-      ensure: absent
-      require: Service[unattended-reboot-weekly.timer]
-    "/etc/systemd/system/docker-system-prune-weekly.timer":
-      ensure: absent
-      require: Service[docker-system-prune-weekly.timer]
-    "/etc/systemd/system/paccache-cleanup-weekly.timer":
-      ensure: absent
-      require: Service[paccache-cleanup-weekly.timer]
-
-  exec:
-    # one-off: drop the containerd image store once docker runs on the classic overlay2 driver
-    "cleanup-containerd-image-store":
-      command: >-
-        systemctl stop docker.service docker.socket containerd.service &&
-        rm -rf /var/lib/containerd/io.containerd.content.v1.content
-        /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs
-        /var/lib/containerd/io.containerd.metadata.v1.bolt &&
-        systemctl start docker.service
-      onlyif: >-
-        test "$(docker info --format '{{.Driver}}')" = overlay2 &&
-        test -n "$(ls -A /var/lib/containerd/io.containerd.content.v1.content/blobs/sha256 2>/dev/null)"
-      provider: shell
-      path:
-        - /bin
-        - /usr/bin
-      require: Service[docker]
-
-  service:
-    "btrfs-scrub.timer":
-      ensure: running
-      enable: true
-      require: Package[btrfsmaintenance]
-    "sshd":
-      ensure: running
-      enable: true
-      require: Package[openssh]
-    "systemd-journald":
-      ensure: running
-    # TEMPORARY: see the file cleanup above
-    "unattended-reboot-weekly.timer":
-      ensure: stopped
-      enable: false
-    # TEMPORARY: see the file cleanup above
-    "docker-system-prune-weekly.timer":
-      ensure: stopped
-      enable: false
-    # TEMPORARY: see the file cleanup above
-    "paccache-cleanup-weekly.timer":
-      ensure: stopped
-      enable: false
-
-  timer:
-    "unattended-reboot":
-      description: reboot after a kernel upgrade or 7 days of uptime, outside the pacman-update window
-      command: /usr/local/bin/unattended-reboot
-      # pacman-update runs at 04:00 plus up to 1h delay
-      on_calendar: "*-*-* 06:00:00"
-      randomized_delay_sec: 1h
-      require: File[/usr/local/bin/unattended-reboot]
-    "docker-system-prune":
-      description: docker system prune after a random delay
-      command: /usr/local/bin/docker-system-prune
-      # Sunday 03:00 finishes before the daily unattended-reboot window starting 06:00
-      on_calendar: Sun *-*-* 03:00:00
-      require: File[/usr/local/bin/docker-system-prune]
-    "paccache-cleanup":
-      description: paccache cleanup after a random delay
-      command: /usr/local/bin/paccache-cleanup
-      # Sunday 03:00 finishes before the daily unattended-reboot window starting 06:00
-      on_calendar: Sun *-*-* 03:00:00
-      require: File[/usr/local/bin/paccache-cleanup]
 
 docker::docker_users:
   - marco
@@ -323,9 +90,6 @@ docker::run_instance::instance:
     image: quay.io/prometheus/node-exporter:latest
     command: >
       --path.rootfs=/host
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     extra_parameters:
       - --restart=unless-stopped
       - --pid="host"
@@ -342,9 +106,6 @@ docker::run_instance::instance:
   cadvisor:
     service_provider: systemd
     image: gcr.io/cadvisor/cadvisor:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     extra_parameters:
       - --restart=unless-stopped
       - --pid="host"

@@ -1,9 +1,14 @@
-<%- | String $cert_path,
-      String $cert_name,
-      String $key_name
+<%- | Array[String] $default_cert,
+      Array[Array[String]] $other_certs
 | -%>
 [tls.stores]
   [tls.stores.default]
-   [tls.stores.default.defaultCertificate] 
-     certFile = "<%= $cert_path %>/<%= $cert_name %>" 
-     keyFile = "<%= $cert_path %>/<%= $key_name %>"
+  [tls.stores.default.defaultCertificate]
+    certFile = "/ssl/<%= $default_cert[1] %>"
+    keyFile = "/ssl/<%= $default_cert[2] %>"
+<% $other_certs.each |$entry| { -%>
+
+[[tls.certificates]]
+  certFile = "/ssl/<%= $entry[1] %>"
+  keyFile = "/ssl/<%= $entry[2] %>"
+<% } -%>

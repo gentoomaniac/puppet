@@ -1,0 +1,3 @@
+[homelab]
+SigLevel = Optional TrustAll
+Server = https://arch.srv.gentoomaniac.net
