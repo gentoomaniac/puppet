@@ -34,6 +34,10 @@ class traefik (
   String $version = 'v3.6',
   Array[String] $env = ['TZ=Europe/Berlin'],
 ) {
+  unless $default_certificate in $certificates {
+    fail("traefik: default_certificate '${default_certificate}' is not a key of traefik::certificates")
+  }
+
   $base_dir = '/srv/traefik'
 
   btrfs::subvolume { $base_dir:
