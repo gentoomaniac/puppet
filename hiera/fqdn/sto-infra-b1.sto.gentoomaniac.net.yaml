@@ -14,9 +14,9 @@ certbot::domains:
 resources:
   package:
     "fail2ban":
-      ensure: latest
+      ensure: installed
     "bind":
-      ensure: latest
+      ensure: installed
 
   btrfs::subvolume:
     "/srv/traefik":

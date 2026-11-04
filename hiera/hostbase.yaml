@@ -203,7 +203,6 @@ resources:
         [homelab]
         SigLevel = Optional TrustAll
         Server = https://arch.srv.gentoomaniac.net
-      notify: Exec[pacman-swup]
     "/etc/systemd/journald.conf.d":
       ensure: directory
     "/etc/systemd/journald.conf.d/99-homelab.conf":
@@ -227,9 +226,6 @@ resources:
       require: Service[paccache-cleanup-weekly.timer]
 
   exec:
-    "pacman-swup":
-      command: /usr/bin/pacman -Sy
-      refreshonly: true
     # one-off: drop the containerd image store once docker runs on the classic overlay2 driver
     "cleanup-containerd-image-store":
       command: >-

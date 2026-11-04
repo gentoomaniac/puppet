@@ -101,9 +101,9 @@ resources:
         - Package[jq]
   package:
     "jq":
-      ensure: latest
+      ensure: installed
     "curl":
-      ensure: latest
+      ensure: installed
 docker::docker_users:
   - marco
 
