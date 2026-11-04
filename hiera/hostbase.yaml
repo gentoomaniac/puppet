@@ -138,9 +138,28 @@ resources:
       mode: "0754"
       content: |
         #!/usr/bin/env bash
-        if [ ! -f /etc/no_reboot ]; then
-          sleep $((RANDOM%60*60))
+        set -euo pipefail
+
+        if [ -e /etc/no_reboot ]; then
+          exit 0
+        fi
+
+        if systemctl is-active --quiet pacman-update.service || [ -e /var/lib/pacman/db.lck ]; then
+          echo "upgrade in progress, not rebooting"
+          exit 0
+        fi
+
+        min_uptime_seconds=$((7 * 24 * 3600))
+        uptime_seconds=$(cut -d. -f1 /proc/uptime)
+
+        if [ ! -d "/usr/lib/modules/$(uname -r)" ]; then
+          echo "running kernel was upgraded, rebooting"
           reboot
+        elif [ "${uptime_seconds}" -ge "${min_uptime_seconds}" ]; then
+          echo "uptime ${uptime_seconds}s >= ${min_uptime_seconds}s, rebooting"
+          reboot
+        else
+          echo "no reboot needed"
         fi
     "/usr/local/bin/docker-system-prune":
       ensure: present
@@ -269,20 +288,22 @@ resources:
 
   timer:
     "unattended-reboot":
-      description: reboot system after a random delay
+      description: reboot after a kernel upgrade or 7 days of uptime, outside the pacman-update window
       command: /usr/local/bin/unattended-reboot
-      on_calendar: weekly
+      # pacman-update runs at 04:00 plus up to 1h delay
+      on_calendar: "*-*-* 06:00:00"
+      randomized_delay_sec: 1h
       require: File[/usr/local/bin/unattended-reboot]
     "docker-system-prune":
       description: docker system prune after a random delay
       command: /usr/local/bin/docker-system-prune
-      # not "weekly": that collides with unattended-reboot and the reboot kills the job
+      # Sunday 03:00 finishes before the daily unattended-reboot window starting 06:00
       on_calendar: Sun *-*-* 03:00:00
       require: File[/usr/local/bin/docker-system-prune]
     "paccache-cleanup":
       description: paccache cleanup after a random delay
       command: /usr/local/bin/paccache-cleanup
-      # not "weekly": that collides with unattended-reboot and the reboot kills the job
+      # Sunday 03:00 finishes before the daily unattended-reboot window starting 06:00
       on_calendar: Sun *-*-* 03:00:00
       require: File[/usr/local/bin/paccache-cleanup]
 
