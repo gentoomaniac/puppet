@@ -26,17 +26,16 @@ define hostbase::dotfiles_user (
     group  => $user,
   }
 
+  # git runs as the owning user, so the checkout never trips git's safe.directory check
   vcsrepo { "${base_dir}/.config/dotfiles":
     ensure   => latest,
     provider => git,
     source   => 'https://github.com/gentoomaniac/dotfiles.git',
     revision => 'master',
+    user     => $user,
+    owner    => $user,
+    group    => $user,
     require  => [File["${base_dir}/.config"]],
-    notify   => Exec["dotfiles-${user}-permissions"],
-  }
-  exec { "dotfiles-${user}-permissions":
-    command     => "/bin/chown -R ${user}:${user} ${base_dir}/.config/dotfiles",
-    refreshonly => true,
   }
   file { "${base_dir}/.bashrc":
     ensure  => link,
