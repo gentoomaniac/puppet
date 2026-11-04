@@ -220,9 +220,6 @@ docker::run_instance::instance:
   authelia:
     service_provider: systemd
     image: 'authelia/authelia:latest'
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     net:
       - web
     expose:
@@ -243,9 +240,6 @@ docker::run_instance::instance:
     ensure: absent
     service_provider: systemd
     image: 'mariadb:10.6'
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     net:
       - web
     labels:
@@ -258,9 +252,6 @@ docker::run_instance::instance:
     ensure: absent
     service_provider: systemd
     image: 'nextcloud'
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     net:
       - web
     env:

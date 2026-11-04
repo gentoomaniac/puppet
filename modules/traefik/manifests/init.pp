@@ -131,7 +131,6 @@ class traefik (
     ] + $ports,
     env              => $env,
     net              => ['web'],
-    dns              => lookup('network::ipv4::dns::servers'),
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
     volumes          => [

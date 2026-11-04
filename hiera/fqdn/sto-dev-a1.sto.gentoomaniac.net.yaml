@@ -53,9 +53,6 @@ docker::run_instance::instance:
   gitea:
     service_provider: systemd
     image: docker.gitea.com/gitea:1.25
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
       - USER_UID=1000
       - USER_GID=1000
@@ -93,9 +90,6 @@ docker::run_instance::instance:
   trilium:
     service_provider: systemd
     image: triliumnext/notes:stable
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
       - USER_UID=1000
       - USER_GID=1000

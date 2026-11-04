@@ -1,4 +1,6 @@
+<%- | Array[String] $dns_servers | -%>
 {
+  "dns": <%= stdlib::to_json($dns_servers) %>,
   "features": {
     "containerd-snapshotter": false
   },
