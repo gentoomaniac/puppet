@@ -1,16 +1,29 @@
-<%- | String $description
-      String $special
-      String $unit
+<%- | String $description,
+      Array[String] $on_calendar,
+      Optional[String] $on_boot_sec,
+      Optional[String] $on_unit_active_sec,
+      Optional[String] $randomized_delay_sec,
+      Boolean $persistent,
+      String $unit,
 | -%>
+# MANAGED BY PUPPET
 [Unit]
 Description=<%= $description %>
 
 [Timer]
-<% if $keys_enable { -%>
-OnCalendar=weekly
-<% } else {-%>
+<% $on_calendar.each |$calendar| { -%>
+OnCalendar=<%= $calendar %>
 <% } -%>
-Persistent=true
+<% if $on_boot_sec { -%>
+OnBootSec=<%= $on_boot_sec %>
+<% } -%>
+<% if $on_unit_active_sec { -%>
+OnUnitActiveSec=<%= $on_unit_active_sec %>
+<% } -%>
+<% if $randomized_delay_sec { -%>
+RandomizedDelaySec=<%= $randomized_delay_sec %>
+<% } -%>
+Persistent=<%= $persistent %>
 Unit=<%= $unit %>
 
 [Install]

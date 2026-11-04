@@ -1,0 +1,24 @@
+<%- | String $description,
+      String $command,
+      String $user,
+      Variant[String, Boolean] $group,
+      Array[String] $after,
+      Array[String] $wants,
+| -%>
+# MANAGED BY PUPPET
+[Unit]
+Description=<%= $description %>
+<% unless $after.empty { -%>
+After=<%= $after.join(' ') %>
+<% } -%>
+<% unless $wants.empty { -%>
+Wants=<%= $wants.join(' ') %>
+<% } -%>
+
+[Service]
+Type=oneshot
+ExecStart=<%= $command %>
+User=<%= $user %>
+<% if $group { -%>
+Group=<%= $group %>
+<% } -%>

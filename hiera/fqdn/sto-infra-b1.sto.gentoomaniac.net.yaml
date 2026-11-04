@@ -43,14 +43,24 @@ resources:
       require: Btrfs::Subvolume[/srv/traefik]
     "/srv/traefik/ssl/key.pem":
       ensure: present
+      mode: "0600"
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
       require: File[/srv/traefik/ssl]
       notify: Docker::Run[traefik]
     "/srv/traefik/ssl/cert.pem":
       ensure: present
+      mode: "0644"
       content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
       require: File[/srv/traefik/ssl]
       notify: Docker::Run[traefik]
+    "/srv/traefik/conf/dashboard.toml":
+      ensure: present
+      content: |
+        [http.routers.dashboard]
+          rule = "PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+          entryPoints = ["dashboard"]
+          service = "api@internal"
+      require: File[/srv/traefik/conf]
     "/srv/traefik/conf/certs.toml":
       ensure: present
       content: |
@@ -126,7 +136,7 @@ resources:
 
     "/etc/clouddns-updater-key.json":
       ensure: present
-      mode: "0750"
+      mode: "0600"
       content: "%{lookup('secret_cloud_dns')}"
     "/usr/local/bin/clouddns-update":
       ensure: present
@@ -262,8 +272,9 @@ docker::run_instance::instance:
     service_provider: systemd
     image: traefik:v3.6
     command: >
-      --api.insecure=true
       --api.dashboard=true
+      --entrypoints.traefik.address=:8080
+      --entrypoints.dashboard.address=:8081
       --entrypoints.web.address=:80
       --entrypoints.ssl.address=:443
       --providers.file.directory=/conf
@@ -287,12 +298,16 @@ docker::run_instance::instance:
     ports:
       - 80:80/tcp
       - 443:443/tcp
+      # metrics, scraped by Prometheus
       - 8080:8080/tcp
+      # dashboard, localhost only (ssh -L 8081:localhost:8081)
+      - 127.0.0.1:8081:8081/tcp
     pull_on_start: true
     require:
       - Class[docker]
       - Docker_network[web]
       - File[/srv/traefik/conf/certs.toml]
+      - File[/srv/traefik/conf/dashboard.toml]
       - File[/srv/traefik/conf/static.toml]
       - File[/srv/traefik/ssl/cert.pem]
       - File[/srv/traefik/ssl/key.pem]
@@ -315,7 +330,7 @@ docker::run_instance::instance:
       - traefik.http.routers.authelia.rule=Host(`auth.srv.gentoomaniac.net`)
       - traefik.http.routers.authelia.entrypoints=ssl
       - traefik.http.routers.authelia.tls=true
-      - traefik.http.middlewares.authelia-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
+      - traefik.http.middlewares.authelia-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.16.0.0/12
       - traefik.http.routers.authelia.middlewares=authelia-whitelist
     volumes:
       - '/srv/authelia/config:/config'
@@ -359,7 +374,7 @@ docker::run_instance::instance:
       - traefik.http.routers.nextcloud.rule=Host(`nextcloud.srv.gentoomaniac.net`)
       - traefik.http.routers.nextcloud.entrypoints=ssl
       - traefik.http.routers.nextcloud.tls=true
-      - traefik.http.middlewares.nextcloud-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
+      - traefik.http.middlewares.nextcloud-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.16.0.0/12
       - traefik.http.routers.nextcloud.middlewares=nextcloud-whitelist
     volumes:
       - '/srv/nextcloud:/var/www/html'
@@ -372,5 +387,5 @@ kickstart_nginx::labels:
   - traefik.http.routers.ksnginx.rule=Host(`ks.srv.gentoomaniac.net`)
   - traefik.http.routers.ksnginx.entrypoints=ssl
   - traefik.http.routers.ksnginx.tls=true
-  - traefik.http.middlewares.ksnginx-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.0.0.0/8
+  - traefik.http.middlewares.ksnginx-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.16.0.0/12
   - traefik.http.routers.ksnginx.middlewares=ksnginx-whitelist

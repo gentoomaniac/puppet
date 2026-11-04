@@ -46,9 +46,10 @@ define certbot::cert (
     require  => File["systemd-service-${normalized}"],
   }
 
+  # restart picks up unit changes (the systemd provider daemon-reloads when needed)
   service { "certbot-${normalized}.timer":
-    ensure  => running,
-    enable  => true,
-    require => File["systemd-timer-${normalized}"],
+    ensure    => running,
+    enable    => true,
+    subscribe => [File["systemd-service-${normalized}"], File["systemd-timer-${normalized}"]],
   }
 }

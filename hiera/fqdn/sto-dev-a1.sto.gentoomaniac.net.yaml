@@ -22,24 +22,36 @@ resources:
       require: Btrfs::Subvolume[/srv/traefik]
     "/srv/traefik/ssl/key.pem":
       ensure: present
+      mode: "0600"
       content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
       require: File[/srv/traefik/ssl]
       notify: Docker::Run[traefik]
     "/srv/traefik/ssl/cert.pem":
       ensure: present
+      mode: "0644"
       content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
       require: File[/srv/traefik/ssl]
       notify: Docker::Run[traefik]
     "/srv/traefik/ssl/gentoomaniac_net_key.pem":
       ensure: present
+      mode: "0600"
       content: "%{lookup('secret_gentoomaniac_net_key')}"
       require: File[/srv/traefik/ssl]
       notify: Docker::Run[traefik]
     "/srv/traefik/ssl/gentoomaniac_net_cert.pem":
       ensure: present
+      mode: "0644"
       content: "%{lookup('secret_gentoomaniac_net_cert')}"
       require: File[/srv/traefik/ssl]
       notify: Docker::Run[traefik]
+    "/srv/traefik/conf/dashboard.toml":
+      ensure: present
+      content: |
+        [http.routers.dashboard]
+          rule = "PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+          entryPoints = ["dashboard"]
+          service = "api@internal"
+      require: File[/srv/traefik/conf]
     "/srv/traefik/conf/certs.toml":
       ensure: present
       content: |
@@ -123,8 +135,9 @@ docker::run_instance::instance:
     service_provider: systemd
     image: traefik:v3.6
     command: >
-      --api.insecure=true
       --api.dashboard=true
+      --entrypoints.traefik.address=:8080
+      --entrypoints.dashboard.address=:8081
       --entrypoints.websecure.address=:443
       --entrypoints.git.address=:222
       --entrypoints.public.address=:45802
@@ -147,7 +160,10 @@ docker::run_instance::instance:
       - web
     ports:
       - 443:443/tcp
+      # metrics, scraped by Prometheus
       - 8080:8080/tcp
+      # dashboard, localhost only (ssh -L 8081:localhost:8081)
+      - 127.0.0.1:8081:8081/tcp
       - 222:222/tcp
       - 45802:45802/tcp
     pull_on_start: true
@@ -155,6 +171,7 @@ docker::run_instance::instance:
       - Class[docker]
       - Docker_network[web]
       - File[/srv/traefik/conf/certs.toml]
+      - File[/srv/traefik/conf/dashboard.toml]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/traefik/ssl:/ssl:ro

@@ -3,6 +3,9 @@ define networkmanager::connection (
   
   Optional[Boolean] $activate = true,
 
+  # wins over leftover profiles for the same interface (NetworkManager default is 0)
+  Integer $autoconnect_priority = 100,
+
   # IPv4 Configuration
   Enum['auto', 'manual', 'disabled'] $ipv4_method        = 'manual',
   Optional[Array[String]]            $ipv4_addresses     = undef,

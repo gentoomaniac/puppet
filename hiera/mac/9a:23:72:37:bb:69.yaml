@@ -4,7 +4,7 @@ classes:
 
 hostbase::hostname::hostname: sto-coredns-c1.sto.gentoomaniac.net
 
-ressources:
+resources:
   networkmanager::connection:
     'ens18':
       ipv4_method: 'manual'
