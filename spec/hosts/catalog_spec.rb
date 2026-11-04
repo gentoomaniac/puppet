@@ -22,7 +22,6 @@ describe 'host discovery' do
 end
 
 HOSTS.each do |mac, data|
-
   fqdn = data.fetch('hostbase::hostname::hostname') do
     raise "hiera/mac/#{mac}.yaml: hostbase::hostname::hostname is not set"
   end
