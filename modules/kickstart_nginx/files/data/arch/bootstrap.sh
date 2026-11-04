@@ -11,32 +11,41 @@ function wait_for_network() {
 }
 
 function create_data_pool() {
-    if [ -b /dev/sdb ]; then
-        if parted /dev/sdb p 2>&1 | grep -q "Partition Table: unknown"; then
-            echo "*** /dev/sdb is empty, creating partition and BTRFS datapool"
-            if ! parted -s -a optimal /dev/sdb mklabel gpt -- mkpart data btrfs '0%' '100%'; then
+    local data_disk=""
+    for candidate in /dev/sdb /dev/vdb; do
+        if [[ -b "${candidate}" ]]; then
+            data_disk="${candidate}"
+            break
+        fi
+    done
+    local data_partition="${data_disk}1"
+
+    if [[ -n "${data_disk}" ]]; then
+        if parted "${data_disk}" p 2>&1 | grep -q "Partition Table: unknown"; then
+            echo "*** ${data_disk} is empty, creating partition and BTRFS datapool"
+            if ! parted -s -a optimal "${data_disk}" mklabel gpt -- mkpart data btrfs '0%' '100%'; then
                 echo '!!! failed writing partition table'
                 exit 1
             fi
-            partprobe /dev/sdb
+            partprobe "${data_disk}"
             udevadm settle
 
-            if ! mkfs.btrfs -L datapool -f /dev/sdb1; then
-                echo "!!! failed creating BTRFS pool on /dev/sdb1"
+            if ! mkfs.btrfs -L datapool -f "${data_partition}"; then
+                echo "!!! failed creating BTRFS pool on ${data_partition}"
                 exit 1
             fi
         fi
 
         mkdir -p /srv
-        if blkid -t LABEL=datapool /dev/sdb1 >/dev/null 2>&1; then
-            echo "*** mounting datapool on /dev/sdb1 ..."
+        if blkid -t LABEL=datapool "${data_partition}" >/dev/null 2>&1; then
+            echo "*** mounting datapool on ${data_partition} ..."
             mount LABEL=datapool /srv
 
             if ! grep -q "LABEL=datapool /srv" /etc/fstab; then
                 echo "LABEL=datapool /srv btrfs defaults,nodatacow 0 0" >> /etc/fstab
             fi
         else
-            echo "!!! /dev/sdb1 is missing or contains an unknown filesystem. Skipping datapool mount."
+            echo "!!! ${data_partition} is missing or contains an unknown filesystem. Skipping datapool mount."
             return
         fi
     elif [[ -b /dev/sda4 ]]; then
@@ -79,17 +88,19 @@ if [ -f /etc/bootstrap ]; then
     fi
 
     echo "*** make sure some required tools are installed ..."
-    for binary in curl dmidecode docker git neovim openssh parted puppet vault which; do
-        if ! command -v ${binary} >/dev/null 2>&1; then
-            echo "${binary} not found, installing it ..."
-            if ! pacman -Sy --noconfirm ${binary}; then
-                echo "!!! failed installing ${binary}. exiting ..."
-                exit
+    for entry in curl:curl dmidecode:dmidecode docker:docker git:git nvim:neovim sshd:openssh parted:parted puppet:puppet vault:vault which:which; do
+        binary="${entry%%:*}"
+        package="${entry##*:}"
+        if ! command -v "${binary}" >/dev/null 2>&1; then
+            echo "${binary} not found, installing ${package} ..."
+            if ! pacman -S --needed --noconfirm "${package}"; then
+                echo "!!! failed installing ${package}. exiting ..."
+                exit 1
             fi
         fi
     done
 
-    # Set up datapool on either /dev/sda4 or /dev/sdb1
+    # Set up datapool on either /dev/sda4 or the second disk (/dev/sdb1 or /dev/vdb1)
     # This is mainly to cover Physical machines with only one drive
     create_data_pool
 

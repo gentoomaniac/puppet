@@ -21,35 +21,15 @@ define certbot::cert (
     require => Btrfs::Subvolume["/srv/certbot-${normalized}"],
   }
 
-  file { "systemd-service-${normalized}":
-    ensure   => file,
-    path     => "/etc/systemd/system/certbot-${normalized}.service",
-    content  => epp('certbot/service.epp', {
-      domain => $domain,
-      email  => $email,
-      image  => $image,
-    }),
-    require  => [
+  timer { "certbot-${normalized}":
+    description          => "Run certbot container for ${domain}",
+    command              => "/usr/local/bin/renew-cert --domain='${domain}' --email='${email}' --image='${image}'",
+    on_calendar          => 'daily',
+    randomized_delay_sec => '1h',
+    require              => [
       File["/srv/certbot-${normalized}/data"],
       File["/srv/certbot-${normalized}/sa.json"],
       File['/usr/local/bin/renew-cert'],
       Docker::Image[$certbot::certbot_image]],
-  }
-
-  file { "systemd-timer-${normalized}":
-    ensure   => file,
-    path     => "/etc/systemd/system/certbot-${normalized}.timer",
-    content  => epp('certbot/timer.epp', {
-      domain => $domain,
-      service => "certbot-${normalized}.service",
-    }),
-    require  => File["systemd-service-${normalized}"],
-  }
-
-  # restart picks up unit changes (the systemd provider daemon-reloads when needed)
-  service { "certbot-${normalized}.timer":
-    ensure    => running,
-    enable    => true,
-    subscribe => [File["systemd-service-${normalized}"], File["systemd-timer-${normalized}"]],
   }
 }

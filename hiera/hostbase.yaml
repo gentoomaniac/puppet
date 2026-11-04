@@ -138,39 +138,36 @@ resources:
       mode: "0754"
       content: |
         #!/usr/bin/env bash
-        if [ ! -f /etc/no_reboot ]; then
-          sleep $((RANDOM%60*60))
-          reboot
+        set -euo pipefail
+
+        if [ -e /etc/no_reboot ]; then
+          exit 0
         fi
-    "/etc/systemd/system/unattended-reboot-weekly.timer":
-      content: |
-        [Unit]
-        Description=Run unattended-reboot weekly
 
-        [Timer]
-        OnCalendar=weekly
-        Persistent=true
-        Unit=unattended-reboot.service
+        # a running oneshot reports "activating", which `systemctl is-active` doesn't count
+        case "$(systemctl show -p ActiveState --value pacman-update.service)" in
+          active|activating|reloading)
+            echo "upgrade in progress, not rebooting"
+            exit 0
+            ;;
+        esac
+        if [ -e /var/lib/pacman/db.lck ]; then
+          echo "pacman database locked, not rebooting"
+          exit 0
+        fi
 
-        [Install]
-        WantedBy=timers.target
-      require:
-        - File[/etc/systemd/system/unattended-reboot.service]
-    "/etc/systemd/system/unattended-reboot.service":
-      ensure: present
-      mode: "0644"
-      content: |
-        [Unit]
-        Description=reboot system after a random delay
+        min_uptime_seconds=$((7 * 24 * 3600))
+        uptime_seconds=$(cut -d. -f1 /proc/uptime)
 
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/local/bin/unattended-reboot
-        User=root
-        Group=systemd-journal
-      require:
-        - File[/usr/local/bin/unattended-reboot]
-
+        if [ ! -d "/usr/lib/modules/$(uname -r)" ]; then
+          echo "running kernel was upgraded, rebooting"
+          reboot
+        elif [ "${uptime_seconds}" -ge "${min_uptime_seconds}" ]; then
+          echo "uptime ${uptime_seconds}s >= ${min_uptime_seconds}s, rebooting"
+          reboot
+        else
+          echo "no reboot needed"
+        fi
     "/usr/local/bin/docker-system-prune":
       ensure: present
       mode: "0750"
@@ -180,35 +177,6 @@ resources:
           sleep $((RANDOM%60*60))
           yes | docker system prune --volumes
         fi
-    "/etc/systemd/system/docker-system-prune-weekly.timer":
-      content: |
-        [Unit]
-        Description=Run docker-system-prune weekly
-
-        [Timer]
-        # not "weekly": that collides with unattended-reboot and the reboot kills the job
-        OnCalendar=Sun *-*-* 03:00:00
-        Persistent=true
-        Unit=docker-system-prune.service
-
-        [Install]
-        WantedBy=timers.target
-      require:
-        - File[/etc/systemd/system/docker-system-prune.service]
-    "/etc/systemd/system/docker-system-prune.service":
-      ensure: present
-      mode: "0644"
-      content: |
-        [Unit]
-        Description=docker system prune after a random delay
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/local/bin/docker-system-prune
-        User=root
-        Group=systemd-journal
-      require:
-        - File[/usr/local/bin/docker-system-prune]
     "/etc/docker":
       ensure: directory
     "/etc/docker/daemon.json":
@@ -241,35 +209,6 @@ resources:
           paccache -r -u -k0
         fi
       require: Package[pacman-contrib]
-    "/etc/systemd/system/paccache-cleanup-weekly.timer":
-      content: |
-        [Unit]
-        Description=Run paccache-cleanup weekly
-
-        [Timer]
-        # not "weekly": that collides with unattended-reboot and the reboot kills the job
-        OnCalendar=Sun *-*-* 03:00:00
-        Persistent=true
-        Unit=paccache-cleanup.service
-
-        [Install]
-        WantedBy=timers.target
-      require:
-        - File[/etc/systemd/system/paccache-cleanup.service]
-    "/etc/systemd/system/paccache-cleanup.service":
-      ensure: present
-      mode: "0644"
-      content: |
-        [Unit]
-        Description=paccache cleanup after a random delay
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/local/bin/paccache-cleanup
-        User=root
-        Group=systemd-journal
-      require:
-        - File[/usr/local/bin/paccache-cleanup]
     "/etc/ssh/sshd_config.d/99-homelab.conf":
       ensure: present
       mode: "0644"
@@ -290,7 +229,6 @@ resources:
         [homelab]
         SigLevel = Optional TrustAll
         Server = https://arch.srv.gentoomaniac.net
-      notify: Exec[pacman-swup]
     "/etc/systemd/journald.conf.d":
       ensure: directory
     "/etc/systemd/journald.conf.d/99-homelab.conf":
@@ -301,20 +239,19 @@ resources:
         SystemMaxUse=500M
       require: File[/etc/systemd/journald.conf.d]
       notify: Service[systemd-journald]
+    # TEMPORARY cleanup of the pre-`timer` units (`<name>-weekly.timer` became `<name>.timer`).
+    # Remove these entries and the matching services below once all hosts have applied them.
+    "/etc/systemd/system/unattended-reboot-weekly.timer":
+      ensure: absent
+      require: Service[unattended-reboot-weekly.timer]
+    "/etc/systemd/system/docker-system-prune-weekly.timer":
+      ensure: absent
+      require: Service[docker-system-prune-weekly.timer]
+    "/etc/systemd/system/paccache-cleanup-weekly.timer":
+      ensure: absent
+      require: Service[paccache-cleanup-weekly.timer]
 
   exec:
-    "systemctl daemon-reload":
-      refreshonly: true
-      path:
-        - /bin
-        - /usr/bin
-      subscribe:
-        - File[/etc/systemd/system/docker-system-prune-weekly.timer]
-        - File[/etc/systemd/system/paccache-cleanup-weekly.timer]
-        - File[/etc/systemd/system/unattended-reboot-weekly.timer]
-    "pacman-swup":
-      command: /usr/bin/pacman -Sy
-      refreshonly: true
     # one-off: drop the containerd image store once docker runs on the classic overlay2 driver
     "cleanup-containerd-image-store":
       command: >-
@@ -337,24 +274,45 @@ resources:
       ensure: running
       enable: true
       require: Package[btrfsmaintenance]
-    "docker-system-prune-weekly.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
-    "paccache-cleanup-weekly.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
     "sshd":
       ensure: running
       enable: true
       require: Package[openssh]
     "systemd-journald":
       ensure: running
+    # TEMPORARY: see the file cleanup above
     "unattended-reboot-weekly.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
+      ensure: stopped
+      enable: false
+    # TEMPORARY: see the file cleanup above
+    "docker-system-prune-weekly.timer":
+      ensure: stopped
+      enable: false
+    # TEMPORARY: see the file cleanup above
+    "paccache-cleanup-weekly.timer":
+      ensure: stopped
+      enable: false
+
+  timer:
+    "unattended-reboot":
+      description: reboot after a kernel upgrade or 7 days of uptime, outside the pacman-update window
+      command: /usr/local/bin/unattended-reboot
+      # pacman-update runs at 04:00 plus up to 1h delay
+      on_calendar: "*-*-* 06:00:00"
+      randomized_delay_sec: 1h
+      require: File[/usr/local/bin/unattended-reboot]
+    "docker-system-prune":
+      description: docker system prune after a random delay
+      command: /usr/local/bin/docker-system-prune
+      # Sunday 03:00 finishes before the daily unattended-reboot window starting 06:00
+      on_calendar: Sun *-*-* 03:00:00
+      require: File[/usr/local/bin/docker-system-prune]
+    "paccache-cleanup":
+      description: paccache cleanup after a random delay
+      command: /usr/local/bin/paccache-cleanup
+      # Sunday 03:00 finishes before the daily unattended-reboot window starting 06:00
+      on_calendar: Sun *-*-* 03:00:00
+      require: File[/usr/local/bin/paccache-cleanup]
 
 docker::docker_users:
   - marco

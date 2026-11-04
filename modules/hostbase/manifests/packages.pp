@@ -1,7 +1,7 @@
 class hostbase::packages (){
   $packages = lookup('hostbase::packages::present', Array[String], 'unique', [])
   stdlib::ensure_packages($packages, {
-    ensure => latest,
+    ensure => installed,
   })
 
   $remove = lookup({

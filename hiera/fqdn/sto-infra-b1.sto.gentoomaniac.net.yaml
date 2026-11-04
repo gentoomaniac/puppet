@@ -14,9 +14,9 @@ certbot::domains:
 resources:
   package:
     "fail2ban":
-      ensure: latest
+      ensure: installed
     "bind":
-      ensure: latest
+      ensure: installed
 
   btrfs::subvolume:
     "/srv/traefik":
@@ -164,36 +164,6 @@ resources:
       - Docker_volume[clouddns-config]
       - Docker_volume[clouddns-kube]
 
-    "/etc/systemd/system/clouddns-updater.timer":
-      content: |
-        [Unit]
-        Description=Update clouddns entries hourly if necessary
-
-        [Timer]
-        OnCalendar=hourly
-        Persistent=true
-        Unit=clouddns-updater.service
-
-        [Install]
-        WantedBy=timers.target
-      require:
-        - File[/etc/systemd/system/clouddns-updater.service]
-    "/etc/systemd/system/clouddns-updater.service":
-      ensure: present
-      mode: "0644"
-      content: |
-        [Unit]
-        Description=update vpn dns alias
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/local/bin/clouddns-update
-        User=root
-        Group=systemd-journal
-      require:
-        - File[/etc/clouddns-updater-key.json]
-        - File[/usr/local/bin/clouddns-update]
-
     "/srv/authelia/config/configuration.yml":
         ensure: 'file'
         require: File[/srv/authelia/config]
@@ -247,11 +217,15 @@ resources:
               - domain: '*.srv.gentoomaniac.net'
                 policy: two_factor
 
+  timer:
+    "clouddns-updater":
+      description: Update clouddns entries hourly if necessary
+      command: /usr/local/bin/clouddns-update
+      on_calendar: hourly
+      require:
+        - File[/etc/clouddns-updater-key.json]
+        - File[/usr/local/bin/clouddns-update]
   service:
-    "clouddns-updater.timer":
-      ensure: running
-      enable: true
-      require: Exec[systemctl daemon-reload]
     "fail2ban":
       ensure: running
       enable: true

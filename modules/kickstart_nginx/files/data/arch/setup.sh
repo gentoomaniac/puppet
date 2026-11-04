@@ -5,9 +5,20 @@ KICKSTART_BASE_URL=$(sed -n 's/.*KICKSTART_BASE_URL=\([^ ]\+\).*/\1/p' /proc/cmd
 KICKSTART_BASE_URL=${KICKSTART_BASE_URL:-https://ks.srv.gentoomaniac.net}
 PUPPET_BRANCH=$(sed -n 's/.*PUPPET_BRANCH=\([a-zA-Z0-9\._-]\+\).*/\1/p' /proc/cmdline)
 VAULT_TOKEN=$(sed -n 's/.*VAULT_TOKEN=\([a-zA-Z0-9\.]\+\).*/\1/p' /proc/cmdline)
+ARCHINSTALL_CONFIG=$(sed -n 's/.*ARCHINSTALL_CONFIG=\([a-zA-Z0-9\._-]\+\).*/\1/p' /proc/cmdline)
+
+# an explicit cmdline choice wins, otherwise guess from the disk layout (virtio disks are /dev/vda)
+if [ -z "${ARCHINSTALL_CONFIG}" ]; then
+    if [ -b /dev/vda ]; then
+        ARCHINSTALL_CONFIG=truenas_vm.json
+    else
+        ARCHINSTALL_CONFIG=vm.json
+    fi
+fi
+echo "*** Using archinstall config ${ARCHINSTALL_CONFIG}"
 
 # Run archinstall and catch failures!
-if ! archinstall --config-url "${KICKSTART_BASE_URL}/arch/vm.json" --creds-url "${KICKSTART_BASE_URL}/arch/creds.json" --silent; then
+if ! archinstall --config-url "${KICKSTART_BASE_URL}/arch/${ARCHINSTALL_CONFIG}" --creds-url "${KICKSTART_BASE_URL}/arch/creds.json" --silent; then
     echo -e "\n\e[31m!!! archinstall failed! Dropping to shell ...\e[0m"
     exit 1
 fi

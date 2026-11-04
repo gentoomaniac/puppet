@@ -23,23 +23,10 @@ class hostbase::puppet_cron (
     require => File["/root/${runPuppetFileName}"],
   }
 
-  file { '/etc/systemd/system/run-puppet.service':
-    ensure  => 'present',
-    mode    => '0644',
-    source  => 'puppet:///modules/hostbase/puppet.service',
-    require => File['/usr/local/sbin/run-puppet'],
-  }
-
-  file { '/etc/systemd/system/run-puppet.timer':
-    ensure  => 'present',
-    mode    => '0644',
-    source  => 'puppet:///modules/hostbase/puppet.timer',
-    require => File['/etc/systemd/system/run-puppet.service'],
-  }
-
-  service { 'run-puppet.timer':
-    ensure  => running,
-    enable  => true,
-    require => File['/etc/systemd/system/run-puppet.timer'],
+  timer { 'run-puppet':
+    description => 'Execute run-puppet',
+    command     => '/usr/local/sbin/run-puppet --otel-endpoint-url=https://otelcol.srv.gentoomaniac.net:4318 --bin-path /usr/bin/puppet',
+    on_calendar => '*:0/30',
+    require     => File['/usr/local/sbin/run-puppet'],
   }
 }
