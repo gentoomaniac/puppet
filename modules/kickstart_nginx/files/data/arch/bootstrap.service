@@ -1,14 +1,15 @@
 [Unit]
- Description=Boostrap Service
- ConditionPathExists=/etc/bootstrap
- After=network.target
+Description=Boostrap Service
+ConditionPathExists=/etc/bootstrap
+Wants=network-online.target
+After=network-online.target
+
 [Service]
- Type=oneshot
- ExecStart=/usr/local/sbin/bootstrap.sh
- TimeoutSec=0
- StandardOutput=tty
- RemainAfterExit=yes
- SysVStartPriority=99
+Type=oneshot
+ExecStart=/usr/local/sbin/bootstrap.sh
+TimeoutSec=0
+StandardOutput=tty
+RemainAfterExit=yes
 
 [Install]
- WantedBy=multi-user.target
+WantedBy=multi-user.target
