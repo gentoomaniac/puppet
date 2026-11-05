@@ -26,4 +26,8 @@ class hostbase::pacman {
     timeout => 1800,
     require => [File_line['pacman.conf: include homelab repo'], Timer['pacman-update']],
   }
+
+  # Once pacman.conf includes the repo, every `pacman -S` fails until its database
+  # exists ("could not find database"), so install packages only after the sync.
+  Exec['sync homelab repo'] -> Package <| |>
 }
