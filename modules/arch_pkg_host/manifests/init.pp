@@ -1,8 +1,9 @@
 # Class: arch_pkg_host
 #
 # Serves the homelab pacman repo from /srv/arch-pkg-host through nginx and Traefik,
-# and builds it daily in a throwaway archlinux container from PKGBUILDs in GitHub
-# repos (see files/arch-repo-build.sh), so the host itself needs no build tools.
+# and builds it daily from PKGBUILDs in GitHub repos (see files/arch-repo-build.sh).
+# The host only checks for new versions; builds run in a throwaway archlinux container
+# that is started only when something needs building.
 #
 # @param labels
 #   Traefik labels of the nginx container.
@@ -22,7 +23,7 @@ class arch_pkg_host (
 ) {
   $repo_dir = '/srv/arch-pkg-host'
   $build_config = '/etc/arch-repo-build.conf'
-  $build_script = '/usr/local/lib/arch-repo-build.sh'
+  $build_script = '/usr/local/bin/arch-repo-build'
 
   btrfs::subvolume { $repo_dir:
     ensure => present,
@@ -47,30 +48,15 @@ class arch_pkg_host (
     content => "${config_lines.join("\n")}\n",
   }
 
-  # runs inside the build container, not on the host
   file { $build_script:
     ensure  => file,
-    mode    => '0644',
+    mode    => '0755',
     content => file('arch_pkg_host/arch-repo-build.sh'),
   }
 
-  $docker_args = [
-    '--rm',
-    # one run at a time: docker refuses a second container with the same name. --init
-    # passes signals on, so a stopped or timed-out run doesn't leave the container behind
-    '--name arch-repo-build',
-    '--init',
-    '--pull=always',
-    "-v ${build_script}:/usr/local/bin/arch-repo-build.sh:ro",
-    "-v ${build_config}:/etc/arch-repo-build.conf:ro",
-    "-v ${repo_dir}:/repo",
-    'archlinux:latest',
-    'timeout 2h bash /usr/local/bin/arch-repo-build.sh',
-  ]
-
   timer { 'arch-repo-build':
     description          => 'Build new package versions into the homelab pacman repo',
-    command              => "/usr/bin/docker run ${docker_args.join(' ')}",
+    command              => $build_script,
     group                => false,
     on_calendar          => 'daily',
     randomized_delay_sec => '1h',
