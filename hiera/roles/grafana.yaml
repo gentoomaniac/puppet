@@ -14,6 +14,8 @@ resources:
       ensure: present
     "/srv/prometheus":
       ensure: present
+    "/srv/pushgateway":
+      ensure: present
     "/srv/shelly-exporter":
       ensure: present
     "/srv/tempo":
@@ -93,6 +95,12 @@ resources:
       owner: 65534
       group: 65534
       require: Btrfs::Subvolume[/srv/prometheus]
+    # pushgateway also runs as nobody; keeps pushed metrics across restarts
+    "/srv/pushgateway/data":
+      ensure: directory
+      owner: 65534
+      group: 65534
+      require: Btrfs::Subvolume[/srv/pushgateway]
     "/srv/prometheus/prometheus.yml":
       ensure: present
       content: |
@@ -168,6 +176,12 @@ resources:
             static_configs:
               - targets:
                 - shelly-exporter.srv.gentoomaniac.net:443
+          # metrics pushed by scripts; honor_labels keeps their job/instance labels
+          - job_name: "pushgateway"
+            honor_labels: true
+            static_configs:
+              - targets:
+                - pushgateway:9091
       require: Btrfs::Subvolume[/srv/prometheus]
       notify: Docker::Run[prometheus]
     "/srv/graphite-exporter/mappings.conf":
@@ -763,6 +777,38 @@ docker::run_instance::instance:
       - Docker_network[web]
       - File[/srv/prometheus/data]
       - File[/srv/prometheus/prometheus.yml]
+
+  # scripts push metrics here, e.g.
+  #   echo "backup_last_success $(date +%s)" | curl --data-binary @- \
+  #     https://pushgateway.srv.gentoomaniac.net/metrics/job/backup/instance/$(hostname)
+  pushgateway:
+    service_provider: systemd
+    image: prom/pushgateway:latest
+    command: >
+      --persistence.file=/data/pushgateway.db
+      --persistence.interval=1m
+    expose:
+      - 9091/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=web
+      - traefik.http.routers.pushgateway.rule=Host(`pushgateway.srv.gentoomaniac.net`)
+      - traefik.http.routers.pushgateway.entrypoints=ssl
+      - traefik.http.routers.pushgateway.tls=true
+      - traefik.http.routers.pushgateway.middlewares=pushgateway-allowlist
+      - traefik.http.services.pushgateway.loadbalancer.server.port=9091
+      - traefik.http.middlewares.pushgateway-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16,172.16.0.0/12
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/pushgateway/data:/data
+    require:
+      - Class[docker]
+      - Docker_network[web]
+      - File[/srv/pushgateway/data]
 
   grafana:
     service_provider: systemd
