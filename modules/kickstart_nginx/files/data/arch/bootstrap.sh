@@ -81,6 +81,17 @@ if [ -f /etc/bootstrap ]; then
     wait_for_network
     echo "*** Network is fully routed and DNS is responding!"
 
+    # Same repo file and Include line as hostbase::pacman, set up before the update so it syncs too
+    echo "*** Adding the homelab pacman repo ..."
+    cat > /etc/pacman.d/homelab-repo <<'EOF_REPO'
+[homelab]
+SigLevel = Optional TrustAll
+Server = https://arch.srv.gentoomaniac.net
+EOF_REPO
+    if ! grep -qxF 'Include = /etc/pacman.d/homelab-repo' /etc/pacman.conf; then
+        echo 'Include = /etc/pacman.d/homelab-repo' >> /etc/pacman.conf
+    fi
+
     echo "*** Updating the system ..."
     if ! pacman -Syu --noconfirm; then
         echo '!!! system update failed'
@@ -88,7 +99,7 @@ if [ -f /etc/bootstrap ]; then
     fi
 
     echo "*** make sure some required tools are installed ..."
-    for entry in curl:curl dmidecode:dmidecode docker:docker git:git nvim:neovim sshd:openssh parted:parted puppet:openvox vault:vault which:which; do
+    for entry in curl:curl dmidecode:dmidecode docker:docker git:git nvim:neovim sshd:openssh parted:parted puppet:openvox run-puppet:run-puppet vault:vault which:which; do
         binary="${entry%%:*}"
         package="${entry##*:}"
         if ! command -v "${binary}" >/dev/null 2>&1; then
@@ -139,13 +150,7 @@ if [ -f /etc/bootstrap ]; then
     done
 
     echo "*** Setting up puppet automation"
-    RUN_PUPPET=/usr/local/sbin/run-puppet
-    curl -L https://github.com/gentoomaniac/run-puppet/releases/download/v0.1.6/run-puppet_0.1.6_linux-amd64 -o "${RUN_PUPPET}"
-    if [ ! -f "${RUN_PUPPET}" ]; then
-        echo "failed fetching run-puppet"
-        exit 1
-    fi
-    chmod +x "${RUN_PUPPET}"
+    RUN_PUPPET=/usr/bin/run-puppet
     if ! gem install vault debouncer toml-rb; then
         echo "failed installing ruby gems for puppet"
         exit 1
