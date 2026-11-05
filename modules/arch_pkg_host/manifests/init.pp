@@ -1,8 +1,16 @@
 # Class: arch_pkg_host
 #
+# Serves the homelab pacman repo from /srv/arch-pkg-host through nginx and Traefik,
+# and builds it daily in a throwaway archlinux container from PKGBUILDs in GitHub
+# repos (see files/arch-repo-build.sh), so the host itself needs no build tools.
 #
+# @param labels
+#   Traefik labels of the nginx container.
+# @param build_repos
+#   GitHub repo URLs (https://github.com/<owner>/<repo>) with a PKGBUILD at the root
+#   of the default branch, built into the repo.
 class arch_pkg_host (
-  $labels = [
+  Array[String] $labels = [
     "traefik.enable=true",
     "traefik.http.routers.arch-pkg-host.rule=Host(`arch.srv.gentoomaniac.net`)",
     "traefik.http.routers.arch-pkg-host.entrypoints=ssl",
@@ -10,9 +18,13 @@ class arch_pkg_host (
     "traefik.http.middlewares.arch-pkg-host-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.16.0.0/12",
     "traefik.http.routers.arch-pkg-host.middlewares=arch-pkg-host-allowlist",
   ],
+  Array[Pattern[/\Ahttps?:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/?\z/]] $build_repos = [],
 ) {
+  $repo_dir = '/srv/arch-pkg-host'
+  $build_config = '/etc/arch-repo-build.conf'
+  $build_script = '/usr/local/lib/arch-repo-build.sh'
 
-  btrfs::subvolume { '/srv/arch-pkg-host':
+  btrfs::subvolume { $repo_dir:
     ensure => present,
   }
 
@@ -24,7 +36,51 @@ class arch_pkg_host (
     labels           => $labels,
     pull_on_start    => true,
     extra_parameters => ['--restart=unless-stopped'],
-    volumes          => ['/srv/arch-pkg-host:/usr/share/nginx/html:ro'],
-    require          => [Class['docker'], Btrfs::Subvolume['/srv/arch-pkg-host']],
+    volumes          => ["${repo_dir}:/usr/share/nginx/html:ro"],
+    require          => [Class['docker'], Btrfs::Subvolume[$repo_dir]],
+  }
+
+  $config_lines = ['# MANAGED BY PUPPET: GitHub repos built into the homelab pacman repo'] + $build_repos
+  file { $build_config:
+    ensure  => file,
+    mode    => '0644',
+    content => "${config_lines.join("\n")}\n",
+  }
+
+  # runs inside the build container, not on the host
+  file { $build_script:
+    ensure  => file,
+    mode    => '0644',
+    content => file('arch_pkg_host/arch-repo-build.sh'),
+  }
+
+  $docker_args = [
+    '--rm',
+    # one run at a time: docker refuses a second container with the same name. --init
+    # passes signals on, so a stopped or timed-out run doesn't leave the container behind
+    '--name arch-repo-build',
+    '--init',
+    '--pull=always',
+    "-v ${build_script}:/usr/local/bin/arch-repo-build.sh:ro",
+    "-v ${build_config}:/etc/arch-repo-build.conf:ro",
+    "-v ${repo_dir}:/repo",
+    'archlinux:latest',
+    'timeout 2h bash /usr/local/bin/arch-repo-build.sh',
+  ]
+
+  timer { 'arch-repo-build':
+    description          => 'Build new package versions into the homelab pacman repo',
+    command              => "/usr/bin/docker run ${docker_args.join(' ')}",
+    group                => false,
+    on_calendar          => 'daily',
+    randomized_delay_sec => '1h',
+    after                => ['docker.service', 'network-online.target'],
+    wants                => ['network-online.target'],
+    require              => [
+      Class['docker'],
+      Btrfs::Subvolume[$repo_dir],
+      File[$build_config],
+      File[$build_script],
+    ],
   }
 }

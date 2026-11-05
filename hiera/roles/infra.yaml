@@ -8,6 +8,11 @@ classes:
   - kickstart_nginx
   - certbot
 
+# GitHub repos with a PKGBUILD, built daily into the homelab pacman repo
+arch_pkg_host::build_repos:
+  - https://github.com/gentoomaniac/run-puppet
+  - https://github.com/gentoomaniac/powerline-go
+
 certbot::domains:
   - "*.srv.gentoomaniac.net"
   - "*.gentoomaniac.net"
