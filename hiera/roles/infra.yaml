@@ -36,8 +36,12 @@ resources:
       ensure: present
 
   file:
+    # Authelia runs as 9091:9091 (see docker::run_instance below)
     "/srv/authelia/config":
       ensure: directory
+      owner: 9091
+      group: 9091
+      mode: "0700"
       require: Btrfs::Subvolume[/srv/authelia]
     "/etc/clouddns-updater-key.json":
       ensure: present
@@ -71,6 +75,9 @@ resources:
 
     "/srv/authelia/config/configuration.yml":
       ensure: 'file'
+      owner: 9091
+      group: 9091
+      mode: "0600"
       require: File[/srv/authelia/config]
       content: |
         theme: auto
@@ -225,6 +232,7 @@ docker::run_instance::instance:
   authelia:
     service_provider: systemd
     image: 'authelia/authelia:latest'
+    username: '9091:9091'
     net:
       - web
     expose:
