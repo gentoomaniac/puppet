@@ -158,11 +158,11 @@ ressources:
                 - sto-grafana-a1.sto.gentoomaniac.net:9100
                 - sto-homeassistant-a1.sto.gentoomaniac.net:9100
                 - sto-infra-b1.sto.gentoomaniac.net:9100
-                - sto-nzbget-a1.sto.gentoomaniac.net:9100
+                - sto-nzbget-b1.sto.gentoomaniac.net:9100
                 - sto-palworld-a1.sto.gentoomaniac.net:9100
                 - sto-plex-a1.sto.gentoomaniac.net:9100
                 - sto-proxmox-a1.sto.gentoomaniac.net:9100
-                - sto-vault-a1.sto.gentoomaniac.net:9100
+                - sto-vault-b1.sto.gentoomaniac.net:9100
           - job_name: "cadvisor"
             static_configs:
               - targets:
@@ -172,6 +172,8 @@ ressources:
                 - sto-homeassistant-a1.sto.gentoomaniac.net:9101
                 - sto-infra-b1.sto.gentoomaniac.net:9101
                 - sto-palworld-a1.sto.gentoomaniac.net:9101
+                - sto-vault-b1.sto.gentoomaniac.net:9100
+                - sto-nzbget-b1.sto.gentoomaniac.net:9100
           - job_name: "traefik"
             static_configs:
               - targets:
@@ -180,6 +182,8 @@ ressources:
                 - sto-infra-a1.sto.gentoomaniac.net:8080
                 - sto-nzbget-a1.sto.gentoomaniac.net:8080
                 - sto-plex-a1.sto.gentoomaniac.net:8080
+                - sto-nzbget-b1.sto.gentoomaniac.net:9100
+                - sto-vault-b1.sto.gentoomaniac.net:9100
           - job_name: "coredns"
             static_configs:
               - targets:
