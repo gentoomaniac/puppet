@@ -3,8 +3,7 @@ class hostbase::puppet_cron {
   require hostbase::puppet
 
   package { 'run-puppet':
-    ensure  => installed,
-    require => Exec['sync homelab repo'],
+    ensure => installed,
   }
 
   timer { 'run-puppet':
