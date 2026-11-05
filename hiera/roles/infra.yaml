@@ -82,7 +82,7 @@ resources:
           level: info
 
         # SECURITY KEYS (Change these to long, random strings in production!)
-        jwt_secret: 'a_very_secret_string_change_me'
+        jwt_secret: '%{lookup('authelia_jwt_secret')}'
 
         default_2fa_method: 'totp'
 
@@ -95,14 +95,14 @@ resources:
         session:
           name: authelia_session
           domain: srv.gentoomaniac.net  # The magic SSO domain
-          secret: 'another_very_secret_string_change_me'
+          secret: '%{lookup('authelia_session_secret')}'
           expiration: 1h
           inactivity: 15m
           remember_me_duration: 1M
 
         storage:
           # Encryption key MUST be > 20 characters
-          encryption_key: 'a_string_that_must_be_more_than_twenty_characters_long'
+          encryption_key: '%{lookup('authelia_encryption_key')}'
           local:
             path: /config/db.sqlite3
 
