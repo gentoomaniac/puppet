@@ -36,13 +36,21 @@ resources:
       ensure: present
 
   file:
-    # Authelia runs as 9091:9091 (see docker::run_instance below)
+    # Authelia runs as 9091:9091 (see docker::run_instance below). Recursing
+    # with 0600 makes every file 0600 and every directory 0700, including the
+    # files Authelia creates itself (db.sqlite3, users.yml).
+    "/srv/authelia":
+      ensure: directory
+      owner: 9091
+      group: 9091
+      mode: "0600"
+      recurse: true
+      require: Btrfs::Subvolume[/srv/authelia]
     "/srv/authelia/config":
       ensure: directory
       owner: 9091
       group: 9091
       mode: "0700"
-      require: Btrfs::Subvolume[/srv/authelia]
     "/etc/clouddns-updater-key.json":
       ensure: present
       mode: "0600"
@@ -78,7 +86,6 @@ resources:
       owner: 9091
       group: 9091
       mode: "0600"
-      require: File[/srv/authelia/config]
       content: |
         theme: auto
         server:
@@ -231,7 +238,7 @@ docker::networks::networks:
 docker::run_instance::instance:
   authelia:
     service_provider: systemd
-    image: 'authelia/authelia:latest'
+    image: 'authelia/authelia:4.39.28'
     username: '9091:9091'
     net:
       - web
@@ -247,7 +254,7 @@ docker::run_instance::instance:
     volumes:
       - '/srv/authelia/config:/config'
     require:
-      - Btrfs::Subvolume[/srv/authelia]
+      - File[/srv/authelia]
       - File[/srv/authelia/config/configuration.yml]
   mariadb:
     ensure: absent
