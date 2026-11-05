@@ -82,7 +82,7 @@ resources:
           level: info
 
         # SECURITY KEYS (Change these to long, random strings in production!)
-        jwt_secret: '%{lookup('authelia_jwt_secret')}'
+        jwt_secret: '%{lookup('secret_authelia_jwt_secret')}'
 
         default_2fa_method: 'totp'
 
@@ -95,14 +95,14 @@ resources:
         session:
           name: authelia_session
           domain: srv.gentoomaniac.net  # The magic SSO domain
-          secret: '%{lookup('authelia_session_secret')}'
+          secret: '%{lookup('secret_authelia_session_secret')}'
           expiration: 1h
           inactivity: 15m
           remember_me_duration: 1M
 
         storage:
           # Encryption key MUST be > 20 characters
-          encryption_key: '%{lookup('authelia_encryption_key')}'
+          encryption_key: '%{lookup('secret_authelia_encryption_key')}'
           local:
             path: /config/db.sqlite3
 
@@ -110,7 +110,7 @@ resources:
           smtp:
             address: "smtp://smtp.gmail.com:587"
             username: marco@siebecke.se
-            password: %{lookup('secret_google_smtp')}
+            password: '%{lookup('secret_google_smtp')}'
             sender: "Authelia <no-reply@siebecke.se>"
             subject: "[Authelia] {title}"
 
