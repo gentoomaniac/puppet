@@ -1,8 +1,8 @@
 # @summary A systemd timer plus the oneshot service it triggers.
 #
 # Writes /etc/systemd/system/<title>.service and <title>.timer and keeps the
-# timer enabled and running. Changes to either unit restart the timer; the
-# systemd service provider runs daemon-reload first when needed.
+# timer enabled and running. Changes to either unit run `systemctl daemon-reload`
+# and restart the timer.
 #
 # @example From hiera via the `resources` hash
 #   resources:
@@ -84,10 +84,19 @@ define timer (
       require => File[$service_file],
     }
 
+    # The service provider only reloads when the .timer unit needs it, not when only
+    # the .service file changed, so reload explicitly whenever either file changes.
+    exec { "timer-${title}-daemon-reload":
+      command     => '/usr/bin/systemctl daemon-reload',
+      refreshonly => true,
+      subscribe   => [File[$service_file], File[$timer_file]],
+    }
+
     service { "${title}.timer":
       ensure    => running,
       enable    => true,
       subscribe => [File[$service_file], File[$timer_file]],
+      require   => Exec["timer-${title}-daemon-reload"],
     }
   } else {
     service { "${title}.timer":
