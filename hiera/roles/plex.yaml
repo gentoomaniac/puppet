@@ -384,8 +384,8 @@ docker::run_instance::instance:
     image: plexinc/pms-docker:latest
     env:
       - TZ=Europe/Berlin
-      # video group on Ubuntu; check `getent group video` on Arch before passing /dev/dri for HW transcoding
-      - PLEX_GID=44
+      # GID of the host's video group on Arch, for HW transcoding once /dev/dri is passed through
+      - PLEX_GID=983
     labels:
       - traefik.enable=false
     ports:
