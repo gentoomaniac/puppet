@@ -1,71 +1,40 @@
 ---
 classes:
-  - docker
   - docker::networks
   - docker::volumes
   - docker::run_instance
-
-docker::docker_users:
-  - marco
+  - traefik
 
 resources:
   package:
     autofs:
       ensure: installed
-  # sysctl:
-  #   vm.max_map_count:
-  #     value: 262144
-  zfs:
-    "localpool/traefik":
+    nfs-utils:
+      ensure: installed
+
+  btrfs::subvolume:
+    "/srv/radarr":
       ensure: present
-    "localpool/radarr":
+    "/srv/radarr-kids":
       ensure: present
-    "localpool/radarr-kids":
+    "/srv/readarr":
       ensure: present
-    "localpool/readarr":
+    "/srv/sonarr":
       ensure: present
-    "localpool/sonarr":
+    "/srv/sonarr-kids":
       ensure: present
-    "localpool/sonarr-kids":
+    "/srv/lidarr":
       ensure: present
-    "localpool/lidarr":
+    "/srv/tautulli":
       ensure: present
-    "localpool/tautulli":
+    "/srv/plex":
       ensure: present
-    "localpool/plex":
-      ensure: present
-    "localpool/ytdl":
+    "/srv/ytdl":
       ensure: present
 
   file:
-    "/srv/traefik/conf":
-      ensure: directory
-      require: Zfs[localpool/traefik]
-    "/srv/traefik/ssl":
-      ensure: directory
-      require: Zfs[localpool/traefik]
-    "/srv/traefik/ssl/key.pem":
-      ensure: present
-      mode: "0600"
-      content: "%{lookup('secret_srv_gentoomaniac_net_key')}"
-      require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
-    "/srv/traefik/ssl/cert.pem":
-      ensure: present
-      mode: "0644"
-      content: "%{lookup('secret_srv_gentoomaniac_net_cert')}"
-      require: File[/srv/traefik/ssl]
-      notify: Docker::Run[traefik]
-    "/srv/traefik/conf/certs.toml":
-      ensure: present
-      content: |
-        [tls.stores]
-          [tls.stores.default]
-          [tls.stores.default.defaultCertificate]
-            certFile = "/ssl/cert.pem"
-            keyFile = "/ssl/key.pem"
-      require: File[/srv/traefik/conf]
-    /etc/auto.nfs:
+    # NAS shares for use on the host, mounted on demand below /nfs
+    "/etc/autofs/auto.nfs":
       ensure: present
       content: |
         ebooks  -soft,intr,rsize=8192,wsize=8192,noatime,uid=marco,gid=marco 10.1.1.5:/mnt/shows/ebooks
@@ -83,44 +52,49 @@ resources:
         share  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tank5/share
         nzbget  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/tmp/nzbget
         tftpboot  -rw,soft,intr,rsize=8192,wsize=8192,noatime 10.1.1.5:/mnt/shows/tftpboot
+      require: Package[autofs]
       notify: Service[autofs]
-
-    /etc/auto.master.d/nfs.autofs:
+    # Arch keeps the autofs config in /etc/autofs; replace the stock master map
+    "/etc/autofs/auto.master":
       ensure: present
       content: |
-        /nfs   /etc/auto.nfs --timeout 60
-
-      require:
-        - File[/etc/auto.nfs]
-        - Package[autofs]
-    /srv/plex/config:
+        /nfs   /etc/autofs/auto.nfs --timeout 60
+      require: Package[autofs]
+      notify: Service[autofs]
+    "/srv/plex/config":
       ensure: directory
-      require: Zfs[localpool/plex]
-    /srv/plex/transcode:
+      require: Btrfs::Subvolume[/srv/plex]
+    "/srv/plex/transcode":
       ensure: directory
-      require: Zfs[localpool/plex]
+      require: Btrfs::Subvolume[/srv/plex]
     "/srv/ytdl/appdata":
       ensure: directory
-      require: Zfs[localpool/ytdl]
+      require: Btrfs::Subvolume[/srv/ytdl]
     "/srv/ytdl/audio":
       ensure: directory
-      require: Zfs[localpool/ytdl]
+      require: Btrfs::Subvolume[/srv/ytdl]
     "/srv/ytdl/video":
       ensure: directory
-      require: Zfs[localpool/ytdl]
+      require: Btrfs::Subvolume[/srv/ytdl]
     "/srv/ytdl/subscriptions":
       ensure: directory
-      require: Zfs[localpool/ytdl]
+      require: Btrfs::Subvolume[/srv/ytdl]
+
   service:
     autofs:
       ensure: running
       enable: true
       require:
-        - File[/etc/auto.nfs]
-        - File[/etc/auto.master.d/nfs.autofs]
+        - Package[nfs-utils]
+        - File[/etc/autofs/auto.nfs]
+        - File[/etc/autofs/auto.master]
+    # Plex does its own discovery, keep avahi off it
     avahi-daemon:
       ensure: stopped
       enable: false
+
+docker::docker_users:
+  - marco
 
 docker::networks::networks:
   web:
@@ -191,52 +165,20 @@ docker::volumes::volumes:
         - o=addr=10.1.1.5,nolock,soft,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
         - device=:/mnt/shows/ebooks
 
+traefik::certificates:
+  srv_gentoomaniac_net:
+    cert: secret_srv_gentoomaniac_net_cert
+    key: secret_srv_gentoomaniac_net_key
+traefik::default_certificate: srv_gentoomaniac_net
+traefik::entrypoints:
+  websecure: ":443"
+traefik::ports:
+  - 443:443/tcp
+
 docker::run_instance::instance:
-  traefik:
-    image: traefik:v3.1
-    command: >
-      --api.insecure=true
-      --api.dashboard=true
-      --entrypoints.web.address=:80
-      --entrypoints.websecure.address=:443
-      --providers.file.directory=/conf
-      --providers.file.watch=true
-      --providers.docker
-      --providers.docker.exposedbydefault=false
-      --serverstransport.insecureskipverify=true
-      --metrics.prometheus=true
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-    env:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Berlin
-    extra_parameters:
-      - --restart=unless-stopped
-    net:
-      - web
-    ports:
-      - 80:80/tcp
-      - 443:443/tcp
-      - 8080:8080/tcp
-      - 9200:9200/tcp
-    pull_on_start: true
-    require:
-      - Class[docker]
-      - Docker_network[web]
-      - File[/srv/traefik/conf/certs.toml]
-      - File[/srv/traefik/ssl/cert.pem]
-      - File[/srv/traefik/ssl/key.pem]
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /srv/traefik/ssl:/ssl:ro
-      - /srv/traefik/conf:/conf:ro
   radarr:
+    service_provider: systemd
     image: linuxserver/radarr:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
       - PUID=1000
       - PGID=1000
@@ -251,8 +193,8 @@ docker::run_instance::instance:
       - traefik.http.routers.radarr.rule=Host(`radarr.srv.gentoomaniac.net`)
       - traefik.http.routers.radarr.entrypoints=websecure
       - traefik.http.routers.radarr.tls=true
-      - traefik.http.middlewares.radarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
-      - traefik.http.routers.radarr.middlewares=radarr-whitelist
+      - traefik.http.middlewares.radarr-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.radarr.middlewares=radarr-allowlist
     net:
       - web
     pull_on_start: true
@@ -261,13 +203,12 @@ docker::run_instance::instance:
       - nfs_movies:/movies
     require:
       - Class[docker]
-      - Zfs[localpool/radarr]
+      - Docker_network[web]
+      - Btrfs::Subvolume[/srv/radarr]
       - Docker_volume[nfs_movies]
   radarr-kids:
+    service_provider: systemd
     image: linuxserver/radarr:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
       - PUID=1000
       - PGID=1000
@@ -282,8 +223,8 @@ docker::run_instance::instance:
       - traefik.http.routers.radarr-kids.rule=Host(`radarr-kids.srv.gentoomaniac.net`)
       - traefik.http.routers.radarr-kids.entrypoints=websecure
       - traefik.http.routers.radarr-kids.tls=true
-      - traefik.http.middlewares.radarr-kids-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
-      - traefik.http.routers.radarr-kids.middlewares=radarr-kids-whitelist
+      - traefik.http.middlewares.radarr-kids-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.radarr-kids.middlewares=radarr-kids-allowlist
     net:
       - web
     pull_on_start: true
@@ -292,13 +233,12 @@ docker::run_instance::instance:
       - nfs_kids_movies:/kids_movies
     require:
       - Class[docker]
-      - Zfs[localpool/radarr-kids]
+      - Docker_network[web]
+      - Btrfs::Subvolume[/srv/radarr-kids]
       - Docker_volume[nfs_kids_movies]
   sonarr:
+    service_provider: systemd
     image: linuxserver/sonarr:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
       - PUID=1000
       - PGID=1000
@@ -313,8 +253,8 @@ docker::run_instance::instance:
       - traefik.http.routers.sonarr.rule=Host(`sonarr.srv.gentoomaniac.net`)
       - traefik.http.routers.sonarr.entrypoints=websecure
       - traefik.http.routers.sonarr.tls=true
-      - traefik.http.middlewares.sonarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
-      - traefik.http.routers.sonarr.middlewares=sonarr-whitelist
+      - traefik.http.middlewares.sonarr-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.sonarr.middlewares=sonarr-allowlist
     net:
       - web
     pull_on_start: true
@@ -323,13 +263,12 @@ docker::run_instance::instance:
       - nfs_shows:/shows
     require:
       - Class[docker]
-      - Zfs[localpool/sonarr]
+      - Docker_network[web]
+      - Btrfs::Subvolume[/srv/sonarr]
       - Docker_volume[nfs_shows]
   sonarr-kids:
+    service_provider: systemd
     image: linuxserver/sonarr:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
       - PUID=1000
       - PGID=1000
@@ -344,8 +283,8 @@ docker::run_instance::instance:
       - traefik.http.routers.sonarr-kids.rule=Host(`sonarr-kids.srv.gentoomaniac.net`)
       - traefik.http.routers.sonarr-kids.entrypoints=websecure
       - traefik.http.routers.sonarr-kids.tls=true
-      - traefik.http.middlewares.sonarr-kids-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
-      - traefik.http.routers.sonarr-kids.middlewares=sonarr-kids-whitelist
+      - traefik.http.middlewares.sonarr-kids-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.sonarr-kids.middlewares=sonarr-kids-allowlist
     net:
       - web
     pull_on_start: true
@@ -354,13 +293,12 @@ docker::run_instance::instance:
       - nfs_kids_shows:/shows
     require:
       - Class[docker]
-      - Zfs[localpool/sonarr-kids]
+      - Docker_network[web]
+      - Btrfs::Subvolume[/srv/sonarr-kids]
       - Docker_volume[nfs_kids_shows]
   lidarr:
+    service_provider: systemd
     image: linuxserver/lidarr:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
       - PUID=1000
       - PGID=1000
@@ -375,8 +313,8 @@ docker::run_instance::instance:
       - traefik.http.routers.lidarr.rule=Host(`lidarr.srv.gentoomaniac.net`)
       - traefik.http.routers.lidarr.entrypoints=websecure
       - traefik.http.routers.lidarr.tls=true
-      - traefik.http.middlewares.lidarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
-      - traefik.http.routers.lidarr.middlewares=lidarr-whitelist
+      - traefik.http.middlewares.lidarr-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.lidarr.middlewares=lidarr-allowlist
     net:
       - web
     pull_on_start: true
@@ -385,13 +323,12 @@ docker::run_instance::instance:
       - nfs_music:/music
     require:
       - Class[docker]
-      - Zfs[localpool/lidarr]
+      - Docker_network[web]
+      - Btrfs::Subvolume[/srv/lidarr]
       - Docker_volume[nfs_music]
   readarr:
+    service_provider: systemd
     image: linuxserver/readarr:0.4.15-nightly
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
       - PUID=1000
       - PGID=1000
@@ -406,8 +343,8 @@ docker::run_instance::instance:
       - traefik.http.routers.readarr.rule=Host(`readarr.srv.gentoomaniac.net`)
       - traefik.http.routers.readarr.entrypoints=websecure
       - traefik.http.routers.readarr.tls=true
-      - traefik.http.middlewares.readarr-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
-      - traefik.http.routers.readarr.middlewares=readarr-whitelist
+      - traefik.http.middlewares.readarr-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.readarr.middlewares=readarr-allowlist
     net:
       - web
     pull_on_start: true
@@ -416,13 +353,12 @@ docker::run_instance::instance:
       - nfs_ebooks:/ebooks
     require:
       - Class[docker]
-      - Zfs[localpool/readarr]
+      - Docker_network[web]
+      - Btrfs::Subvolume[/srv/readarr]
       - Docker_volume[nfs_ebooks]
   tautulli:
+    service_provider: systemd
     image: linuxserver/tautulli:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     expose:
       - 8181/tcp
     extra_parameters:
@@ -432,8 +368,8 @@ docker::run_instance::instance:
       - traefik.http.routers.tautulli.rule=Host(`tautulli.srv.gentoomaniac.net`)
       - traefik.http.routers.tautulli.entrypoints=websecure
       - traefik.http.routers.tautulli.tls=true
-      - traefik.http.middlewares.tautulli-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
-      - traefik.http.routers.tautulli.middlewares=tautulli-whitelist
+      - traefik.http.middlewares.tautulli-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.tautulli.middlewares=tautulli-allowlist
     net:
       - web
     pull_on_start: true
@@ -441,16 +377,14 @@ docker::run_instance::instance:
       - /srv/tautulli:/config
     require:
       - Class[docker]
-      - Zfs[localpool/tautulli]
+      - Docker_network[web]
+      - Btrfs::Subvolume[/srv/tautulli]
   plex:
+    service_provider: systemd
     image: plexinc/pms-docker:latest
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
-      - 8.8.8.8
     env:
-      - PLEX_CLAIM="claim-McptpawppqGxrrc82qqd"
-      - TZ="Europe/Berlin"
+      - TZ=Europe/Berlin
+      # video group on Ubuntu; check `getent group video` on Arch before passing /dev/dri for HW transcoding
       - PLEX_GID=44
     labels:
       - traefik.enable=false
@@ -491,23 +425,21 @@ docker::run_instance::instance:
       - Docker_volume[nfs_youtube_downloader]
       - Service[avahi-daemon]
   youtube-dl:
+    service_provider: systemd
     image: ghcr.io/voc0der/youtubedl-material:nightly
-    dns:
-      - 10.1.1.52
-      - 10.1.1.53
     env:
-      - ALLOW_CONFIG_MUTATIONS: 'true'
+      - ALLOW_CONFIG_MUTATIONS=true
+    expose:
+      - 443/tcp
+    extra_parameters:
+      - --restart=unless-stopped
     labels:
       - traefik.enable=true
       - traefik.http.routers.ytdl.rule=Host(`youtube-dl.srv.gentoomaniac.net`)
       - traefik.http.routers.ytdl.entrypoints=websecure
       - traefik.http.routers.ytdl.tls=true
-      - traefik.http.middlewares.ytdl-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24
-      - traefik.http.routers.ytdl.middlewares=ytdl-whitelist
-    expose:
-      - 443/tcp
-    extra_parameters:
-      - --restart=unless-stopped
+      - traefik.http.middlewares.ytdl-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24
+      - traefik.http.routers.ytdl.middlewares=ytdl-allowlist
     net:
       - web
     pull_on_start: true
@@ -519,6 +451,7 @@ docker::run_instance::instance:
       - nfs_youtube_downloader:/app/users
     require:
       - Class[docker]
+      - Docker_network[web]
       - File[/srv/ytdl/appdata]
       - File[/srv/ytdl/audio]
       - File[/srv/ytdl/video]

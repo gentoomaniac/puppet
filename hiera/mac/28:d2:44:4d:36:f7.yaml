@@ -1,21 +1,13 @@
 ---
 classes:
-  - netplan
   - hostbase::hostname
 
 hostbase::hostname::hostname: sto-plex-a1.sto.gentoomaniac.net
 
-netplan::version: 2
-netplan::renderer: networkd
-netplan::ethernets:
-  enp0s25:
-    dhcp4: no
-    addresses:
-      - 10.1.1.3/24
-    nameservers:
-      search: [gentoomaniac.net]
-      addresses: [10.1.1.52, 10.1.1.53]
-    routes:
-      - to: 0.0.0.0/0
-        via: 10.1.1.1
-        metric: 10
+resources:
+  networkmanager::connection:
+    'enp0s25':
+      ipv4_method: 'manual'
+      ipv4_addresses:
+        - '10.1.1.3/24'
+      ipv4_route_metric: 10
