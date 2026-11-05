@@ -7,8 +7,8 @@ class arch_pkg_host (
     "traefik.http.routers.arch-pkg-host.rule=Host(`arch.srv.gentoomaniac.net`)",
     "traefik.http.routers.arch-pkg-host.entrypoints=ssl",
     "traefik.http.routers.arch-pkg-host.tls=true",
-    "traefik.http.middlewares.arch-pkg-host-whitelist.ipwhitelist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.16.0.0/12",
-    "traefik.http.routers.arch-pkg-host.middlewares=arch-pkg-host-whitelist",
+    "traefik.http.middlewares.arch-pkg-host-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.3.0/24,172.16.0.0/12",
+    "traefik.http.routers.arch-pkg-host.middlewares=arch-pkg-host-allowlist",
   ],
 ) {
 
