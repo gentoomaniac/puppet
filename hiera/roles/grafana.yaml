@@ -906,7 +906,7 @@ docker::run_instance::instance:
   # Shelly devices post to the webhook entrypoint (:8000) by name or by this host's IP
   shelly-exporter:
     service_provider: systemd
-    image: ghcr.io/gentoomaniac/shelly-exporter:v0.1.2-amd64
+    image: ghcr.io/gentoomaniac/shelly-exporter:v0.1.3-amd64
     command: >
       -vv
       --config-file /etc/shelly-exporter.yaml
