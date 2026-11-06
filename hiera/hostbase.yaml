@@ -72,7 +72,6 @@ hostbase::ssh::authorized_keys:
     - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAxSYdM4DORK2/koKHlz9nWuDclxIKIhlXoQTKdEnz67 marco@marcos-desktop
     - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICU8Rd9oxln9cdIJVhzsDPcBY3qQZfkiNgg+U3gT4zwj marco@mbrk-gentoo
   root:
-    - 
     - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESaPVR26gxGnwaomoRcdipNTNC7jxn7TO7Pb+FmECnL marco@gentoobox.clients.gentoomaniac.net
     - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAxSYdM4DORK2/koKHlz9nWuDclxIKIhlXoQTKdEnz67 marco@marcos-desktop
     - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICU8Rd9oxln9cdIJVhzsDPcBY3qQZfkiNgg+U3gT4zwj marco@mbrk-gentoo
