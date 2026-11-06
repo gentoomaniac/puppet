@@ -72,7 +72,10 @@ hostbase::ssh::authorized_keys:
     - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAxSYdM4DORK2/koKHlz9nWuDclxIKIhlXoQTKdEnz67 marco@marcos-desktop
     - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICU8Rd9oxln9cdIJVhzsDPcBY3qQZfkiNgg+U3gT4zwj marco@mbrk-gentoo
   root:
-    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5d/oJWpUQaelmkllEMO6nwy4TYWFSoGtkuVPTq4wavpHwp7/uqRHIzQ8/DnjEkuFzyNImrCLpgOPnNstWmTmyMHRfHDy+wiwvlO1ceVixL5Uj8qYewvEXP7alG9lueVS/PovidhzVoh7p7VDXrZynU7lJaGQ2cfMXXJXwcjXIOkD3X0z3//j6yu7Rw/65ZuexSGtCRgrXDDCzEK+Kp4b/MLavY5N2ukEl654VUZEYvagQXSFsNsFEq6tu+4ywOnAZhtV1Ob/oCfspr8ejaFyxHpmnjiE5Ln72/rMEM+IrI6ifjn8zY9sqku20olc17Cr4cgGhvR5J8Ws8xu1GlG79 root@freenas.gentoomaniac.net
+    - 
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIESaPVR26gxGnwaomoRcdipNTNC7jxn7TO7Pb+FmECnL marco@gentoobox.clients.gentoomaniac.net
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAxSYdM4DORK2/koKHlz9nWuDclxIKIhlXoQTKdEnz67 marco@marcos-desktop
+    - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICU8Rd9oxln9cdIJVhzsDPcBY3qQZfkiNgg+U3gT4zwj marco@mbrk-gentoo
 
 resources:
   file:
