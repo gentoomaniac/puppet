@@ -32,7 +32,7 @@ if [ ! -z "${VAULT_TOKEN}" ]; then
     echo "${VAULT_TOKEN}" > /mnt/etc/vault_token
     chmod 600 /mnt/etc/vault_token
 fi
-echo "${PUPPET_BRANCH:-arch}" > /mnt/etc/puppet_branch
+echo "${PUPPET_BRANCH:-main}" > /mnt/etc/puppet_branch
 
 
 # setup bootstrap script
