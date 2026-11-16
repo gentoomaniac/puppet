@@ -19,6 +19,7 @@ classes:
   - hostbase::puppet_cron
   - hostbase::ssh
   - hostbase::vault
+  - package_metrics
   - docker
   - docker::run_instance
 
@@ -93,6 +94,7 @@ docker::run_instance::instance:
     image: quay.io/prometheus/node-exporter:latest
     command: >
       --path.rootfs=/host
+      --collector.textfile.directory=/host/var/lib/node_exporter/textfile
     extra_parameters:
       - --restart=unless-stopped
       - --pid="host"

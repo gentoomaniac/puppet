@@ -1,0 +1,14 @@
+<%- | String $command,
+| -%>
+# MANAGED BY PUPPET
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Updating package metrics for node-exporter...
+When = PostTransaction
+Exec = <%= $command %>
