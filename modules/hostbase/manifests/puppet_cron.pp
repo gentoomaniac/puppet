@@ -25,7 +25,8 @@ class hostbase::puppet_cron {
 
   timer { 'run-puppet':
     description    => 'Execute run-puppet',
-    command        => '/usr/bin/run-puppet --otel-endpoint-url=https://otelcol.srv.gentoomaniac.net:4318 --bin-path /usr/bin/puppet',
+    # run-puppet >= 0.1.9 defaults to our otel endpoint and /usr/bin/puppet
+    command        => '/usr/bin/run-puppet',
     on_calendar    => '*:0/30',
     # `-`: a metrics failure doesn't mark the run failed
     exec_stop_post => ["-/usr/local/bin/puppet-metrics ${summary} ${metrics_file} ${repo}"],
