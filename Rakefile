@@ -52,9 +52,9 @@ namespace :lint do
     sh 'puppet-lint', 'manifests', *OWN_MODULES
   end
 
-  desc 'ruby -c on custom facts'
+  desc 'ruby -c on custom facts and own ruby scripts'
   task :ruby do
-    Dir['lib/facter/*.rb'].sort.each { |file| sh 'ruby', '-c', file, verbose: false }
+    (Dir['lib/facter/*.rb'] + own_files('files/**/*.rb')).sort.each { |file| sh 'ruby', '-c', file, verbose: false }
   end
 
   desc 'yamllint on hiera data, hiera.yaml and workflows (config: .yamllint)'
