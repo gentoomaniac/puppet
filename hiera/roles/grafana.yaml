@@ -713,7 +713,8 @@ traefik::ports:
 docker::run_instance::instance:
   tempo:
     service_provider: systemd
-    image: grafana/tempo:latest
+    # Tempo 3 dropped ingester/compactor; stay on 2.x until tempo.yaml is migrated
+    image: grafana/tempo:2.10.10
     command: >
       --config.file=/etc/tempo.yaml
     expose:
