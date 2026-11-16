@@ -20,6 +20,8 @@ class coredns {
     notify   => Docker::Run['coredns'],
   }
 
+  container_metrics::expected { 'coredns': }
+
   docker::run { 'coredns':
     service_provider => 'systemd',
     image            => 'coredns/coredns',

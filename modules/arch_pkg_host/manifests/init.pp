@@ -29,6 +29,8 @@ class arch_pkg_host (
     ensure => present,
   }
 
+  container_metrics::expected { 'arch-pkg-host': }
+
   docker::run { 'arch-pkg-host':
     service_provider => 'systemd',
     image            => 'nginx',

@@ -17,6 +17,8 @@ class kickstart_nginx (
     notify  => Docker::Run['ksnginx'],
   }
 
+  container_metrics::expected { 'ksnginx': }
+
   docker::run { 'ksnginx':
     service_provider => 'systemd',
     image            => 'nginx',

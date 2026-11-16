@@ -19,6 +19,7 @@ classes:
   - hostbase::puppet_cron
   - hostbase::ssh
   - hostbase::vault
+  - container_metrics
   - package_metrics
   - docker
   - docker::run_instance

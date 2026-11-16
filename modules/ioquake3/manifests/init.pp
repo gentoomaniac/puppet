@@ -12,6 +12,8 @@ class ioquake3 (
     notify  => Docker::Run['ioquake3'],
   }
 
+  container_metrics::expected { 'ioquake3': }
+
   docker::run { 'ioquake3':
     image            => 'ioquake3',
     command          => '/ioquake3/start_server.sh +exec server.cfg +exec ctf.cfg',

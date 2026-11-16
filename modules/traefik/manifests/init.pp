@@ -121,6 +121,8 @@ class traefik (
     '--metrics.prometheus=true',
   ] + $entrypoint_args + $extra_args
 
+  container_metrics::expected { 'traefik': }
+
   docker::run { 'traefik':
     service_provider => 'systemd',
     image            => "traefik:${version}",
