@@ -24,6 +24,8 @@
 # @param group Group the service runs as; `false` omits Group=.
 # @param after Units the service starts after.
 # @param wants Units the service wants.
+# @param metrics Export each run (success, start, duration, last success) to
+#   node-exporter via timer::metrics.
 # @param ensure `absent` stops the timer and removes both units.
 define timer (
   String[1] $description,
@@ -37,6 +39,7 @@ define timer (
   Variant[String[1], Boolean[false]] $group = 'systemd-journal',
   Array[String[1]] $after = [],
   Array[String[1]] $wants = [],
+  Boolean $metrics = true,
   Enum['present', 'absent'] $ensure = 'present',
 ) {
   if $title !~ /\A[a-zA-Z0-9:_.@-]+\z/ {
@@ -51,6 +54,20 @@ define timer (
   $service_file = "/etc/systemd/system/${title}.service"
   $timer_file = "/etc/systemd/system/${title}.timer"
 
+  include textfile_metrics
+  $metrics_file = "${textfile_metrics::directory}/timer_${title}.prom"
+  if $ensure == 'present' and $metrics {
+    include timer::metrics
+    # `+` runs it as root, so it can write the textfile directory whatever $user is;
+    # `-` keeps a failing metrics hook from marking a successful run as failed
+    $exec_stop_post = "-+/usr/local/bin/timer-metrics ${title} ${textfile_metrics::directory}"
+  } else {
+    $exec_stop_post = undef
+    file { $metrics_file:
+      ensure => absent,
+    }
+  }
+
   if $ensure == 'present' {
     file { $service_file:
       ensure  => file,
@@ -58,13 +75,17 @@ define timer (
       group   => 'root',
       mode    => '0644',
       content => epp('timer/service.epp', {
-        description => $description,
-        command     => $command,
-        user        => $user,
-        group       => $group,
-        after       => $after,
-        wants       => $wants,
+        description    => $description,
+        command        => $command,
+        user           => $user,
+        group          => $group,
+        after          => $after,
+        wants          => $wants,
+        exec_stop_post => $exec_stop_post,
       }),
+    }
+    if $exec_stop_post {
+      [Class['textfile_metrics'], Class['timer::metrics']] -> File[$service_file]
     }
 
     file { $timer_file:
