@@ -4,7 +4,7 @@
       Variant[String, Boolean] $group,
       Array[String] $after,
       Array[String] $wants,
-      Optional[String] $exec_stop_post,
+      Array[String] $exec_stop_post,
 | -%>
 # MANAGED BY PUPPET
 [Unit]
@@ -19,8 +19,8 @@ Wants=<%= $wants.join(' ') %>
 [Service]
 Type=oneshot
 ExecStart=<%= $command %>
-<% if $exec_stop_post { -%>
-ExecStopPost=<%= $exec_stop_post %>
+<% $exec_stop_post.each |$cmd| { -%>
+ExecStopPost=<%= $cmd %>
 <% } -%>
 User=<%= $user %>
 <% if $group { -%>

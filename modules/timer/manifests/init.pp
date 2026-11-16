@@ -26,6 +26,7 @@
 # @param wants Units the service wants.
 # @param metrics Export each run (success, start, duration, last success) to
 #   node-exporter via timer::metrics.
+# @param exec_stop_post Further ExecStopPost commands, run after the metrics hook.
 # @param ensure `absent` stops the timer and removes both units.
 define timer (
   String[1] $description,
@@ -40,6 +41,7 @@ define timer (
   Array[String[1]] $after = [],
   Array[String[1]] $wants = [],
   Boolean $metrics = true,
+  Array[String[1]] $exec_stop_post = [],
   Enum['present', 'absent'] $ensure = 'present',
 ) {
   if $title !~ /\A[a-zA-Z0-9:_.@-]+\z/ {
@@ -60,9 +62,9 @@ define timer (
     include timer::metrics
     # `+` runs it as root, so it can write the textfile directory whatever $user is;
     # `-` keeps a failing metrics hook from marking a successful run as failed
-    $exec_stop_post = "-+/usr/local/bin/timer-metrics ${title} ${textfile_metrics::directory}"
+    $metrics_hook = "-+/usr/local/bin/timer-metrics ${title} ${textfile_metrics::directory}"
   } else {
-    $exec_stop_post = undef
+    $metrics_hook = undef
     file { $metrics_file:
       ensure => absent,
     }
@@ -81,10 +83,10 @@ define timer (
         group          => $group,
         after          => $after,
         wants          => $wants,
-        exec_stop_post => $exec_stop_post,
+        exec_stop_post => [$metrics_hook, $exec_stop_post].flatten.filter |$cmd| { $cmd =~ NotUndef },
       }),
     }
-    if $exec_stop_post {
+    if $metrics_hook {
       [Class['textfile_metrics'], Class['timer::metrics']] -> File[$service_file]
     }
 
