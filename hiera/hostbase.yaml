@@ -91,7 +91,8 @@ docker::docker_users:
 docker::run_instance::instance:
   nodexporter:
     service_provider: systemd
-    image: quay.io/prometheus/node-exporter:v1.12.1
+    # floating major tag (no minor tags published): takes minor and patch releases
+    image: quay.io/prometheus/node-exporter:v1
     command: >
       --path.rootfs=/host
       --collector.textfile.directory=/host/var/lib/node_exporter/textfile

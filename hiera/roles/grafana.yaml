@@ -752,7 +752,8 @@ docker::run_instance::instance:
 
   prometheus:
     service_provider: systemd
-    image: prom/prometheus:v3.16.0
+    # floating major tag (prom/* publishes no minor tags): takes minor and patch releases
+    image: prom/prometheus:v3
     command: >
       --web.enable-remote-write-receiver
       --config.file=/etc/prometheus/prometheus.yml
@@ -781,7 +782,8 @@ docker::run_instance::instance:
   #     https://pushgateway.srv.gentoomaniac.net/metrics/job/backup/instance/$(hostname)
   pushgateway:
     service_provider: systemd
-    image: prom/pushgateway:v1.11.4
+    # floating major tag (prom/* publishes no minor tags): takes minor and patch releases
+    image: prom/pushgateway:v1
     command: >
       --persistence.file=/data/pushgateway.db
       --persistence.interval=1m
@@ -810,7 +812,8 @@ docker::run_instance::instance:
 
   grafana:
     service_provider: systemd
-    image: grafana/grafana:13.3.1
+    # floating minor tag, picks up 13.3.x patch releases
+    image: grafana/grafana:13.3
     username: 1000:1000
     env:
       - GF_SERVER_ROOT_URL=https://grafana.srv.gentoomaniac.net
