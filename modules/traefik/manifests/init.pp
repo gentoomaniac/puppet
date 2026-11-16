@@ -31,7 +31,7 @@ class traefik (
   Array[String] $ports = [],
   Array[String] $extra_args = [],
   Hash[String, String] $dynamic_configs = {},
-  String $version = 'v3.6',
+  String $version = 'v3.7',
   Array[String] $env = ['TZ=Europe/Berlin'],
 ) {
   unless $default_certificate in $certificates {
