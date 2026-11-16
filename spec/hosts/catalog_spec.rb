@@ -40,7 +40,7 @@ HOSTS.each do |mac, data|
         'operatingsystem' => 'Archlinux',
         'architecture' => 'x86_64',
         'systemd' => true,
-        'puppet_branch' => 'main',
+        'puppet_branch' => 'master',
         'puppet_package' => 'openvox',
       }.compact # like facter, leave pod/role/pool undefined when the hostname doesn't match
     end

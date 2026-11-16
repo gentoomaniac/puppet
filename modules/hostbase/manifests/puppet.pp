@@ -3,20 +3,10 @@
 # Arch's `puppet` package stopped at 8.10; `openvox` is the maintained drop-in
 # replacement (same /usr/bin/puppet, same puppet.service). Hosts still on the
 # old package are switched out of band, see switch-to-openvox.sh.
-#
-# @param branch Branch of this repo that run-puppet applies, written to
-#   /etc/puppet_branch. Hosts left on `master` run master's code, so this
-#   doesn't touch them.
-class hostbase::puppet (
-  String[1] $branch = 'main',
-) {
+class hostbase::puppet {
   $content = join(lookup('classes', Array[String], 'unique', []).sort, "\n")
   file { '/etc/puppet_classes':
     content => "${content}\n",
-  }
-
-  file { '/etc/puppet_branch':
-    content => "${branch}\n",
   }
 
   if $facts['puppet_package'] == 'openvox' {

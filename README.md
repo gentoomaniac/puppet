@@ -2,9 +2,6 @@
 
 Masterless `puppet apply` setup for the Arch Linux hosts.
 
-Hosts apply the branch named in `/etc/puppet_branch`, which `hostbase::puppet` sets to `main`.
-The one host still on the old setup stays on `master`.
-
 ## Checks
 
 CI (`.github/workflows/ci.yml`) runs the same tasks you can run locally:
