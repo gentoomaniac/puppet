@@ -10,6 +10,8 @@ resources:
       ensure: present
     "/srv/gitea":
       ensure: present
+    "/srv/roundcube":
+      ensure: present
     "/srv/trilium":
       ensure: present
     "/srv/wor-timeline":
@@ -25,6 +27,12 @@ resources:
       owner: 1000
       group: 1000
       require: Btrfs::Subvolume[/srv/gitea]
+    # the apache image runs roundcube as www-data
+    /srv/roundcube/db:
+      ensure: directory
+      owner: 33
+      group: 33
+      require: Btrfs::Subvolume[/srv/roundcube]
 
 docker::docker_users:
   - marco
@@ -141,6 +149,42 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/gitea/data]
+  # webmail for Gmail: log in with the Google address and an app password, which
+  # roundcube also uses for SMTP. No fixed des_key: sessions end when the container is recreated.
+  roundcube:
+    service_provider: systemd
+    # floating 1.7 tag, picks up 1.7.x and base image updates
+    image: roundcube/roundcubemail:1.7.x-apache
+    env:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=ssl://imap.gmail.com
+      - ROUNDCUBEMAIL_DEFAULT_PORT=993
+      - ROUNDCUBEMAIL_SMTP_SERVER=tls://smtp.gmail.com
+      - ROUNDCUBEMAIL_SMTP_PORT=587
+      - ROUNDCUBEMAIL_DB_TYPE=sqlite
+      # Gmail's attachment limit
+      - ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE=25M
+    expose:
+      - "80"
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.roundcube.rule=Host(`roundcube.srv.gentoomaniac.net`)
+      - traefik.http.routers.roundcube.entrypoints=websecure
+      - traefik.http.routers.roundcube.tls=true
+      - traefik.http.middlewares.roundcube-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
+      - traefik.http.routers.roundcube.middlewares=roundcube-allowlist
+      - traefik.http.services.roundcube.loadbalancer.server.port=80
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/roundcube/db:/var/roundcube/db
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    require:
+      - Class[docker]
+      - File[/srv/roundcube/db]
   trilium:
     service_provider: systemd
     image: triliumnext/notes:stable
