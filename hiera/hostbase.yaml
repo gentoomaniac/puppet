@@ -91,7 +91,7 @@ docker::docker_users:
 docker::run_instance::instance:
   nodexporter:
     service_provider: systemd
-    image: quay.io/prometheus/node-exporter:latest
+    image: quay.io/prometheus/node-exporter:v1.12.1
     command: >
       --path.rootfs=/host
       --collector.textfile.directory=/host/var/lib/node_exporter/textfile
@@ -110,7 +110,8 @@ docker::run_instance::instance:
       - /:/host:ro,rslave
   cadvisor:
     service_provider: systemd
-    image: gcr.io/cadvisor/cadvisor:latest
+    # gcr.io stopped at v0.55.1; newer releases are on ghcr.io/google/cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
     extra_parameters:
       - --restart=unless-stopped
       - --pid="host"

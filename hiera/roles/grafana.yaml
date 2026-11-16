@@ -752,7 +752,7 @@ docker::run_instance::instance:
 
   prometheus:
     service_provider: systemd
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.16.0
     command: >
       --web.enable-remote-write-receiver
       --config.file=/etc/prometheus/prometheus.yml
@@ -781,7 +781,7 @@ docker::run_instance::instance:
   #     https://pushgateway.srv.gentoomaniac.net/metrics/job/backup/instance/$(hostname)
   pushgateway:
     service_provider: systemd
-    image: prom/pushgateway:latest
+    image: prom/pushgateway:v1.11.4
     command: >
       --persistence.file=/data/pushgateway.db
       --persistence.interval=1m
@@ -810,7 +810,7 @@ docker::run_instance::instance:
 
   grafana:
     service_provider: systemd
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.3.1
     username: 1000:1000
     env:
       - GF_SERVER_ROOT_URL=https://grafana.srv.gentoomaniac.net
@@ -845,7 +845,7 @@ docker::run_instance::instance:
 
   renderer:
     service_provider: systemd
-    image: grafana/grafana-image-renderer:latest
+    image: grafana/grafana-image-renderer:v5.12.11
     env:
       - ENABLE_METRICS=true
       - AUTH_TOKEN=%{lookup('secret_grafana_renderer_token')}
@@ -863,7 +863,7 @@ docker::run_instance::instance:
   # receives TrueNAS graphite metrics on 2003, scraped by prometheus on 9108
   graphite-exporter:
     service_provider: systemd
-    image: prom/graphite-exporter:latest
+    image: prom/graphite-exporter:v0.17.0
     command: >
       --graphite.mapping-config=/tmp/mappings.conf
     extra_parameters:
