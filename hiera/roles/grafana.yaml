@@ -819,6 +819,8 @@ docker::run_instance::instance:
       - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
       - GF_RENDERING_RENDERER_TOKEN=%{lookup('secret_grafana_renderer_token')}
       - GF_LOG_FILTERS=rendering:debug
+      # unified alerting only attaches rendered panel images to notifications with this on
+      - GF_UNIFIED_ALERTING_SCREENSHOTS_CAPTURE=true
     expose:
       - 3000/tcp
     extra_parameters:
