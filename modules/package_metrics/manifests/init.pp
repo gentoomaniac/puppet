@@ -1,22 +1,15 @@
 # @summary Installed pacman packages as metrics for the node-exporter textfile collector
 #
 # Writes `pacman_package_info{package,version} 1` for every installed package to
-# `<textfile_dir>/pacman_packages.prom`. A pacman hook rewrites the file after
-# every transaction; the exec recreates it when it's missing (first run, deleted).
-#
-# @param textfile_dir Directory node-exporter reads with --collector.textfile.directory
-#   (seen through its /host mount of the root filesystem).
-class package_metrics (
-  Stdlib::Absolutepath $textfile_dir = '/var/lib/node_exporter/textfile',
-) {
-  $script = '/usr/local/bin/package-metrics'
-  $output = "${textfile_dir}/pacman_packages.prom"
-  $command = "${script} ${output}"
+# `pacman_packages.prom` in the textfile_metrics directory. A pacman hook
+# rewrites the file after every transaction; the exec recreates it when it's
+# missing (first run, deleted).
+class package_metrics {
+  include textfile_metrics
 
-  file { ['/var/lib/node_exporter', $textfile_dir]:
-    ensure => directory,
-    mode   => '0755',
-  }
+  $script = '/usr/local/bin/package-metrics'
+  $output = "${textfile_metrics::directory}/pacman_packages.prom"
+  $command = "${script} ${output}"
 
   file { $script:
     ensure  => file,
@@ -39,6 +32,6 @@ class package_metrics (
     command => $command,
     creates => $output,
     path    => ['/usr/bin', '/usr/local/bin'],
-    require => [File[$script], File[$textfile_dir]],
+    require => [File[$script], Class['textfile_metrics']],
   }
 }
