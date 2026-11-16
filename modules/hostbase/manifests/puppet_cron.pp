@@ -1,7 +1,8 @@
 # @summary run-puppet from the homelab pacman repo, run every 30 minutes by a timer
 #
 # After each run, puppet-metrics exports Puppet's run summary (durations,
-# resources changed/failed, events) and /etc/puppet_branch to node-exporter.
+# resources changed/failed, events), /etc/puppet_branch and the applied commit
+# to node-exporter.
 class hostbase::puppet_cron {
   require hostbase::puppet
   include textfile_metrics
@@ -9,6 +10,8 @@ class hostbase::puppet_cron {
   # `puppet config print lastrunfile` for root
   $summary = '/opt/puppetlabs/puppet/public/last_run_summary.yaml'
   $metrics_file = "${textfile_metrics::directory}/puppet_last_run.prom"
+  # confdir in puppet.conf: the checkout run-puppet applies
+  $repo = '/var/lib/puppet-repo'
 
   file { '/usr/local/bin/puppet-metrics':
     ensure  => file,
@@ -25,7 +28,7 @@ class hostbase::puppet_cron {
     command        => '/usr/bin/run-puppet --otel-endpoint-url=https://otelcol.srv.gentoomaniac.net:4318 --bin-path /usr/bin/puppet',
     on_calendar    => '*:0/30',
     # `-`: a metrics failure doesn't mark the run failed
-    exec_stop_post => ["-/usr/local/bin/puppet-metrics ${summary} ${metrics_file}"],
+    exec_stop_post => ["-/usr/local/bin/puppet-metrics ${summary} ${metrics_file} ${repo}"],
     require        => [Package['run-puppet'], File['/usr/local/bin/puppet-metrics']],
   }
 
