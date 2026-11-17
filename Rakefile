@@ -25,7 +25,7 @@ def shell_scripts
 end
 
 desc 'Run all lint and syntax checks'
-task lint: %w[lint:puppet_parser lint:epp lint:erb lint:puppet_lint lint:ruby lint:yaml lint:shell]
+task lint: %w[lint:puppet_parser lint:epp lint:erb lint:puppet_lint lint:ruby lint:yaml lint:shell lint:python]
 
 namespace :lint do
   desc 'puppet parser validate on all own .pp files'
@@ -55,6 +55,13 @@ namespace :lint do
   desc 'ruby -c on custom facts and own ruby scripts'
   task :ruby do
     (Dir['lib/facter/*.rb'] + own_files('files/**/*.rb')).sort.each { |file| sh 'ruby', '-c', file, verbose: false }
+  end
+
+  desc 'python syntax check on the scripts in scripts/'
+  task :python do
+    files = Dir['scripts/**/*.py'].sort
+    # ast.parse checks the syntax without writing __pycache__ (py_compile always does)
+    sh 'python3', '-c', 'import ast, sys; [ast.parse(open(f).read(), f) for f in sys.argv[1:]]', *files unless files.empty?
   end
 
   desc 'yamllint on hiera data, hiera.yaml and workflows (config: .yamllint)'

@@ -3,3 +3,7 @@
 REVIEW.md
 id_ed25519
 id_ed25519.pub
+.venv/
+__pycache__/
+*.egg-info/
+build/

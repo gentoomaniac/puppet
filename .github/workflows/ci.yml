@@ -30,6 +30,7 @@ jobs:
       - run: bundle exec rake lint:ruby
       - run: bundle exec rake lint:yaml
       - run: bundle exec rake lint:shell
+      - run: bundle exec rake lint:python
 
   catalogs:
     runs-on: ubuntu-latest

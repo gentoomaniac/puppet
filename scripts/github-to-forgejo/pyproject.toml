@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "github-to-forgejo"
+version = "1.0.0"
+description = "Import GitHub repos into Forgejo with issues, pull requests and releases"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["click>=8,<9"]
+
+[project.scripts]
+github-to-forgejo = "github_to_forgejo:main"
+
+[tool.setuptools]
+py-modules = ["github_to_forgejo"]
