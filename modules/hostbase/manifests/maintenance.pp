@@ -1,4 +1,4 @@
-# @summary Unattended reboot, docker prune and pacman cache cleanup, each run by a systemd timer
+# @summary Unattended reboot, docker prune, pacman cache and orphan cleanup, each run by a systemd timer
 #
 # @param reboot_on_calendar OnCalendar of the unattended reboot. The default is
 #   outside the pacman-update window (04:00 plus up to 1h delay).
@@ -23,6 +23,11 @@ class hostbase::maintenance (
     content => file('hostbase/paccache-cleanup.sh'),
     require => Package['pacman-contrib'],
   }
+  file { '/usr/local/bin/pacman-orphan-cleanup':
+    ensure  => present,
+    mode    => '0750',
+    content => file('hostbase/pacman-orphan-cleanup.sh'),
+  }
 
   timer { 'unattended-reboot':
     description          => 'reboot after a kernel upgrade or 7 days of uptime, outside the pacman-update window',
@@ -44,6 +49,18 @@ class hostbase::maintenance (
     # Sunday 03:00 finishes before the daily unattended-reboot window starting 06:00
     on_calendar => 'Sun *-*-* 03:00:00',
     require     => File['/usr/local/bin/paccache-cleanup'],
+  }
+  timer { 'pacman-orphan-cleanup':
+    description          => 'remove pacman packages nothing requires anymore',
+    command              => '/usr/local/bin/pacman-orphan-cleanup',
+    # 02:00-03:00, before the 04:00 pacman-update window; the delay spreads the hosts,
+    # which share the same disks. The script waits for a Puppet run's pacman lock.
+    on_calendar          => '*-*-* 02:00:00',
+    randomized_delay_sec => '1h',
+    # no catch-up run at boot: VMs booting together would all run it at once, and the next
+    # night's run is soon enough
+    persistent           => false,
+    require              => File['/usr/local/bin/pacman-orphan-cleanup'],
   }
 
   # TEMPORARY cleanup of the pre-`timer` units (`<unit>-weekly.timer` became `<unit>.timer`).
