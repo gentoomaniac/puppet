@@ -69,6 +69,11 @@ traefik::ports:
   - 222:222/tcp
   - 2222:2222/tcp
   - 45802:45802/tcp
+# Traefik v3 cuts requests whose body isn't read within 60s; large Immich uploads (videos, many
+# in parallel on a busy host) take longer, so websecure allows 30 min. Public traffic uses the
+# `public` entrypoint, which keeps the 60s default.
+traefik::extra_args:
+  - --entryPoints.websecure.transport.respondingTimeouts.readTimeout=30m
 traefik::dynamic_configs:
   "wor-timeline-auth.toml": |
     [http.middlewares.wor-timeline-auth.basicAuth]
