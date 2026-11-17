@@ -2,7 +2,9 @@ class certbot (
   Array[String] $domains,
   Integer $interval = 80,
   String $certbot_image = 'certbot/dns-google',
-  String $image_tag = 'latest',
+  # a fixed tag: with 'latest', docker::image re-checks and pulls the image on every Puppet run,
+  # which also counts as a change (exit 2). certbot publishes no floating version tags.
+  String $image_tag = 'v5.10.0',
   String $email = 'marco@siebecke.se',
 ) {
   docker::image { $certbot_image:
