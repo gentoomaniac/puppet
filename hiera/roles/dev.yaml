@@ -10,6 +10,8 @@ resources:
       ensure: present
     "/srv/gitea":
       ensure: present
+    "/srv/immich":
+      ensure: present
     "/srv/roundcube":
       ensure: present
     "/srv/trilium":
@@ -27,6 +29,19 @@ resources:
       owner: 1000
       group: 1000
       require: Btrfs::Subvolume[/srv/gitea]
+    # immich-server runs as root and writes the originals here directly
+    /srv/immich/library:
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/immich]
+    # immich-machine-learning runs as root and downloads its models here
+    /srv/immich/model-cache:
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/immich]
+    # no owner override: the postgres image's entrypoint runs as root and
+    # chowns this to its own postgres user before starting the server
+    /srv/immich/postgres:
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/immich]
     # the apache image runs roundcube as www-data
     /srv/roundcube/db:
       ensure: directory
@@ -63,6 +78,8 @@ traefik::dynamic_configs:
       ]
 
 docker::networks::networks:
+  immich:
+    ensure: "present"
   web:
     ensure: "present"
 
@@ -149,6 +166,99 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/gitea/data]
+  # self-hosted photo library, under test; DNS for immich.srv.gentoomaniac.net is
+  # managed outside this repo
+  immich-machine-learning:
+    service_provider: systemd
+    image: ghcr.io/immich-app/immich-machine-learning:v3
+    env:
+      - MACHINE_LEARNING_MODEL_REVISION=v2
+      # unused by the ML service itself, kept for parity with upstream's shared .env
+      - DB_PASSWORD=%{lookup('secret_immich_db_password')}
+      - DB_USERNAME=postgres
+      - DB_DATABASE_NAME=immich
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - immich
+    pull_on_start: true
+    volumes:
+      - /srv/immich/model-cache:/cache
+    require:
+      - Class[docker]
+      - Docker_network[immich]
+      - File[/srv/immich/model-cache]
+  immich-postgres:
+    service_provider: systemd
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    env:
+      - POSTGRES_PASSWORD=%{lookup('secret_immich_db_password')}
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=immich
+      - POSTGRES_INITDB_ARGS=--data-checksums
+    extra_parameters:
+      - --restart=unless-stopped
+      - --shm-size=128m
+    net:
+      - immich
+    pull_on_start: true
+    volumes:
+      - /srv/immich/postgres:/var/lib/postgresql/data
+    require:
+      - Class[docker]
+      - Docker_network[immich]
+      - File[/srv/immich/postgres]
+  immich-redis:
+    service_provider: systemd
+    # pinned to upstream's tested digest, like the postgres image above
+    image: docker.io/valkey/valkey:9@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - immich
+    pull_on_start: true
+    require:
+      - Class[docker]
+      - Docker_network[immich]
+  immich-server:
+    service_provider: systemd
+    # upstream's recommended floating major tag
+    image: ghcr.io/immich-app/immich-server:v3
+    env:
+      # the container names above instead of compose's "database"/"redis" service names
+      - DB_HOSTNAME=immich-postgres
+      - DB_PASSWORD=%{lookup('secret_immich_db_password')}
+      - DB_USERNAME=postgres
+      - DB_DATABASE_NAME=immich
+      - REDIS_HOSTNAME=immich-redis
+      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
+    expose:
+      - "2283"
+    extra_parameters:
+      - --restart=unless-stopped
+    labels:
+      - traefik.enable=true
+      # disambiguates which of this container's two networks Traefik should reach it on
+      - traefik.docker.network=web
+      - traefik.http.routers.immich.rule=Host(`immich.srv.gentoomaniac.net`)
+      - traefik.http.routers.immich.entrypoints=websecure
+      - traefik.http.routers.immich.tls=true
+      - traefik.http.middlewares.immich-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
+      - traefik.http.routers.immich.middlewares=immich-allowlist
+      - traefik.http.services.immich.loadbalancer.server.port=2283
+    net:
+      - immich
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/immich/library:/data
+      - /etc/localtime:/etc/localtime:ro
+    require:
+      - Class[docker]
+      - Docker_network[immich]
+      - File[/srv/immich/library]
+      - Docker::Run[immich-postgres]
+      - Docker::Run[immich-redis]
   # webmail for Gmail: log in with the Google address and an app password, which
   # roundcube also uses for SMTP. No fixed des_key: sessions end when the container is recreated.
   roundcube:
