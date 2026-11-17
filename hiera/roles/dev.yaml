@@ -8,8 +8,11 @@ resources:
   btrfs::subvolume:
     "/srv/forgejo":
       ensure: present
+    # one-off removal of gitea with all its data, after the container is gone;
+    # drop together with the gitea container entry once applied on dev
     "/srv/gitea":
-      ensure: present
+      ensure: absent
+      require: Docker::Run[gitea]
     "/srv/immich":
       ensure: present
     "/srv/roundcube":
@@ -24,11 +27,6 @@ resources:
       owner: 1000
       group: 1000
       require: Btrfs::Subvolume[/srv/forgejo]
-    /srv/gitea/data:
-      ensure: directory
-      owner: 1000
-      group: 1000
-      require: Btrfs::Subvolume[/srv/gitea]
     # immich-server runs as root and writes the originals here directly
     /srv/immich/library:
       ensure: directory
@@ -62,12 +60,10 @@ traefik::certificates:
 traefik::default_certificate: srv_gentoomaniac_net
 traefik::entrypoints:
   websecure: ":443"
-  git: ":222"
   forgejo-git: ":2222"
   public: ":45802"
 traefik::ports:
   - 443:443/tcp
-  - 222:222/tcp
   - 2222:2222/tcp
   - 45802:45802/tcp
 traefik::dynamic_configs:
@@ -84,8 +80,7 @@ docker::networks::networks:
     ensure: "present"
 
 docker::run_instance::instance:
-  # runs next to gitea until the repos are migrated, then takes over git.srv.gentoomaniac.net;
-  # first visit shows the install page (LAN only) to create the admin account
+  # replaced gitea; serves forgejo.srv.gentoomaniac.net until it takes over git.srv.gentoomaniac.net
   forgejo:
     service_provider: systemd
     # LTS line, supported until 2027-07-15; the major tag picks up its patch releases
@@ -129,45 +124,11 @@ docker::run_instance::instance:
     require:
       - Class[docker]
       - File[/srv/forgejo/data]
+  # one-off removal, see /srv/gitea above; Forgejo replaces it
   gitea:
+    ensure: absent
     service_provider: systemd
     image: docker.gitea.com/gitea:1.25
-    env:
-      - USER_UID=1000
-      - USER_GID=1000
-      - SSH_DOMAIN=git.srv.gentoomaniac.net
-      - SSH_PORT=222
-      - SSH_LISTEN_PORT=22
-    expose:
-      - "3000"
-      - "22"
-    extra_parameters:
-      - --restart=unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.gitea.rule=Host(`git.srv.gentoomaniac.net`)
-      - traefik.http.routers.gitea.entrypoints=websecure
-      - traefik.http.routers.gitea.tls=true
-      - traefik.http.middlewares.gitea-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
-      - traefik.http.routers.gitea.middlewares=gitea-whitelist
-      - traefik.http.services.gitea.loadbalancer.server.port=3000
-      - traefik.tcp.routers.gitssh.entrypoints=git
-      - traefik.tcp.routers.gitssh.rule=HostSNI(`*`)
-      - traefik.tcp.services.gitssh.loadbalancer.server.port=22
-      - traefik.tcp.middlewares.gitea-ssh-whitelist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
-      - traefik.tcp.routers.gitssh.middlewares=gitea-ssh-whitelist
-    net:
-      - web
-    pull_on_start: true
-    volumes:
-      - /srv/gitea/data:/data
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    require:
-      - Class[docker]
-      - File[/srv/gitea/data]
-  # self-hosted photo library, under test; DNS for immich.srv.gentoomaniac.net is
-  # managed outside this repo
   immich-machine-learning:
     service_provider: systemd
     image: ghcr.io/immich-app/immich-machine-learning:v3
