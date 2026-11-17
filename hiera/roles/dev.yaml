@@ -60,10 +60,13 @@ traefik::certificates:
 traefik::default_certificate: srv_gentoomaniac_net
 traefik::entrypoints:
   websecure: ":443"
+  git: ":222"
+  # Forgejo's SSH port before it took over git.srv; drop once no remote uses :2222 anymore
   forgejo-git: ":2222"
   public: ":45802"
 traefik::ports:
   - 443:443/tcp
+  - 222:222/tcp
   - 2222:2222/tcp
   - 45802:45802/tcp
 traefik::dynamic_configs:
@@ -80,7 +83,7 @@ docker::networks::networks:
     ensure: "present"
 
 docker::run_instance::instance:
-  # replaced gitea; serves forgejo.srv.gentoomaniac.net until it takes over git.srv.gentoomaniac.net
+  # replaced gitea at git.srv.gentoomaniac.net; forgejo.srv.gentoomaniac.net still answers for old links
   forgejo:
     service_provider: systemd
     # LTS line, supported until 2027-07-15; the major tag picks up its patch releases
@@ -88,11 +91,10 @@ docker::run_instance::instance:
     env:
       - USER_UID=1000
       - USER_GID=1000
-      - FORGEJO__server__DOMAIN=forgejo.srv.gentoomaniac.net
-      - FORGEJO__server__ROOT_URL=https://forgejo.srv.gentoomaniac.net/
-      - FORGEJO__server__SSH_DOMAIN=forgejo.srv.gentoomaniac.net
-      # traefik can't route plain TCP by host, so forgejo's SSH gets its own port until the switch
-      - FORGEJO__server__SSH_PORT=2222
+      - FORGEJO__server__DOMAIN=git.srv.gentoomaniac.net
+      - FORGEJO__server__ROOT_URL=https://git.srv.gentoomaniac.net/
+      - FORGEJO__server__SSH_DOMAIN=git.srv.gentoomaniac.net
+      - FORGEJO__server__SSH_PORT=222
       - FORGEJO__server__SSH_LISTEN_PORT=22
       - FORGEJO__database__DB_TYPE=sqlite3
       - FORGEJO__service__DISABLE_REGISTRATION=true
@@ -103,13 +105,13 @@ docker::run_instance::instance:
       - --restart=unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.http.routers.forgejo.rule=Host(`forgejo.srv.gentoomaniac.net`)
+      - traefik.http.routers.forgejo.rule=Host(`git.srv.gentoomaniac.net`) || Host(`forgejo.srv.gentoomaniac.net`)
       - traefik.http.routers.forgejo.entrypoints=websecure
       - traefik.http.routers.forgejo.tls=true
       - traefik.http.middlewares.forgejo-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
       - traefik.http.routers.forgejo.middlewares=forgejo-allowlist
       - traefik.http.services.forgejo.loadbalancer.server.port=3000
-      - traefik.tcp.routers.forgejossh.entrypoints=forgejo-git
+      - traefik.tcp.routers.forgejossh.entrypoints=git,forgejo-git
       - traefik.tcp.routers.forgejossh.rule=HostSNI(`*`)
       - traefik.tcp.services.forgejossh.loadbalancer.server.port=22
       - traefik.tcp.middlewares.forgejo-ssh-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
