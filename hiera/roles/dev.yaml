@@ -92,15 +92,16 @@ docker::networks::networks:
   web:
     ensure: "present"
 
-# NAS share for Immich, mounted by docker on container start. `hard`, unlike plex's read-mostly
-# shares: a soft mount can silently lose writes during an NFS hiccup, and this becomes the library.
+# NAS share for Immich over the direct fiber link (ens19, 192.168.0.0/24), mounted by docker on
+# container start. `hard`, unlike the read-mostly media shares: a soft mount can silently lose
+# writes during an NFS hiccup, and this becomes the library.
 docker::volumes::volumes:
   nfs_photos:
     ensure: present
     driver: local
     options:
       - - type=nfs
-        - o=addr=10.1.1.5,nolock,hard,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - o=addr=192.168.0.5,nolock,hard,bg,tcp,intr,rsize=131072,wsize=131072,noatime,rw
         - device=:/mnt/tank0/photos
 
 docker::run_instance::instance:
