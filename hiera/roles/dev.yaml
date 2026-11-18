@@ -32,7 +32,12 @@ resources:
       owner: 1000
       group: 1000
       require: Btrfs::Subvolume[/srv/forgejo]
-    # immich-server runs as root and writes the originals here directly
+    # immich-server runs as root; regenerable media stays on the local disk, mounted over the
+    # NAS library at /data/encoded-video and /data/thumbs (fast, read constantly by the timeline)
+    /srv/immich/encoded-video:
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/immich]
+    # the library before it moved to the NAS (nfs_photos); kept as a fallback for now
     /srv/immich/library:
       ensure: directory
       require: Btrfs::Subvolume[/srv/immich]
@@ -43,6 +48,9 @@ resources:
     # no owner override: the postgres image's entrypoint runs as root and
     # chowns this to its own postgres user before starting the server
     /srv/immich/postgres:
+      ensure: directory
+      require: Btrfs::Subvolume[/srv/immich]
+    /srv/immich/thumbs:
       ensure: directory
       require: Btrfs::Subvolume[/srv/immich]
     # the apache image runs roundcube as www-data
@@ -236,14 +244,17 @@ docker::run_instance::instance:
       - web
     pull_on_start: true
     volumes:
-      - /srv/immich/library:/data
-      # test of the NAS share before the library moves there
-      - nfs_photos:/mnt/photos
+      # originals, profile images and DB backups on the NAS; docker mounts the nested local
+      # dirs on top of it, so thumbnails and transcoded videos stay on dev's disk
+      - nfs_photos:/data
+      - /srv/immich/encoded-video:/data/encoded-video
+      - /srv/immich/thumbs:/data/thumbs
       - /etc/localtime:/etc/localtime:ro
     require:
       - Class[docker]
       - Docker_network[immich]
-      - File[/srv/immich/library]
+      - File[/srv/immich/encoded-video]
+      - File[/srv/immich/thumbs]
       - Package[nfs-utils]
       - Docker_volume[nfs_photos]
       - Docker::Run[immich-postgres]
