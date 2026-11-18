@@ -1,10 +1,15 @@
 ---
 classes:
   - docker::networks
+  - docker::volumes
   - docker::run_instance
   - traefik
 
 resources:
+  package:
+    # mount helper for the NFS docker volume (nfs_photos)
+    nfs-utils:
+      ensure: installed
   btrfs::subvolume:
     "/srv/forgejo":
       ensure: present
@@ -86,6 +91,17 @@ docker::networks::networks:
     ensure: "present"
   web:
     ensure: "present"
+
+# NAS share for Immich, mounted by docker on container start. `hard`, unlike plex's read-mostly
+# shares: a soft mount can silently lose writes during an NFS hiccup, and this becomes the library.
+docker::volumes::volumes:
+  nfs_photos:
+    ensure: present
+    driver: local
+    options:
+      - - type=nfs
+        - o=addr=10.1.1.5,nolock,hard,bg,tcp,intr,rsize=8192,wsize=8192,noatime,rw
+        - device=:/mnt/tank0/photos
 
 docker::run_instance::instance:
   # replaced gitea at git.srv.gentoomaniac.net; forgejo.srv.gentoomaniac.net still answers for old links
@@ -220,11 +236,15 @@ docker::run_instance::instance:
     pull_on_start: true
     volumes:
       - /srv/immich/library:/data
+      # test of the NAS share before the library moves there
+      - nfs_photos:/mnt/photos
       - /etc/localtime:/etc/localtime:ro
     require:
       - Class[docker]
       - Docker_network[immich]
       - File[/srv/immich/library]
+      - Package[nfs-utils]
+      - Docker_volume[nfs_photos]
       - Docker::Run[immich-postgres]
       - Docker::Run[immich-redis]
   # webmail for Gmail: log in with the Google address and an app password, which
