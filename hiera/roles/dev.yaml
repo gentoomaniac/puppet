@@ -11,6 +11,8 @@ resources:
     nfs-utils:
       ensure: installed
   btrfs::subvolume:
+    "/srv/agent-bus":
+      ensure: present
     "/srv/forgejo":
       ensure: present
     # one-off removal of gitea with all its data, after the container is gone;
@@ -27,6 +29,26 @@ resources:
     "/srv/wor-timeline":
       ensure: present
   file:
+    # agent-messenger: the image runs as uid 10001. config holds the CA key and the admin logins,
+    # monitor-config only what the web monitor needs (agent-busctl monitor init)
+    /srv/agent-bus/config:
+      ensure: directory
+      owner: 10001
+      group: 10001
+      mode: "0700"
+      require: Btrfs::Subvolume[/srv/agent-bus]
+    /srv/agent-bus/data:
+      ensure: directory
+      owner: 10001
+      group: 10001
+      mode: "0700"
+      require: Btrfs::Subvolume[/srv/agent-bus]
+    /srv/agent-bus/monitor-config:
+      ensure: directory
+      owner: 10001
+      group: 10001
+      mode: "0700"
+      require: Btrfs::Subvolume[/srv/agent-bus]
     /srv/forgejo/data:
       ensure: directory
       owner: 1000
@@ -113,6 +135,63 @@ docker::volumes::volumes:
         - device=:/mnt/tank0/photos
 
 docker::run_instance::instance:
+  # agent-messenger broker (nats-server and busd). Agents connect straight to the published ports:
+  # 4222 password and enrollment logins, 4223 certificate logins; both are TLS with the bus's own CA,
+  # so they bypass Traefik. One-time setup before the first start: see the agent-messenger docs
+  # (docs/podman.md, with docker run as root instead of podman's --userns).
+  agent-bus:
+    service_provider: systemd
+    image: ghcr.io/gentoomaniac/agent-messenger:0.1.0
+    ports:
+      - 4222:4222/tcp
+      - 4223:4223/tcp
+    extra_parameters:
+      - --restart=unless-stopped
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/agent-bus/config:/config
+      - /srv/agent-bus/data:/data
+    require:
+      - Class[docker]
+      - File[/srv/agent-bus/config]
+      - File[/srv/agent-bus/data]
+  # its web monitor behind Traefik; it reaches the broker as agent-bus on the web network, so the
+  # broker certificate needs that name (tls init --san agent-bus)
+  agent-bus-monitor:
+    service_provider: systemd
+    image: ghcr.io/gentoomaniac/agent-messenger:0.1.0
+    env:
+      - BUS_BROKER=agent-bus:4222
+      - BUS_AGENT=monitor@gentoomaniac
+      - BUS_WEB_LISTEN=0.0.0.0:8080
+      - BUS_WEB_BEHIND_PROXY=true
+      - BUS_WEB_PUBLIC_URL=https://agent-bus.srv.gentoomaniac.net
+      # Traefik's address on the docker network
+      - BUS_WEB_TRUSTED_PROXY=172.16.0.0/12
+    expose:
+      - "8080"
+    extra_parameters:
+      - --restart=unless-stopped
+      - --entrypoint=bus-monitor
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.agent-bus.rule=Host(`agent-bus.srv.gentoomaniac.net`)
+      - traefik.http.routers.agent-bus.entrypoints=websecure
+      - traefik.http.routers.agent-bus.tls=true
+      - traefik.http.middlewares.agent-bus-allowlist.ipallowlist.sourcerange=10.1.1.0/24,192.168.0.0/16
+      - traefik.http.routers.agent-bus.middlewares=agent-bus-allowlist
+      - traefik.http.services.agent-bus.loadbalancer.server.port=8080
+    net:
+      - web
+    pull_on_start: true
+    volumes:
+      - /srv/agent-bus/monitor-config:/config
+    require:
+      - Class[docker]
+      - File[/srv/agent-bus/monitor-config]
+      - Docker::Run[agent-bus]
   # replaced gitea at git.srv.gentoomaniac.net; forgejo.srv.gentoomaniac.net still answers for old links
   forgejo:
     service_provider: systemd
