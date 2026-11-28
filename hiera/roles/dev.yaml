@@ -141,7 +141,7 @@ docker::run_instance::instance:
   # (docs/podman.md, with docker run as root instead of podman's --userns).
   agent-bus:
     service_provider: systemd
-    image: ghcr.io/gentoomaniac/agent-messenger:0.3.2
+    image: ghcr.io/gentoomaniac/agent-messenger:0.3.3
     env:
       # the monitor's agent manages every channel (invite, remove, update)
       - BUSD_BUS_OWNER=monitor@gentoomaniac
@@ -164,7 +164,7 @@ docker::run_instance::instance:
   # broker certificate needs that name (tls init --san agent-bus)
   agent-bus-monitor:
     service_provider: systemd
-    image: ghcr.io/gentoomaniac/agent-messenger:0.3.2
+    image: ghcr.io/gentoomaniac/agent-messenger:0.3.3
     env:
       - BUS_BROKER=agent-bus:4222
       - BUS_AGENT=monitor@gentoomaniac
